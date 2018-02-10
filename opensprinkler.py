@@ -3,8 +3,11 @@ import requests
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
+from homeassistant.components.input_number import InputNumber
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.helpers.discovery import load_platform
+from homeassistant.helpers.entity_component import EntityComponent
+from homeassistant.util import slugify
 
 DOMAIN = 'opensprinkler'
 
@@ -25,15 +28,35 @@ CONFIG_SCHEMA = vol.Schema({
 def setup(hass, config):
   host = config[DOMAIN].get(CONF_HOST)
   password = config[DOMAIN].get(CONF_PASSWORD)
+  opensprinkler = Opensprinkler(host, password)
+  stationIndexes = config[DOMAIN].get(CONF_STATIONS)
 
   hass.data[DOMAIN] = {
-    DOMAIN: Opensprinkler(host, password),
+    DOMAIN: opensprinkler,
     CONF_CONFIG: {
-      CONF_STATIONS: config[DOMAIN].get(CONF_STATIONS),
+      CONF_STATIONS: stationIndexes,
     },
   }
 
+  component = EntityComponent(_LOGGER, 'input_number', hass)
+  entities = []
+  for station in opensprinkler.stations():
+    if len(stationIndexes) == 0 or (station.index in stationIndexes):
+      object_id = '{}_timer'.format(slugify(station.name))
+      name = station.name
+      minimum = 1
+      maximum = 10
+      initial = 1
+      step = 1
+      unit = 'minutes'
+
+      inputNumber = InputNumber(object_id, name, initial, minimum, maximum, step, None, unit, 'slider')
+      entities.append(inputNumber)
+
+  component.add_entities(entities)
+
   load_platform(hass, 'binary_sensor', DOMAIN)
+  load_platform(hass, 'switch', DOMAIN)
 
   return True
 
@@ -84,3 +107,17 @@ class OpensprinklerStation(object):
       _LOGGER.error("No route to device '%s'", self._resource)
 
     return response.json()['sn'][self._index]
+
+  def turn_on(self, minutes):
+    try:
+      url = 'http://{}/cm?pw={}&sid={}&en=1&t={}'.format(self._host, self._password, self._index, minutes * 60)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+  def turn_off(self):
+    try:
+      url = 'http://{}/cm?pw={}&sid={}&en=0'.format(self._host, self._password, self._index)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)

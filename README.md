@@ -30,5 +30,4 @@ Opensprinkler custom component for Home Assistant
 
  ### TODO
 
- - station switches
- - program switches
+- program switches
