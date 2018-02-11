@@ -2,6 +2,14 @@
 
 Opensprinkler custom component for Home Assistant
 
+![image](https://user-images.githubusercontent.com/819711/36068687-086820ce-0f2f-11e8-81de-de53c94124f0.png)
+
+### Features
+
+- Binary sensors for each station to show on/off status
+- Programs as scenes which can be "activated"
+- Stations as switches with individual timers
+
 ### Installation
 
 1. Copy all files into `<config_dir>/custom_components`
@@ -28,6 +36,11 @@ Opensprinkler custom component for Home Assistant
         - 4
     ```
 
- ### TODO
-
-- program switches
+- `programs` - by default the component will retrieve all programs but you can limit which programs to show by providing a list of program indexes (starting from 0)
+    ```yaml
+    opensprinkler:
+      ...
+      programs:
+        - 0
+        - 3
+    ```

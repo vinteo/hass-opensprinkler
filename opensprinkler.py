@@ -12,6 +12,7 @@ from homeassistant.util import slugify
 DOMAIN = 'opensprinkler'
 
 CONF_STATIONS = 'stations'
+CONF_PROGRAMS = 'programs'
 CONF_CONFIG = 'config'
 
 _LOGGER = logging.getLogger(__name__)
@@ -21,6 +22,8 @@ CONFIG_SCHEMA = vol.Schema({
     vol.Required(CONF_HOST): cv.string,
     vol.Required(CONF_PASSWORD): cv.string,
     vol.Optional(CONF_STATIONS, default=[]):
+      vol.All(cv.ensure_list, [vol.Coerce(int)]),
+    vol.Optional(CONF_PROGRAMS, default=[]):
       vol.All(cv.ensure_list, [vol.Coerce(int)]),
   })
 }, extra=vol.ALLOW_EXTRA)
@@ -35,6 +38,7 @@ def setup(hass, config):
     DOMAIN: opensprinkler,
     CONF_CONFIG: {
       CONF_STATIONS: stationIndexes,
+      CONF_PROGRAMS: config[DOMAIN].get(CONF_PROGRAMS),
     },
   }
 
@@ -56,6 +60,7 @@ def setup(hass, config):
   component.add_entities(entities)
 
   load_platform(hass, 'binary_sensor', DOMAIN)
+  load_platform(hass, 'scene', DOMAIN)
   load_platform(hass, 'switch', DOMAIN)
 
   return True
@@ -75,12 +80,26 @@ class Opensprinkler(object):
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
-    self.data['stations'] = []
+    self.data[CONF_STATIONS] = []
 
     for i, name in enumerate(response.json()['snames']):
-      self.data['stations'].append(OpensprinklerStation(self._host, self._password, name, i))
+      self.data[CONF_STATIONS].append(OpensprinklerStation(self._host, self._password, name, i))
 
-    return self.data['stations']
+    return self.data[CONF_STATIONS]
+
+  def programs(self):
+    try:
+      url = 'http://{}/jp?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    self.data[CONF_PROGRAMS] = []
+
+    for i, data in enumerate(response.json()['pd']):
+      self.data[CONF_PROGRAMS].append(OpensprinklerProgram(self._host, self._password, data[5], i))
+
+    return self.data[CONF_PROGRAMS]
 
 
 class OpensprinklerStation(object):
@@ -118,6 +137,30 @@ class OpensprinklerStation(object):
   def turn_off(self):
     try:
       url = 'http://{}/cm?pw={}&sid={}&en=0'.format(self._host, self._password, self._index)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+
+class OpensprinklerProgram(object):
+
+  def __init__(self, host, password, name, index):
+    self._host = host
+    self._password = password
+    self._name = name
+    self._index = index
+
+  @property
+  def name(self):
+    return self._name
+
+  @property
+  def index(self):
+    return self._index
+
+  def activate(self):
+    try:
+      url = 'http://{}/mp?pw={}&pid={}&uwt=1'.format(self._host, self._password, self._index)
       response = requests.get(url, timeout=10)
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
