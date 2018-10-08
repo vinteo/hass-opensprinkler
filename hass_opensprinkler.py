@@ -9,7 +9,7 @@ from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.entity_component import EntityComponent
 from homeassistant.util import slugify
 
-DOMAIN = 'opensprinkler'
+DOMAIN = 'hass_opensprinkler'
 
 CONF_STATIONS = 'stations'
 CONF_PROGRAMS = 'programs'
@@ -160,7 +160,7 @@ class OpensprinklerProgram(object):
 
   def activate(self):
     try:
-      url = 'http://{}/mp?pw={}&pid={}&uwt=1'.format(self._host, self._password, self._index)
+      url = 'http://{}/mp?pw={}&pid={}&uwt=0'.format(self._host, self._password, self._index)
       response = requests.get(url, timeout=10)
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)

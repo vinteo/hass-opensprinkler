@@ -1,4 +1,4 @@
-from custom_components.opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
 from homeassistant.components.binary_sensor import BinarySensorDevice
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
