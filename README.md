@@ -15,20 +15,20 @@ Opensprinkler custom component for Home Assistant
 1. Copy all files into `<config_dir>/custom_components`
 2. Add the following into your `configuration.yaml`
     ```yaml
-    opensprinkler:
+    hass_opensprinkler:
       host: <host>
       password: <password>
     ```
     - Replace `<host>` with the IP address or hostname of your Opensprinkler controller.
     - Replace `<password>` with the MD5 encrypted version of your password to your Opensprinkler interface.
 
-3. Restart home assistant
+3. Restart Home Assistant
 
 ### Configuration
 
 - `stations` - by default the component will retrieve all stations but you can limit which stations to show by providing a list of station indexes (starting from 0)
     ```yaml
-    opensprinkler:
+    hass_opensprinkler:
       ...
       stations:
         - 0
@@ -38,7 +38,7 @@ Opensprinkler custom component for Home Assistant
 
 - `programs` - by default the component will retrieve all programs but you can limit which programs to show by providing a list of program indexes (starting from 0)
     ```yaml
-    opensprinkler:
+    hass_opensprinkler:
       ...
       programs:
         - 0
