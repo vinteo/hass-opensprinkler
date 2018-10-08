@@ -17,7 +17,7 @@ Opensprinkler custom component for Home Assistant
     ```yaml
     hass_opensprinkler:
       host: <host>
-      password: <password>
+      password: <md5-password>
     ```
     - Replace `<host>` with the IP address or hostname of your Opensprinkler controller.
     - Replace `<password>` with the MD5 encrypted version of your password to your Opensprinkler interface.
