@@ -3,7 +3,7 @@ import requests
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
-from homeassistant.components.input_number import InputNumber
+from homeassistant.setup import setup_component
 from homeassistant.const import CONF_HOST, CONF_PASSWORD
 from homeassistant.helpers.discovery import load_platform
 from homeassistant.helpers.entity_component import EntityComponent
@@ -43,7 +43,7 @@ def setup(hass, config):
   }
 
   component = EntityComponent(_LOGGER, 'input_number', hass)
-  entities = []
+  inputNumberConfig = {'input_number': {}}
   for station in opensprinkler.stations():
     if len(stationIndexes) == 0 or (station.index in stationIndexes):
       object_id = '{}_timer'.format(slugify(station.name))
@@ -54,10 +54,16 @@ def setup(hass, config):
       step = 1
       unit = 'minutes'
 
-      inputNumber = InputNumber(object_id, name, initial, minimum, maximum, step, None, unit, 'slider')
-      entities.append(inputNumber)
+      inputNumberConfig['input_number'][object_id] = {
+        'min': minimum,
+        'max': maximum,
+        'name': name,
+        'step': step,
+        'initial': 1,
+        'unit_of_measurement': unit,
+      }
 
-  component.add_entities(entities)
+  setup_component(hass, 'input_number', inputNumberConfig)
 
   load_platform(hass, 'binary_sensor', DOMAIN)
   load_platform(hass, 'scene', DOMAIN)

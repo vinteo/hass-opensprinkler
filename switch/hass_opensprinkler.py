@@ -39,7 +39,7 @@ class StationSwitch(SwitchDevice):
   def turn_on(self, **kwargs):
     """Turn the device on."""
     mins = self._states.get('input_number.{}_timer'.format(slugify(self._station.name)))
-    self._station.turn_on(int(mins.state))
+    self._station.turn_on(int(float(mins.state)))
     self._is_on = 1
     self.schedule_update_ha_state()
 
