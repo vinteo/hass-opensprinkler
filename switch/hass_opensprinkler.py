@@ -1,4 +1,4 @@
-from custom_components.opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
 from homeassistant.components.switch import SwitchDevice
 from homeassistant.util import slugify
 

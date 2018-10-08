@@ -1,4 +1,4 @@
-from custom_components.opensprinkler import CONF_CONFIG, CONF_PROGRAMS, DOMAIN
+from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_PROGRAMS, DOMAIN
 from homeassistant.components.scene import Scene
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
