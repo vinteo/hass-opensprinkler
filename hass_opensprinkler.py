@@ -66,6 +66,7 @@ def setup(hass, config):
   setup_component(hass, 'input_number', inputNumberConfig)
 
   load_platform(hass, 'binary_sensor', DOMAIN)
+  load_platform(hass, 'sensor', DOMAIN)
   load_platform(hass, 'scene', DOMAIN)
   load_platform(hass, 'switch', DOMAIN)
 
@@ -132,6 +133,15 @@ class OpensprinklerStation(object):
       _LOGGER.error("No route to device '%s'", self._resource)
 
     return response.json()['sn'][self._index]
+
+  def p_status(self):
+    try:
+      url = 'http://{}/jc?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    return response.json()['ps'][self._index]
 
   def turn_on(self, minutes):
     try:
