@@ -7,6 +7,8 @@ Opensprinkler custom component for Home Assistant
 ### Features
 
 - Binary sensors for each station to show on/off status
+- Sensors for each station to show status
+- Sensors for water level and last run time
 - Programs as scenes which can be "activated"
 - Stations as switches with individual timers
 

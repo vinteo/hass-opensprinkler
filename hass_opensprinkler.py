@@ -13,6 +13,8 @@ DOMAIN = 'hass_opensprinkler'
 
 CONF_STATIONS = 'stations'
 CONF_PROGRAMS = 'programs'
+CONF_WATER_LEVEL = 'water_level'
+CONF_LAST_RUN = 'last_run'
 CONF_CONFIG = 'config'
 
 _LOGGER = logging.getLogger(__name__)
@@ -107,6 +109,28 @@ class Opensprinkler(object):
       self.data[CONF_PROGRAMS].append(OpensprinklerProgram(self._host, self._password, data[5], i))
 
     return self.data[CONF_PROGRAMS]
+
+  def water_level(self):
+    try:
+      url = 'http://{}/jo?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    self.data[CONF_WATER_LEVEL] = response.json()['wl']
+
+    return self.data[CONF_WATER_LEVEL]
+
+  def last_run(self):
+    try:
+      url = 'http://{}/jc?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    self.data[CONF_LAST_RUN] = response.json()['lrun']
+
+    return self.data[CONF_LAST_RUN]
 
 
 class OpensprinklerStation(object):
