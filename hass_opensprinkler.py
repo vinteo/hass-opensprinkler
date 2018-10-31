@@ -67,10 +67,10 @@ def setup(hass, config):
 
   setup_component(hass, 'input_number', inputNumberConfig)
 
-  load_platform(hass, 'binary_sensor', DOMAIN)
-  load_platform(hass, 'sensor', DOMAIN)
-  load_platform(hass, 'scene', DOMAIN)
-  load_platform(hass, 'switch', DOMAIN)
+  load_platform(hass, 'binary_sensor', DOMAIN, {}, config)
+  load_platform(hass, 'sensor', DOMAIN, {}, config)
+  load_platform(hass, 'scene', DOMAIN, {}, config)
+  load_platform(hass, 'switch', DOMAIN, {}, config)
 
   return True
 
