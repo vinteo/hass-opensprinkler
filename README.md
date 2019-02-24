@@ -2,7 +2,7 @@
 
 Opensprinkler custom component for Home Assistant
 
-Last tested on OS API `2.1.8` and Home Assistant `0.80.3`
+Last tested on OS API `2.1.8` and Home Assistant `0.88.1`
 
 ![image](https://user-images.githubusercontent.com/819711/36068687-086820ce-0f2f-11e8-81de-de53c94124f0.png)
 
@@ -16,7 +16,7 @@ Last tested on OS API `2.1.8` and Home Assistant `0.80.3`
 
 ### Installation
 
-1. Copy all files into `<config_dir>/custom_components`
+1. Copy `hass_opensprinkler` folder into `<config_dir>/custom_components`
 2. Add the following into your `configuration.yaml`
     ```yaml
     hass_opensprinkler:
