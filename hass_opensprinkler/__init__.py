@@ -11,6 +11,8 @@ from homeassistant.util import slugify
 
 DOMAIN = 'hass_opensprinkler'
 
+VERSION = '0.1.0'
+
 CONF_STATIONS = 'stations'
 CONF_PROGRAMS = 'programs'
 CONF_WATER_LEVEL = 'water_level'
