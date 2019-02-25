@@ -48,3 +48,17 @@ Last tested on OS API `2.1.8` and Home Assistant `0.88.1`
         - 0
         - 3
     ```
+
+## Support for Custom Updater
+
+You can use [Custom Updater](https://github.com/custom-components/custom_updater) to track versions of this component. Once you have installed it, add the following to your configuration.
+
+```yaml
+custom_updater:
+  track:
+    - components
+  component_urls:
+    - https://raw.githubusercontent.com/vinteo/hass-opensprinkler/master/custom_components.json
+
+```
+
