@@ -9,8 +9,9 @@ Last tested on OS API `2.1.8` and Home Assistant `0.88.1`
 ### Features
 
 - Binary sensors for each station to show on/off status
+- Binary sensors for OpenSprinkler operation, rain sensor and rain delay
 - Sensors for each station to show status
-- Sensors for water level and last run time
+- Sensors for water level, last run time and rain delay stop time
 - Programs as scenes which can be "activated"
 - Stations as switches with individual timers
 

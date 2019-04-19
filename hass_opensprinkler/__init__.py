@@ -17,6 +17,10 @@ CONF_STATIONS = 'stations'
 CONF_PROGRAMS = 'programs'
 CONF_WATER_LEVEL = 'water_level'
 CONF_LAST_RUN = 'last_run'
+CONF_ENABLE_OPERATION = 'enable_operation'
+CONF_RAIN_DELAY = 'rain_delay'
+CONF_RAIN_DELAY_STOP_TIME = 'rain_delay_stop_time'
+CONF_RAIN_SENSOR = 'rain_sensor'
 CONF_CONFIG = 'config'
 
 _LOGGER = logging.getLogger(__name__)
@@ -78,11 +82,27 @@ def setup(hass, config):
 
 
 class Opensprinkler(object):
+  """ API interface to OpenSprinkler
+
+  For firmware API details, see
+  https://openthings.freshdesk.com/support/solutions/articles/5000716363-os-api-documents
+  """
 
   def __init__(self, host, password):
     self._host = host
     self._password = password
     self.data = {}
+
+  def _get_controller_variable(self, key, variable):
+    try:
+      url = 'http://{}/jc?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    self.data[key] = response.json()[variable]
+
+    return self.data[key]
 
   def stations(self):
     try:
@@ -124,15 +144,19 @@ class Opensprinkler(object):
     return self.data[CONF_WATER_LEVEL]
 
   def last_run(self):
-    try:
-      url = 'http://{}/jc?pw={}'.format(self._host, self._password)
-      response = requests.get(url, timeout=10)
-    except requests.exceptions.ConnectionError:
-      _LOGGER.error("No route to device '%s'", self._resource)
+    return self._get_controller_variable(CONF_LAST_RUN, 'lrun')
 
-    self.data[CONF_LAST_RUN] = response.json()['lrun']
+  def enable_operation(self):
+    return self._get_controller_variable(CONF_ENABLE_OPERATION, 'en')
 
-    return self.data[CONF_LAST_RUN]
+  def rain_delay(self):
+    return self._get_controller_variable(CONF_RAIN_DELAY, 'rd')
+
+  def rain_delay_stop_time(self):
+    return self._get_controller_variable(CONF_RAIN_DELAY, 'rdst')
+
+  def rain_sensor(self):
+    return self._get_controller_variable(CONF_RAIN_SENSOR, 'rs')
 
 
 class OpensprinklerStation(object):
