@@ -20,6 +20,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
   sensors.append(WaterLevelSensor(opensprinkler))
   sensors.append(LastRunSensor(opensprinkler))
+  sensors.append(RainDelayStopTimeSensor(opensprinkler))
 
   add_devices(sensors, True)
 
@@ -134,3 +135,41 @@ class LastRunSensor(Entity):
     self._last_run = self._opensprinkler.last_run()
     utcTime = datetime.fromtimestamp(self._last_run[3], utc_tz)
     self._state = utcTime.strftime("%d/%m %H:%M")
+
+
+class RainDelayStopTimeSensor(Entity):
+
+  def __init__(self, opensprinkler):
+    self._opensprinkler = opensprinkler
+    self._state = None
+    self._rain_delay_stop_time = None
+
+  @property
+  def name(self):
+    """Return the name of the binary sensor."""
+    return "Rain Delay Stop Time"
+
+  @property
+  def unit_of_measurement(self):
+    """Return the units of measurement."""
+    return None
+
+  @property
+  def icon(self):
+    """Return icon."""
+    return "mdi:weather-rainy"
+
+  @property
+  def state(self):
+    """Return the state of the sensor."""
+    return self._state
+
+  @Throttle(SCAN_INTERVAL)
+  def update(self):
+    """Fetch new state data for the sensor."""
+    self._rain_delay_stop_time = self._opensprinkler.rain_delay_stop_time()
+    if self._rain_delay_stop_time == 0:
+      self._state = 'Not in effect'
+    else:
+      utcTime = datetime.fromtimestamp(self._rain_delay_stop_time, utc_tz)
+      self._state = utcTime.strftime("%d/%m %H:%M")
