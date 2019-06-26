@@ -97,6 +97,7 @@ class Opensprinkler(object):
     try:
       url = 'http://{}/jc?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -108,6 +109,7 @@ class Opensprinkler(object):
     try:
       url = 'http://{}/jn?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -122,6 +124,7 @@ class Opensprinkler(object):
     try:
       url = 'http://{}/jp?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -136,6 +139,7 @@ class Opensprinkler(object):
     try:
       url = 'http://{}/jo?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -179,6 +183,7 @@ class OpensprinklerStation(object):
     try:
       url = 'http://{}/js?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -188,6 +193,7 @@ class OpensprinklerStation(object):
     try:
       url = 'http://{}/jc?pw={}'.format(self._host, self._password)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -197,6 +203,7 @@ class OpensprinklerStation(object):
     try:
       url = 'http://{}/cm?pw={}&sid={}&en=1&t={}'.format(self._host, self._password, self._index, minutes * 60)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -204,6 +211,7 @@ class OpensprinklerStation(object):
     try:
       url = 'http://{}/cm?pw={}&sid={}&en=0'.format(self._host, self._password, self._index)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
 
@@ -228,5 +236,6 @@ class OpensprinklerProgram(object):
     try:
       url = 'http://{}/mp?pw={}&pid={}&uwt=0'.format(self._host, self._password, self._index)
       response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
     except requests.exceptions.ConnectionError:
       _LOGGER.error("No route to device '%s'", self._resource)
