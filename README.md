@@ -2,7 +2,7 @@
 
 Opensprinkler custom component for Home Assistant
 
-Last tested on OS API `2.1.8` and Home Assistant `0.88.1`
+Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
 
 ![image](https://user-images.githubusercontent.com/819711/36068687-086820ce-0f2f-11e8-81de-de53c94124f0.png)
 
@@ -63,3 +63,19 @@ custom_updater:
 
 ```
 
+## Troubleshooting
+
+#### My sprinkler switches are not working
+
+Some users have reported that thier switches do not work. This is due to some `input_number` entities not being created by the component. To get around this issue you can manually create these entities by adding the following for each of your stations.
+
+```yaml
+input_number:
+  <station_name>_timer:
+    min: 1
+    max: 30
+    step: 1
+    mode: slider
+```
+
+Replace `<station_name` with your station name, it should match the names created for the `sensor`, `switch` and `binary_sensor`.
