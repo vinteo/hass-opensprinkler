@@ -50,7 +50,8 @@ Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
         - 3
     ```
 
-## Track Updates
+## Support for HACS
+
 This custom component can be tracked with the help of [HACS](https://github.com/custom-components/hacs).
 
 ## Troubleshooting
