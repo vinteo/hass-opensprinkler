@@ -1,0 +1,8 @@
+{
+        "domain": "hass_opensprinkler",
+        "name": "Opensprinkler integration for Home Assistant",
+        "documentation": "https://github.com/vinteo/hass-opensprinkler",
+        "requirements": [],
+        "dependencies": [],
+        "codeowners": ["@vinteo"]
+}
