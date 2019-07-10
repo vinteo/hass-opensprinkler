@@ -17,7 +17,7 @@ Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
 
 ### Installation
 
-1. Copy `hass_opensprinkler` folder into `<config_dir>/custom_components`
+1. Copy `custom_components/hass_opensprinkler` folder into `<config_dir>/custom_components`
 2. Add the following into your `configuration.yaml`
     ```yaml
     hass_opensprinkler:
