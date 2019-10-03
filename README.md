@@ -25,7 +25,7 @@ Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
       password: <md5-password>
     ```
     - Replace `<host>` with the IP address or hostname of your Opensprinkler controller.
-    - Replace `<password>` with the MD5 encrypted version of your password to your Opensprinkler interface.
+    - Replace `<md5-password>` with the MD5 encrypted version of your password to your Opensprinkler interface.
 
 3. Restart Home Assistant
 
