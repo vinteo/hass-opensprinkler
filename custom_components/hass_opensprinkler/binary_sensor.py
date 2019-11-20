@@ -15,8 +15,16 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     if len(stationIndexes) == 0 or (station.index in stationIndexes):
       sensors.append(StationBinarySensor(station))
 
+  fwv = opensprinkler.get_fwv()
+  hwv = opensprinkler.get_hwv()
   sensors.append(OpenSprinklerBinarySensor('OpenSprinkler Operation', None, opensprinkler.enable_operation))
-  sensors.append(OpenSprinklerBinarySensor('Rain Sensor', 'moisture', opensprinkler.rain_sensor))
+  if fwv >= 219:
+    sensors.append(OpenSprinklerBinarySensor('Rain Sensor 1', 'moisture', opensprinkler.rain_sensor_1))
+    if hwv / 30 >= 1:
+      sensors.append(OpenSprinklerBinarySensor('Rain Sensor 2', 'moisture', opensprinkler.rain_sensor_2))
+  else:
+    sensors.append(OpenSprinklerBinarySensor('Rain Sensor', 'moisture', opensprinkler.rain_sensor))
+      
   sensors.append(OpenSprinklerBinarySensor('Rain Delay', None, opensprinkler.rain_delay))
 
   add_devices(sensors, True)

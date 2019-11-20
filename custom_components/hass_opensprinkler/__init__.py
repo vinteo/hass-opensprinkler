@@ -20,8 +20,13 @@ CONF_LAST_RUN = 'last_run'
 CONF_ENABLE_OPERATION = 'enable_operation'
 CONF_RAIN_DELAY = 'rain_delay'
 CONF_RAIN_DELAY_STOP_TIME = 'rain_delay_stop_time'
-CONF_RAIN_SENSOR = 'rain_sensor'
+CONF_RAIN_SENSOR_1 = 'rain_sensor_1'
+CONF_RAIN_SENSOR_2 = 'rain_sensor_2'
 CONF_CONFIG = 'config'
+
+OPT_FWV = 'firmware_version'
+OPT_HWV = 'hardware version'
+
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -104,6 +109,19 @@ class Opensprinkler(object):
     self.data[key] = response.json()[variable]
 
     return self.data[key]
+  
+  def _get_controller_option(self, key, variable):
+    try:
+      url = 'http://{}/jo?pw={}'.format(self._host, self._password)
+      response = requests.get(url, timeout=10)
+      response.encoding = response.apparent_encoding
+    except requests.exceptions.ConnectionError:
+      _LOGGER.error("No route to device '%s'", self._resource)
+
+    self.data[key] = response.json()[variable]
+
+    return self.data[key]
+  
 
   def stations(self):
     try:
@@ -160,7 +178,19 @@ class Opensprinkler(object):
     return self._get_controller_variable(CONF_RAIN_DELAY, 'rdst')
 
   def rain_sensor(self):
-    return self._get_controller_variable(CONF_RAIN_SENSOR, 'rs')
+    return self._get_controller_variable(CONF_RAIN_SENSOR_1, 'rs')
+  
+  def rain_sensor_1(self):
+    return self._get_controller_variable(CONF_RAIN_SENSOR_1, 'sn1')
+    
+  def rain_sensor_2(self):
+    return self._get_controller_variable(CONF_RAIN_SENSOR_2, 'sn2')
+
+  def get_fwv(self):
+    return self._get_controller_option(OPT_FWV, 'fwv')
+    
+  def get_hwv(self):
+    return self._get_controller_option(OPT_HWV, 'hwv')
 
 
 class OpensprinklerStation(object):
