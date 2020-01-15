@@ -1,3 +1,4 @@
 {
-  "name": "Opensprinkler integration for Home Assistant"
+  "name": "Opensprinkler integration for Home Assistant",
+  "iot_class": "Local Polling"
 }
