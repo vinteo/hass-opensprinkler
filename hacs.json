@@ -1,4 +1,5 @@
 {
   "name": "Opensprinkler integration for Home Assistant",
+  "render_readme": true,
   "iot_class": "Local Polling"
 }
