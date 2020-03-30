@@ -24,7 +24,7 @@ Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
       host: <host>
       password: <md5-password>
     ```
-    - Replace `<host>` with the IP address or hostname of your Opensprinkler controller.  This should include the port number as well, such as `8080`, the default that OpenSprinkler uses, unless your install uses port `80`.  For example, `<hostname/id address>:port`.
+    - Replace `<host>` with the IP address or hostname of your Opensprinkler controller.  This should include the port number as well, such as `8080`, the default that OpenSprinkler uses, unless your install uses port `80`.  For example, `<hostname/ip address>:port`.
     - Replace `<md5-password>` with the MD5 encrypted version of your password to your OpenSprinkler interface.  This is required, even if you have setup OpenSprinkler to not require a password.  It is considered to be a best-practice to store the password with [`secrets.yaml`](https://www.home-assistant.io/docs/configuration/secrets/).
 4. Check your config (either in the [UI](https://www.home-assistant.io/integrations/config#server-control) or [on the command line](https://www.home-assistant.io/docs/tools/check_config/)), and then restart Home Assistant
 
