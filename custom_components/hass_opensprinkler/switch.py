@@ -1,4 +1,4 @@
-from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_PROGRAMS, CONF_STATIONS, DOMAIN
 from datetime import timedelta
 from homeassistant.components.switch import SwitchDevice
 from homeassistant.util import Throttle
@@ -18,6 +18,11 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     for station in opensprinkler.stations():
         if len(stationIndexes) == 0 or (station.index in stationIndexes):
             switches.append(StationSwitch(station, hass.states))
+
+    programIndexes = opensprinklerConfig[CONF_PROGRAMS] or []
+    for program in opensprinkler.programs():
+        if len(programIndexes) == 0 or (program.index in programIndexes):
+            switches.append(ProgramSwitch(program))
 
     add_devices(switches, True)
 
@@ -88,5 +93,39 @@ class StationSwitch(SwitchDevice):
     def turn_off(self, **kwargs):
         """Turn the device off."""
         self._station.turn_off()
+        self._is_on = 0
+        self.schedule_update_ha_state()
+
+
+class ProgramSwitch(SwitchDevice):
+
+    def __init__(self, program):
+        self._program = program
+        self._is_on = False
+
+    @property
+    def name(self):
+        """Return the name of the binary sensor."""
+        return self._program.name
+
+    @property
+    def is_on(self):
+        """Return true if the binary sensor is on."""
+        return bool(self._is_on)
+
+    @Throttle(SCAN_INTERVAL)
+    def update(self):
+        """Get the latest data """
+        self._is_on = self._program.status()
+
+    def turn_on(self, **kwargs):
+        """Turn the device on."""
+        self._program.enable()
+        self._is_on = 1
+        self.schedule_update_ha_state()
+
+    def turn_off(self, **kwargs):
+        """Turn the device off."""
+        self._program.disable()
         self._is_on = 0
         self.schedule_update_ha_state()
