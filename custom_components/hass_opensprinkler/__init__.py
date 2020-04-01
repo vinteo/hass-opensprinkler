@@ -267,6 +267,24 @@ class OpensprinklerProgram(object):
     def index(self):
         return self._index
 
+    def _set_program_variable(self, variable, value):
+        try:
+            url = 'http://{}/cp?pw={}&pid={}&{}={}'.format(self._host, self._password, self._index, variable, value)
+            response = requests.get(url, timeout=TIMEOUT)
+            response.encoding = response.apparent_encoding
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("No route to device '%s'", self._resource)
+
+    def status(self):
+        try:
+            url = 'http://{}/jp?pw={}'.format(self._host, self._password)
+            response = requests.get(url, timeout=TIMEOUT)
+            response.encoding = response.apparent_encoding
+        except requests.exceptions.ConnectionError:
+            _LOGGER.error("No route to device '%s'", self._resource)
+
+        return int('{0:08b}'.format(response.json()['pd'][self._index][0])[7])
+
     def activate(self):
         try:
             url = 'http://{}/mp?pw={}&pid={}&uwt=0'.format(self._host, self._password, self._index)
@@ -274,3 +292,9 @@ class OpensprinklerProgram(object):
             response.encoding = response.apparent_encoding
         except requests.exceptions.ConnectionError:
             _LOGGER.error("No route to device '%s'", self._resource)
+
+    def enable(self):
+        return self._set_program_variable('en', '1')
+
+    def disable(self):
+        return self._set_program_variable('en', '0')

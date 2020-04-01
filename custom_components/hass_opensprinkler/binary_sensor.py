@@ -1,4 +1,4 @@
-from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_PROGRAMS, CONF_STATIONS, DOMAIN
 from datetime import timedelta
 from homeassistant.util import Throttle
 from homeassistant.components.binary_sensor import BinarySensorDevice
@@ -15,6 +15,11 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     for station in opensprinkler.stations():
         if len(stationIndexes) == 0 or (station.index in stationIndexes):
             sensors.append(StationBinarySensor(station))
+
+    programIndexes = opensprinklerConfig[CONF_PROGRAMS] or []
+    for program in opensprinkler.programs():
+        if len(programIndexes) == 0 or (program.index in programIndexes):
+            sensors.append(ProgramBinarySensor(program))
 
     fwv = opensprinkler.get_fwv()
     hwv = opensprinkler.get_hwv()
@@ -51,6 +56,28 @@ class StationBinarySensor(BinarySensorDevice):
     def update(self):
         """Get the latest data """
         self._is_on = self._station.status()
+
+
+class ProgramBinarySensor(BinarySensorDevice):
+
+    def __init__(self, program):
+        self._program = program
+        self._is_on = False
+
+    @property
+    def name(self):
+        """Return the name of the binary sensor."""
+        return self._program.name
+
+    @property
+    def is_on(self):
+        """Return true if the binary sensor is on."""
+        return bool(self._is_on)
+
+    @Throttle(SCAN_INTERVAL)
+    def update(self):
+        """Get the latest data """
+        self._is_on = self._program.status()
 
 
 class OpenSprinklerBinarySensor(BinarySensorDevice):
