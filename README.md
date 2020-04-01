@@ -2,18 +2,21 @@
 
 Opensprinkler custom component for Home Assistant
 
-Last tested on OS API `2.1.8` and Home Assistant `0.95.0`
+Last tested on OS API `2.1.9` and Home Assistant `0.107.0`
 
 ![image](https://user-images.githubusercontent.com/819711/36068687-086820ce-0f2f-11e8-81de-de53c94124f0.png)
 
 ### Features
 
 - Binary sensors for each station to show on/off status
+- Binary sensors for each program to show enable/disable status
 - Binary sensors for OpenSprinkler operation, rain sensor and rain delay
 - Sensors for each station to show status
 - Sensors for water level, last run time and rain delay stop time
 - Programs as scenes which can be "activated"
 - Stations as switches with individual timers
+- Switches for each program to enable/disable program
+- Switch to enable/disable OpenSprinkler operation
 
 ### Installation
 
