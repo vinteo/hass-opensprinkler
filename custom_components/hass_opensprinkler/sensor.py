@@ -1,172 +1,177 @@
-import pytz
+"""OpenSprinkler integration."""
+import logging
+from typing import Callable
 
-from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_STATIONS, DOMAIN
-from datetime import datetime, timedelta
-from homeassistant.util import Throttle
+from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
+from homeassistant.util.dt import utc_from_timestamp
 
-SCAN_INTERVAL = timedelta(seconds=5)
-utc_tz = pytz.timezone("UTC")
+from . import OpenSprinklerCoordinator, OpenSprinklerSensor
+from .const import DOMAIN
 
-
-def setup_platform(hass, config, add_devices, discovery_info=None):
-    opensprinkler = hass.data[DOMAIN][DOMAIN]
-    opensprinklerConfig = hass.data[DOMAIN][CONF_CONFIG]
-
-    stationIndexes = opensprinklerConfig[CONF_STATIONS] or []
-    sensors = []
-    for station in opensprinkler.stations():
-        if len(stationIndexes) == 0 or (station.index in stationIndexes):
-            sensors.append(StationSensor(station))
-
-    sensors.append(WaterLevelSensor(opensprinkler))
-    sensors.append(LastRunSensor(opensprinkler))
-    sensors.append(RainDelayStopTimeSensor(opensprinkler))
-
-    add_devices(sensors, True)
+_LOGGER = logging.getLogger(__name__)
 
 
-class StationSensor(Entity):
-    def __init__(self, station):
-        self._station = station
-        self._state = None
-        self._status = None
-        self._p_status = None
-
-    @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return self._station.name
-
-    @property
-    def unit_of_measurement(self):
-        """Return the units of measurement."""
-        return None
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Fetch new state data for the sensor."""
-        self._status = self._station.status()
-        self._p_status = self._station.p_status()
-
-        if self._status == 1:
-            if self._p_status[0] == 99:
-                self._state = "Running manual"
-            elif self._p_status[0] == 254:
-                self._state = "Running once prog."
-            elif self._p_status[0] == 0:
-                self._state = "Idle"
-            else:
-                self._state = "Running schedule"
-        else:
-            if self._p_status[0] > 0:
-                self._state = "Waiting for run"
-            else:
-                self._state = "Idle"
+async def async_setup_entry(
+    hass: HomeAssistant, entry: dict, async_add_entities: Callable,
+):
+    """Set up the opensprinkler sensors."""
+    entities = _create_entities(hass, entry)
+    async_add_entities(entities)
 
 
-class WaterLevelSensor(Entity):
-    def __init__(self, opensprinkler):
-        self._opensprinkler = opensprinkler
-        self._state = None
+def _create_entities(hass: HomeAssistant, entry: dict):
+    entities = []
+
+    device = hass.data[DOMAIN][entry.entry_id]
+    name = entry.data[CONF_NAME]
+    coordinator = OpenSprinklerCoordinator(hass, device)
+
+    entities.append(LastRunSensor(entry.entry_id, name, device, coordinator))
+    entities.append(RainDelayStopTimeSensor(entry.entry_id, name, device, coordinator))
+    entities.append(WaterLevelSensor(entry.entry_id, name, device, coordinator))
+
+    for station in device.stations:
+        entities.append(StationSensor(entry.entry_id, station, device, coordinator))
+
+    return entities
+
+
+class WaterLevelSensor(OpenSprinklerSensor, Entity):
+    """Represent a sensor that for water level."""
+
+    def __init__(self, entry_id, name, device, coordinator):
+        """Set up a new opensprinkler water level sensor."""
+        self._entry_id = entry_id
+        self._name = name
+        self._device = device
+        self._entity_type = "sensor"
+        super().__init__(coordinator)
 
     @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return "Water Level"
-
-    @property
-    def unit_of_measurement(self):
-        """Return the units of measurement."""
-        return "%"
-
-    @property
-    def icon(self):
+    def icon(self) -> str:
         """Return icon."""
         return "mdi:water"
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Fetch new state data for the sensor."""
-        self._state = self._opensprinkler.water_level()
-
-
-class LastRunSensor(Entity):
-    def __init__(self, opensprinkler):
-        self._opensprinkler = opensprinkler
-        self._state = None
-        self._last_run = None
+    def name(self) -> str:
+        """Return the name of this sensor including the device name."""
+        return f"{self._name} Water Level"
 
     @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return "Last Run"
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_water_level"
 
     @property
-    def unit_of_measurement(self):
+    def unit_of_measurement(self) -> str:
         """Return the units of measurement."""
-        return None
+        return "%"
+
+    def _get_state(self) -> int:
+        """Retrieve latest state."""
+        return self._device.device.water_level
+
+
+class LastRunSensor(OpenSprinklerSensor, Entity):
+    """Represent a sensor that for last run time."""
+
+    def __init__(self, entry_id, name, device, coordinator):
+        """Set up a new opensprinkler last run sensor."""
+        self._entry_id = entry_id
+        self._name = name
+        self._device = device
+        self._entity_type = "sensor"
+        super().__init__(coordinator)
 
     @property
-    def icon(self):
+    def device_class(self):
+        """Return the device class."""
+        return DEVICE_CLASS_TIMESTAMP
+
+    @property
+    def icon(self) -> str:
         """Return icon."""
         return "mdi:history"
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
-
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Fetch new state data for the sensor."""
-        self._last_run = self._opensprinkler.last_run()
-        utcTime = datetime.fromtimestamp(self._last_run[3], utc_tz)
-        self._state = utcTime.strftime("%d/%m %H:%M")
-
-
-class RainDelayStopTimeSensor(Entity):
-    def __init__(self, opensprinkler):
-        self._opensprinkler = opensprinkler
-        self._state = None
-        self._rain_delay_stop_time = None
+    def name(self) -> str:
+        """Return the name of this sensor including the device name."""
+        return f"{self._name} Last Run"
 
     @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return "Rain Delay Stop Time"
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_last_run"
+
+    def _get_state(self):
+        """Retrieve latest state."""
+        last_run = self._device.device.last_run
+        return utc_from_timestamp(last_run).isoformat()
+
+
+class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
+    """Represent a sensor that for rain delay stop time."""
+
+    def __init__(self, entry_id, name, device, coordinator):
+        """Set up a new opensprinkler rain delay stop time sensor."""
+        self._entry_id = entry_id
+        self._name = name
+        self._device = device
+        self._entity_type = "sensor"
+        super().__init__(coordinator)
 
     @property
-    def unit_of_measurement(self):
-        """Return the units of measurement."""
-        return None
+    def device_class(self):
+        """Return the device class."""
+        return DEVICE_CLASS_TIMESTAMP
 
     @property
-    def icon(self):
+    def icon(self) -> str:
         """Return icon."""
         return "mdi:weather-rainy"
 
     @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._state
+    def name(self) -> str:
+        """Return the name of this sensor including the device name."""
+        return f"{self._name} Rain Delay Stop Time"
 
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Fetch new state data for the sensor."""
-        self._rain_delay_stop_time = self._opensprinkler.rain_delay_stop_time()
-        if self._rain_delay_stop_time == 0:
-            self._state = "Not in effect"
-        else:
-            utcTime = datetime.fromtimestamp(self._rain_delay_stop_time, utc_tz)
-            self._state = utcTime.strftime("%d/%m %H:%M")
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_rdst"
+
+    def _get_state(self):
+        """Retrieve latest state."""
+        rdst = self._device.device.rain_delay_stop_time
+        if rdst == 0:
+            return None
+
+        return utc_from_timestamp(rdst).isoformat()
+
+
+class StationSensor(OpenSprinklerSensor, Entity):
+    """Represent a sensor for status of station."""
+
+    def __init__(self, entry_id, station, device, coordinator):
+        """Set up a new opensprinkler device sensor."""
+        self._entry_id = entry_id
+        self._station = station
+        self._device = device
+        self._entity_type = "sensor"
+        super().__init__(coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor."""
+        return self._station.name
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_station_{self._station.index}"
+
+    def _get_state(self) -> str:
+        """Retrieve latest state."""
+        return self._station.status
