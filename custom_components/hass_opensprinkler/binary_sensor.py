@@ -1,7 +1,12 @@
-from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_PROGRAMS, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import (
+    CONF_CONFIG,
+    CONF_PROGRAMS,
+    CONF_STATIONS,
+    DOMAIN,
+)
 from datetime import timedelta
 from homeassistant.util import Throttle
-from homeassistant.components.binary_sensor import BinarySensorDevice
+from homeassistant.components.binary_sensor import BinarySensorEntity
 
 SCAN_INTERVAL = timedelta(seconds=5)
 
@@ -23,21 +28,38 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
     fwv = opensprinkler.get_fwv()
     hwv = opensprinkler.get_hwv()
-    sensors.append(OpenSprinklerBinarySensor('OpenSprinkler Operation', None, opensprinkler.enable_operation))
+    sensors.append(
+        OpenSprinklerBinarySensor(
+            "OpenSprinkler Operation", None, opensprinkler.enable_operation
+        )
+    )
     if fwv >= 219:
-        sensors.append(OpenSprinklerBinarySensor('Rain Sensor 1', 'moisture', opensprinkler.rain_sensor_1))
+        sensors.append(
+            OpenSprinklerBinarySensor(
+                "Rain Sensor 1", "moisture", opensprinkler.rain_sensor_1
+            )
+        )
         if hwv / 30 >= 1:
-            sensors.append(OpenSprinklerBinarySensor('Rain Sensor 2', 'moisture', opensprinkler.rain_sensor_2))
+            sensors.append(
+                OpenSprinklerBinarySensor(
+                    "Rain Sensor 2", "moisture", opensprinkler.rain_sensor_2
+                )
+            )
     else:
-        sensors.append(OpenSprinklerBinarySensor('Rain Sensor', 'moisture', opensprinkler.rain_sensor))
+        sensors.append(
+            OpenSprinklerBinarySensor(
+                "Rain Sensor", "moisture", opensprinkler.rain_sensor
+            )
+        )
 
-    sensors.append(OpenSprinklerBinarySensor('Rain Delay', None, opensprinkler.rain_delay))
+    sensors.append(
+        OpenSprinklerBinarySensor("Rain Delay", None, opensprinkler.rain_delay)
+    )
 
     add_devices(sensors, True)
 
 
-class StationBinarySensor(BinarySensorDevice):
-
+class StationBinarySensor(BinarySensorEntity):
     def __init__(self, station):
         self._station = station
         self._is_on = False
@@ -58,8 +80,7 @@ class StationBinarySensor(BinarySensorDevice):
         self._is_on = self._station.status()
 
 
-class ProgramBinarySensor(BinarySensorDevice):
-
+class ProgramBinarySensor(BinarySensorEntity):
     def __init__(self, program):
         self._program = program
         self._is_on = False
@@ -80,8 +101,7 @@ class ProgramBinarySensor(BinarySensorDevice):
         self._is_on = self._program.status()
 
 
-class OpenSprinklerBinarySensor(BinarySensorDevice):
-
+class OpenSprinklerBinarySensor(BinarySensorEntity):
     def __init__(self, name, device_class, sensor):
         self._name = name
         self._sensor_type = device_class
