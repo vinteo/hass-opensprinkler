@@ -99,14 +99,27 @@ class OpenSprinklerCoordinator:
 class OpenSprinklerEntity(RestoreEntity):
     """Define a generic OpenSprinkler entity."""
 
-    def __init__(self, coordinator=None):
+    def __init__(self, entry_id, name, coordinator):
         """Initialize."""
         self._state = None
         self._coordinator = coordinator
+        self._entry_id = entry_id
+        self._name = name
 
     def _get_state(self):
         """Retrieve the state."""
         raise NotImplementedError
+
+    @property
+    def device_info(self):
+        """Return device information about Opensprinkler Controller."""
+        return {
+            "identifiers": {(DOMAIN, self._entry_id)},
+            "name": self._name,
+            "manufacturer": "OpenSprinkler",
+            "model": self._coordinator._device.device.hardware_version,
+            "sw_version": self._coordinator._device.device.firmware_version,
+        }
 
     async def async_added_to_hass(self):
         """Register callbacks."""

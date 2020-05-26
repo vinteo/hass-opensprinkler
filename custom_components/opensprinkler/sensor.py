@@ -33,7 +33,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(WaterLevelSensor(entry.entry_id, name, device, coordinator))
 
     for station in device.stations:
-        entities.append(StationSensor(entry.entry_id, station, device, coordinator))
+        entities.append(
+            StationSensor(entry.entry_id, name, station, device, coordinator)
+        )
 
     return entities
 
@@ -43,11 +45,10 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
 
     def __init__(self, entry_id, name, device, coordinator):
         """Set up a new opensprinkler water level sensor."""
-        self._entry_id = entry_id
         self._name = name
         self._device = device
         self._entity_type = "sensor"
-        super().__init__(coordinator)
+        super().__init__(entry_id, name, coordinator)
 
     @property
     def icon(self) -> str:
@@ -79,11 +80,9 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
 
     def __init__(self, entry_id, name, device, coordinator):
         """Set up a new opensprinkler last run sensor."""
-        self._entry_id = entry_id
-        self._name = name
         self._device = device
         self._entity_type = "sensor"
-        super().__init__(coordinator)
+        super().__init__(entry_id, name, coordinator)
 
     @property
     def device_class(self):
@@ -116,11 +115,9 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 
     def __init__(self, entry_id, name, device, coordinator):
         """Set up a new opensprinkler rain delay stop time sensor."""
-        self._entry_id = entry_id
-        self._name = name
         self._device = device
         self._entity_type = "sensor"
-        super().__init__(coordinator)
+        super().__init__(entry_id, name, coordinator)
 
     @property
     def device_class(self):
@@ -154,13 +151,12 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 class StationSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
-    def __init__(self, entry_id, station, device, coordinator):
+    def __init__(self, entry_id, name, station, device, coordinator):
         """Set up a new opensprinkler device sensor."""
-        self._entry_id = entry_id
         self._station = station
         self._device = device
         self._entity_type = "sensor"
-        super().__init__(coordinator)
+        super().__init__(entry_id, name, coordinator)
 
     @property
     def name(self) -> str:
