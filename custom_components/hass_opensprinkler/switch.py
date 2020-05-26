@@ -1,6 +1,11 @@
-from custom_components.hass_opensprinkler import CONF_CONFIG, CONF_PROGRAMS, CONF_STATIONS, DOMAIN
+from custom_components.hass_opensprinkler import (
+    CONF_CONFIG,
+    CONF_PROGRAMS,
+    CONF_STATIONS,
+    DOMAIN,
+)
 from datetime import timedelta
-from homeassistant.components.switch import SwitchDevice
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.util import Throttle
 from homeassistant.util import slugify
 
@@ -27,8 +32,7 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
     add_devices(switches, True)
 
 
-class ControllerSwitch(SwitchDevice):
-
+class ControllerSwitch(SwitchEntity):
     def __init__(self, controller):
         self._controller = controller
         self._is_on = False
@@ -36,7 +40,7 @@ class ControllerSwitch(SwitchDevice):
     @property
     def name(self):
         """Return the name of the binary sensor."""
-        return 'OpenSprinkler Operation'
+        return "OpenSprinkler Operation"
 
     @property
     def is_on(self):
@@ -50,19 +54,18 @@ class ControllerSwitch(SwitchDevice):
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
-        self._controller._set_controller_variable('en', '1')
+        self._controller._set_controller_variable("en", "1")
         self._is_on = 1
         self.schedule_update_ha_state()
 
     def turn_off(self, **kwargs):
         """Turn the device off."""
-        self._controller._set_controller_variable('en', '0')
+        self._controller._set_controller_variable("en", "0")
         self._is_on = 0
         self.schedule_update_ha_state()
 
 
-class StationSwitch(SwitchDevice):
-
+class StationSwitch(SwitchEntity):
     def __init__(self, station, states):
         self._states = states
         self._station = station
@@ -85,7 +88,9 @@ class StationSwitch(SwitchDevice):
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
-        mins = self._states.get('input_number.{}_timer'.format(slugify(self._station.name)))
+        mins = self._states.get(
+            "input_number.{}_timer".format(slugify(self._station.name))
+        )
         self._station.turn_on(int(float(mins.state)))
         self._is_on = 1
         self.schedule_update_ha_state()
@@ -97,8 +102,7 @@ class StationSwitch(SwitchDevice):
         self.schedule_update_ha_state()
 
 
-class ProgramSwitch(SwitchDevice):
-
+class ProgramSwitch(SwitchEntity):
     def __init__(self, program):
         self._program = program
         self._is_on = False

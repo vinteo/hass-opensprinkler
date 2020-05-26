@@ -6,7 +6,7 @@ from homeassistant.util import Throttle
 from homeassistant.helpers.entity import Entity
 
 SCAN_INTERVAL = timedelta(seconds=5)
-utc_tz = pytz.timezone('UTC')
+utc_tz = pytz.timezone("UTC")
 
 
 def setup_platform(hass, config, add_devices, discovery_info=None):
@@ -27,7 +27,6 @@ def setup_platform(hass, config, add_devices, discovery_info=None):
 
 
 class StationSensor(Entity):
-
     def __init__(self, station):
         self._station = station
         self._state = None
@@ -55,24 +54,23 @@ class StationSensor(Entity):
         self._status = self._station.status()
         self._p_status = self._station.p_status()
 
-        if(self._status == 1):
-            if(self._p_status[0] == 99):
+        if self._status == 1:
+            if self._p_status[0] == 99:
                 self._state = "Running manual"
-            elif(self._p_status[0] == 254):
+            elif self._p_status[0] == 254:
                 self._state = "Running once prog."
-            elif(self._p_status[0] == 0):
+            elif self._p_status[0] == 0:
                 self._state = "Idle"
             else:
                 self._state = "Running schedule"
         else:
-            if(self._p_status[0] > 0):
+            if self._p_status[0] > 0:
                 self._state = "Waiting for run"
             else:
                 self._state = "Idle"
 
 
 class WaterLevelSensor(Entity):
-
     def __init__(self, opensprinkler):
         self._opensprinkler = opensprinkler
         self._state = None
@@ -104,7 +102,6 @@ class WaterLevelSensor(Entity):
 
 
 class LastRunSensor(Entity):
-
     def __init__(self, opensprinkler):
         self._opensprinkler = opensprinkler
         self._state = None
@@ -139,7 +136,6 @@ class LastRunSensor(Entity):
 
 
 class RainDelayStopTimeSensor(Entity):
-
     def __init__(self, opensprinkler):
         self._opensprinkler = opensprinkler
         self._state = None
@@ -170,7 +166,7 @@ class RainDelayStopTimeSensor(Entity):
         """Fetch new state data for the sensor."""
         self._rain_delay_stop_time = self._opensprinkler.rain_delay_stop_time()
         if self._rain_delay_stop_time == 0:
-            self._state = 'Not in effect'
+            self._state = "Not in effect"
         else:
             utcTime = datetime.fromtimestamp(self._rain_delay_stop_time, utc_tz)
             self._state = utcTime.strftime("%d/%m %H:%M")
