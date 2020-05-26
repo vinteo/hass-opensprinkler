@@ -2,7 +2,7 @@
 
 from datetime import timedelta
 
-DOMAIN = "hass_opensprinkler"
+DOMAIN = "opensprinkler"
 
 DEFAULT_NAME = "OpenSprinkler"
 DEFAULT_PORT = 8080
