@@ -1,14 +1,16 @@
 {
-  "title": "OpenSprinkler",
+  "title": "Connect to the OpenSprinkler controller",
   "config": {
     "step": {
       "user": {
-        "title": "Connect to the device",
+        "title": "Connect to the OpenSprinkler Controller",
         "data": {
-          "host": "[%key:common::config_flow::data::host%]",
-          "password": "MD5 Password",
-          "port": "[%key:common::config_flow::data::port%]",
-          "name": "Device Name"
+          "host": "Host",
+          "password": "Password",
+          "port": "Port",
+          "mac": "MAC Address",
+          "name": "Device Name",
+          "ssl": "Use SSL"
         }
       }
     },
