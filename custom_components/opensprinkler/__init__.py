@@ -37,9 +37,13 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     password = entry.data.get(CONF_PASSWORD)
     host = f"{entry.data.get(CONF_HOST)}:{entry.data.get(CONF_PORT, DEFAULT_PORT)}"
     try:
-        hass.data[DOMAIN][entry.entry_id] = await hass.async_add_executor_job(
-            OpenSprinkler, host, password
-        )
+        device = await hass.async_add_executor_job(OpenSprinkler, host, password)
+        coordinator = OpenSprinklerCoordinator(hass, device)
+        hass.data[DOMAIN][entry.entry_id] = {
+            "coordinator": coordinator,
+            "device": device,
+        }
+
     except (OpensprinklerAuthError, OpensprinklerConnectionError) as exc:
         _LOGGER.error("Unable to connect to OpenSprinkler device: %s", str(exc))
         raise ConfigEntryNotReady

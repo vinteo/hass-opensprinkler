@@ -7,7 +7,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from homeassistant.util.dt import utc_from_timestamp
 
-from . import OpenSprinklerCoordinator, OpenSprinklerSensor
+from . import OpenSprinklerSensor
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
@@ -24,9 +24,9 @@ async def async_setup_entry(
 def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
 
-    device = hass.data[DOMAIN][entry.entry_id]
+    device = hass.data[DOMAIN][entry.entry_id]["device"]
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
-    coordinator = OpenSprinklerCoordinator(hass, device)
 
     entities.append(LastRunSensor(entry.entry_id, name, device, coordinator))
     entities.append(RainDelayStopTimeSensor(entry.entry_id, name, device, coordinator))
