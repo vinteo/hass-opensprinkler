@@ -4,13 +4,13 @@ from datetime import timedelta
 import logging
 
 from pyopensprinkler import (
-    OpenSprinkler,
-    OpensprinklerAuthError,
-    OpensprinklerConnectionError,
+    Controller as OpenSprinkler,
+    OpenSprinklerAuthError,
+    OpenSprinklerConnectionError,
 )
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_SSL
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -35,17 +35,19 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     hass.data.setdefault(DOMAIN, {})
 
     password = entry.data.get(CONF_PASSWORD)
-    host = f"{entry.data.get(CONF_HOST)}:{entry.data.get(CONF_PORT, DEFAULT_PORT)}"
+    protocol = "https" if entry.data.get(CONF_SSL) else "http"
+    url = f"{protocol}://{entry.data.get(CONF_HOST)}:{entry.data.get(CONF_PORT, DEFAULT_PORT)}"
     try:
-        device = await hass.async_add_executor_job(OpenSprinkler, host, password)
-        coordinator = OpenSprinklerCoordinator(hass, device)
+        controller = OpenSprinkler(url, password)
+        await hass.async_add_executor_job(controller.refresh)
+        coordinator = OpenSprinklerCoordinator(hass, controller)
         hass.data[DOMAIN][entry.entry_id] = {
             "coordinator": coordinator,
-            "device": device,
+            "controller": controller,
         }
 
-    except (OpensprinklerAuthError, OpensprinklerConnectionError) as exc:
-        _LOGGER.error("Unable to connect to OpenSprinkler device: %s", str(exc))
+    except (OpenSprinklerAuthError, OpenSprinklerConnectionError) as exc:
+        _LOGGER.error("Unable to connect to OpenSprinkler controller: %s", str(exc))
         raise ConfigEntryNotReady
 
     for component in PLATFORMS:
@@ -75,15 +77,15 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 class OpenSprinklerCoordinator:
     """Define a generic OpenSprinkler entity."""
 
-    def __init__(self, hass, device):
+    def __init__(self, hass, controller):
         """Initialize."""
         self._cancel_time_interval_listener = None
         self._hass = hass
-        self._device = device
+        self._controller = controller
 
     async def _async_update_listener_action(self, now):
         """Define an async_track_time_interval action to update data."""
-        await self._hass.async_add_executor_job(self._device.update_state)
+        await self._hass.async_add_executor_job(self._controller.refresh)
 
     async def async_register_time_interval_listener(self):
         """Register time interval listener."""
@@ -121,8 +123,8 @@ class OpenSprinklerEntity(RestoreEntity):
             "identifiers": {(DOMAIN, self._entry_id)},
             "name": self._name,
             "manufacturer": "OpenSprinkler",
-            "model": self._coordinator._device.device.hardware_version,
-            "sw_version": self._coordinator._device.device.firmware_version,
+            "model": self._coordinator._controller.hardware_version,
+            "sw_version": self._coordinator._controller.firmware_version,
         }
 
     async def async_added_to_hass(self):

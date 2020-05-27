@@ -24,17 +24,19 @@ async def async_setup_entry(
 def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
 
-    device = hass.data[DOMAIN][entry.entry_id]["device"]
+    controller = hass.data[DOMAIN][entry.entry_id]["controller"]
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(LastRunSensor(entry.entry_id, name, device, coordinator))
-    entities.append(RainDelayStopTimeSensor(entry.entry_id, name, device, coordinator))
-    entities.append(WaterLevelSensor(entry.entry_id, name, device, coordinator))
+    entities.append(LastRunSensor(entry.entry_id, name, controller, coordinator))
+    entities.append(
+        RainDelayStopTimeSensor(entry.entry_id, name, controller, coordinator)
+    )
+    entities.append(WaterLevelSensor(entry.entry_id, name, controller, coordinator))
 
-    for station in device.stations:
+    for _, station in controller.stations.items():
         entities.append(
-            StationSensor(entry.entry_id, name, station, device, coordinator)
+            StationSensor(entry.entry_id, name, station, controller, coordinator)
         )
 
     return entities
@@ -43,10 +45,10 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class WaterLevelSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for water level."""
 
-    def __init__(self, entry_id, name, device, coordinator):
+    def __init__(self, entry_id, name, controller, coordinator):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
-        self._device = device
+        self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry_id, name, coordinator)
 
@@ -57,7 +59,7 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
 
     @property
     def name(self) -> str:
-        """Return the name of this sensor including the device name."""
+        """Return the name of this sensor including the controller name."""
         return f"{self._name} Water Level"
 
     @property
@@ -72,15 +74,15 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
 
     def _get_state(self) -> int:
         """Retrieve latest state."""
-        return self._device.device.water_level
+        return self._controller.water_level
 
 
 class LastRunSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for last run time."""
 
-    def __init__(self, entry_id, name, device, coordinator):
+    def __init__(self, entry_id, name, controller, coordinator):
         """Set up a new opensprinkler last run sensor."""
-        self._device = device
+        self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry_id, name, coordinator)
 
@@ -96,7 +98,7 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
 
     @property
     def name(self) -> str:
-        """Return the name of this sensor including the device name."""
+        """Return the name of this sensor including the controller name."""
         return f"{self._name} Last Run"
 
     @property
@@ -106,16 +108,16 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
 
     def _get_state(self):
         """Retrieve latest state."""
-        last_run = self._device.device.last_run
+        last_run = self._controller.last_run_end_time
         return utc_from_timestamp(last_run).isoformat()
 
 
 class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for rain delay stop time."""
 
-    def __init__(self, entry_id, name, device, coordinator):
+    def __init__(self, entry_id, name, controller, coordinator):
         """Set up a new opensprinkler rain delay stop time sensor."""
-        self._device = device
+        self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry_id, name, coordinator)
 
@@ -131,7 +133,7 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 
     @property
     def name(self) -> str:
-        """Return the name of this sensor including the device name."""
+        """Return the name of this sensor including the controller name."""
         return f"{self._name} Rain Delay Stop Time"
 
     @property
@@ -141,7 +143,7 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 
     def _get_state(self):
         """Retrieve latest state."""
-        rdst = self._device.device.rain_delay_stop_time
+        rdst = self._controller.rain_delay_stop_time
         if rdst == 0:
             return None
 
@@ -151,10 +153,10 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 class StationSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
-    def __init__(self, entry_id, name, station, device, coordinator):
-        """Set up a new opensprinkler device sensor."""
+    def __init__(self, entry_id, name, station, controller, coordinator):
+        """Set up a new OpenSprinkler station sensor."""
         self._station = station
-        self._device = device
+        self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry_id, name, coordinator)
 

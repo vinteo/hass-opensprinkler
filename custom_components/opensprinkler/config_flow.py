@@ -2,14 +2,21 @@
 import logging
 
 from pyopensprinkler import (
-    OpenSprinkler,
-    OpensprinklerAuthError,
-    OpensprinklerConnectionError,
+    Controller as OpenSprinkler,
+    OpenSprinklerAuthError,
+    OpenSprinklerConnectionError,
 )
 import voluptuous as vol
 
 from homeassistant import config_entries, exceptions
-from homeassistant.const import CONF_HOST, CONF_NAME, CONF_PASSWORD, CONF_PORT
+from homeassistant.const import (
+    CONF_HOST,
+    CONF_MAC,
+    CONF_NAME,
+    CONF_PASSWORD,
+    CONF_PORT,
+    CONF_SSL,
+)
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN  # pylint: disable=unused-import
 
@@ -19,8 +26,10 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Required(CONF_MAC): str,
         vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
+        vol.Optional(CONF_SSL, default=False): bool,
     }
 )
 
@@ -36,26 +45,30 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             try:
+                host = user_input[CONF_HOST]
                 password = user_input[CONF_PASSWORD]
-                host = (
-                    f"{user_input[CONF_HOST]}:{user_input.get(CONF_PORT, DEFAULT_PORT)}"
-                )
+                port = user_input.get(CONF_PORT, DEFAULT_PORT)
+                ssl = user_input.get(CONF_SSL, False)
+                protocol = "https" if ssl else "http"
+                url = f"{protocol}://{host}:{port}"
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
-                await self.hass.async_add_executor_job(OpenSprinkler, host, password)
-                await self.async_set_unique_id(host)
+                controller = OpenSprinkler(url, password)
+                await self.hass.async_add_executor_job(controller.refresh)
+                await self.async_set_unique_id(user_input[CONF_MAC])
 
                 return self.async_create_entry(
                     title=name,
                     data={
-                        CONF_HOST: user_input[CONF_HOST],
-                        CONF_PASSWORD: user_input[CONF_PASSWORD],
-                        CONF_PORT: user_input.get(CONF_PORT, DEFAULT_PORT),
+                        CONF_HOST: host,
+                        CONF_PASSWORD: password,
+                        CONF_PORT: port,
                         CONF_NAME: name,
+                        CONF_SSL: ssl,
                     },
                 )
-            except OpensprinklerConnectionError:
+            except OpenSprinklerConnectionError:
                 errors["base"] = "cannot_connect"
-            except OpensprinklerAuthError:
+            except OpenSprinklerAuthError:
                 errors["base"] = "invalid_auth"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
