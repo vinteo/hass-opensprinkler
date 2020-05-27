@@ -25,10 +25,11 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
     entities.append(ControllerSwitch(entry.entry_id, name, controller, coordinator))
 
-    for _, station in controller.programs.items():
-        entities.append(
-            ProgramSwitch(entry.entry_id, name, station, controller, coordinator)
-        )
+    for _, program in controller.programs.items():
+        entities.append(ProgramSwitch(entry.entry_id, name, program, coordinator))
+
+    for _, station in controller.stations.items():
+        entities.append(StationSwitch(entry.entry_id, name, station, coordinator))
 
     return entities
 
@@ -67,11 +68,10 @@ class ControllerSwitch(OpenSprinklerBinarySensor, SwitchEntity):
 
 
 class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
-    def __init__(self, entry_id, name, program, controller, coordinator):
+    def __init__(self, entry_id, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
         self._entry_id = entry_id
         self._program = program
-        self._controller = controller
         self._entity_type = "switch"
         super().__init__(entry_id, name, coordinator)
 
@@ -97,4 +97,37 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def turn_off(self, **kwargs):
         """Turn the device off."""
         self._program.disable()
+        self._state = False
+
+
+class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+    def __init__(self, entry_id, name, station, coordinator):
+        """Set up a new OpenSprinkler station switch."""
+        self._entry_id = entry_id
+        self._station = station
+        self._entity_type = "switch"
+        super().__init__(entry_id, name, coordinator)
+
+    @property
+    def name(self):
+        """Return the name of the binary sensor."""
+        return self._station.name
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_station_{self._station.index}"
+
+    def _get_state(self) -> str:
+        """Retrieve latest state."""
+        return bool(self._station.enabled)
+
+    def turn_on(self, **kwargs):
+        """Enable the station."""
+        self._station.enable()
+        self._state = True
+
+    def turn_off(self, **kwargs):
+        """Disable the station."""
+        self._station.disable()
         self._state = False
