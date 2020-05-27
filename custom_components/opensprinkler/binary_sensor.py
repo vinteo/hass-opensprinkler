@@ -2,12 +2,21 @@
 import logging
 from typing import Callable
 
+import voluptuous as vol
+
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv, entity_platform
 
 from . import OpenSprinklerBinarySensor
-from .const import DOMAIN
+from .const import (
+    CONF_RUN_SECONDS,
+    DOMAIN,
+    SERVICE_RUN_PROGRAM,
+    SERVICE_RUN_STATION,
+    SERVICE_STOP_STATION,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,6 +27,17 @@ async def async_setup_entry(
     """Set up the OpenSprinkler binary sensors."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
+
+    platform = entity_platform.current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_RUN_PROGRAM, {}, "run",
+    )
+    platform.async_register_entity_service(
+        SERVICE_RUN_STATION, {vol.Required(CONF_RUN_SECONDS): cv.positive_int}, "run",
+    )
+    platform.async_register_entity_service(
+        SERVICE_STOP_STATION, {}, "stop",
+    )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):
@@ -63,6 +83,10 @@ class ProgramIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
         """Retrieve latest state."""
         return bool(self._program.is_running)
 
+    def run(self):
+        """Runs the program."""
+        self._program.run()
+
 
 class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity):
     """Represent a binary_sensor for is_running of a station."""
@@ -86,3 +110,11 @@ class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
     def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._station.is_running)
+
+    def run(self, run_seconds=60):
+        """Run station."""
+        return self._station.run(run_seconds)
+
+    def stop(self):
+        """Stop station."""
+        return self._station.stop()
