@@ -104,7 +104,7 @@ class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of the switch."""
-        return self._program.name + " Enabled"
+        return self._program.name + " Program Enabled"
 
     @property
     def unique_id(self) -> str:
@@ -141,7 +141,7 @@ class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of the switch."""
-        return self._station.name + " Enabled"
+        return self._station.name + " Station Enabled"
 
     @property
     def unique_id(self) -> str:

@@ -171,7 +171,7 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
     @property
     def name(self) -> str:
         """Return the name of this sensor."""
-        return self._station.name + " Status"
+        return self._station.name + " Station Status"
 
     @property
     def unique_id(self) -> str:
