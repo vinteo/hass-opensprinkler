@@ -135,7 +135,7 @@ class OpenSprinklerEntity(RestoreEntity):
 
     async def async_will_remove_from_hass(self):
         """Disconnect dispatcher listeners and deregister API interest."""
-        super().async_will_remove_from_hass()
+        await super().async_will_remove_from_hass()
         self._coordinator.deregister_time_interval_listener()
 
     @Throttle(SCAN_INTERVAL)
