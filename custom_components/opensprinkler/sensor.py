@@ -46,9 +46,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(WaterLevelSensor(entry.entry_id, name, controller, coordinator))
 
     for _, station in controller.stations.items():
-        entities.append(
-            StationSensor(entry.entry_id, name, station, controller, coordinator)
-        )
+        entities.append(StationStatusSensor(entry.entry_id, name, station, coordinator))
 
     return entities
 
@@ -161,25 +159,26 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
         return utc_from_timestamp(rdst).isoformat()
 
 
-class StationSensor(OpenSprinklerSensor, Entity):
+class StationStatusSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
-    def __init__(self, entry_id, name, station, controller, coordinator):
+    def __init__(self, entry_id, name, station, coordinator):
         """Set up a new OpenSprinkler station sensor."""
         self._station = station
-        self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry_id, name, coordinator)
 
     @property
     def name(self) -> str:
         """Return the name of this sensor."""
-        return self._station.name
+        return self._station.name + " Station Status"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_station_{self._station.index}"
+        return (
+            f"{self._entry_id}_{self._entity_type}_station_status_{self._station.index}"
+        )
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
