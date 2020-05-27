@@ -2,13 +2,16 @@
 import logging
 from typing import Callable
 
+import voluptuous as vol
+
 from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import Entity
 from homeassistant.util.dt import utc_from_timestamp
 
 from . import OpenSprinklerSensor
-from .const import DOMAIN
+from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN_STATION, SERVICE_STOP_STATION
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -19,6 +22,14 @@ async def async_setup_entry(
     """Set up the OpenSprinkler sensors."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
+
+    platform = entity_platform.current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_RUN_STATION, {vol.Required(CONF_RUN_SECONDS): cv.positive_int}, "run",
+    )
+    platform.async_register_entity_service(
+        SERVICE_STOP_STATION, {}, "stop",
+    )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):
@@ -173,3 +184,11 @@ class StationSensor(OpenSprinklerSensor, Entity):
     def _get_state(self) -> str:
         """Retrieve latest state."""
         return self._station.status
+
+    def run(self, run_seconds=60):
+        """Run station."""
+        return self._station.run(run_seconds)
+
+    def stop(self):
+        """Stop station."""
+        return self._station.stop()

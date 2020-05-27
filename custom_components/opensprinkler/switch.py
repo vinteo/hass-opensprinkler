@@ -1,11 +1,20 @@
 from typing import Callable
 
+import voluptuous as vol
+
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.components.switch import SwitchEntity
+from homeassistant.helpers import config_validation as cv, entity_platform
 
 from . import OpenSprinklerBinarySensor
-from .const import DOMAIN
+from .const import (
+    CONF_RUN_SECONDS,
+    DOMAIN,
+    SERVICE_RUN_PROGRAM,
+    SERVICE_RUN_STATION,
+    SERVICE_STOP_STATION,
+)
 
 
 async def async_setup_entry(
@@ -14,6 +23,17 @@ async def async_setup_entry(
     """Set up the OpenSprinkler switches."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
+
+    platform = entity_platform.current_platform.get()
+    platform.async_register_entity_service(
+        SERVICE_RUN_PROGRAM, {}, "run",
+    )
+    platform.async_register_entity_service(
+        SERVICE_RUN_STATION, {vol.Required(CONF_RUN_SECONDS): cv.positive_int}, "run",
+    )
+    platform.async_register_entity_service(
+        SERVICE_STOP_STATION, {}, "stop",
+    )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):
@@ -101,6 +121,10 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._program.disable()
         self._state = False
 
+    def run(self):
+        """Runs the program."""
+        self._program.run()
+
 
 class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def __init__(self, entry_id, name, station, coordinator):
@@ -133,3 +157,11 @@ class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         """Disable the station."""
         self._station.disable()
         self._state = False
+
+    def run(self, run_seconds=60):
+        """Run station."""
+        return self._station.run(run_seconds)
+
+    def stop(self):
+        """Stop station."""
+        return self._station.stop()
