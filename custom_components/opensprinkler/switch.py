@@ -28,10 +28,14 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     )
 
     for _, program in controller.programs.items():
-        entities.append(ProgramSwitch(entry.entry_id, name, program, coordinator))
+        entities.append(
+            ProgramEnabledSwitch(entry.entry_id, name, program, coordinator)
+        )
 
     for _, station in controller.stations.items():
-        entities.append(StationSwitch(entry.entry_id, name, station, coordinator))
+        entities.append(
+            StationEnabledSwitch(entry.entry_id, name, station, coordinator)
+        )
 
     return entities
 
@@ -47,12 +51,12 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of controller switch."""
-        return f"{self._name} Operation"
+        return f"{self._name} Operation Enabled"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_controller_operation"
+        return f"{self._entry_id}_{self._entity_type}_controller_operation_enabled"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
@@ -69,7 +73,7 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._state = False
 
 
-class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def __init__(self, entry_id, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
         self._entry_id = entry_id
@@ -80,12 +84,12 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of the switch."""
-        return self._program.name
+        return self._program.name + " Enabled"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_program_{self._program.index}"
+        return f"{self._entry_id}_{self._entity_type}_program_enabled_{self._program.index}"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
@@ -102,7 +106,7 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._state = False
 
 
-class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def __init__(self, entry_id, name, station, coordinator):
         """Set up a new OpenSprinkler station switch."""
         self._entry_id = entry_id
@@ -113,14 +117,14 @@ class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of the switch."""
-        return self._station.name
+        return self._station.name + " Enabled"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_station_{self._station.index}"
+        return f"{self._entry_id}_{self._entity_type}_station_enabled_{self._station.index}"
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._station.enabled)
 
