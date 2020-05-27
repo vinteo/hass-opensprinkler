@@ -23,7 +23,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(ControllerOperationSwitch(entry.entry_id, name, controller, coordinator))
+    entities.append(
+        ControllerOperationSwitch(entry.entry_id, name, controller, coordinator)
+    )
 
     for _, program in controller.programs.items():
         entities.append(ProgramSwitch(entry.entry_id, name, program, coordinator))
