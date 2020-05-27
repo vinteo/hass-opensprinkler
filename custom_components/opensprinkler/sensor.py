@@ -16,7 +16,7 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(
     hass: HomeAssistant, entry: dict, async_add_entities: Callable,
 ):
-    """Set up the opensprinkler sensors."""
+    """Set up the OpenSprinkler sensors."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
 

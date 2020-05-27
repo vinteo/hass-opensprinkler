@@ -1,111 +1,79 @@
-from custom_components.hass_opensprinkler import (
-    CONF_CONFIG,
-    CONF_PROGRAMS,
-    CONF_STATIONS,
-    DOMAIN,
-)
-from datetime import timedelta
+from typing import Callable
+
+from homeassistant.const import CONF_NAME
+from homeassistant.core import HomeAssistant
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.util import Throttle
-from homeassistant.util import slugify
 
-SCAN_INTERVAL = timedelta(seconds=5)
-
-
-def setup_platform(hass, config, add_devices, discovery_info=None):
-    opensprinkler = hass.data[DOMAIN][DOMAIN]
-    opensprinklerConfig = hass.data[DOMAIN][CONF_CONFIG]
-
-    switches = []
-    switches.append(ControllerSwitch(opensprinkler))
-
-    stationIndexes = opensprinklerConfig[CONF_STATIONS] or []
-    for station in opensprinkler.stations():
-        if len(stationIndexes) == 0 or (station.index in stationIndexes):
-            switches.append(StationSwitch(station, hass.states))
-
-    programIndexes = opensprinklerConfig[CONF_PROGRAMS] or []
-    for program in opensprinkler.programs():
-        if len(programIndexes) == 0 or (program.index in programIndexes):
-            switches.append(ProgramSwitch(program))
-
-    add_devices(switches, True)
+from . import OpenSprinklerBinarySensor
+from .const import DOMAIN
 
 
-class ControllerSwitch(SwitchEntity):
-    def __init__(self, controller):
-        self._controller = controller
-        self._is_on = False
-
-    @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return "OpenSprinkler Operation"
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return bool(self._is_on)
-
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Get the latest data """
-        self._is_on = self._controller.enable_operation()
-
-    def turn_on(self, **kwargs):
-        """Turn the device on."""
-        self._controller._set_controller_variable("en", "1")
-        self._is_on = 1
-        self.schedule_update_ha_state()
-
-    def turn_off(self, **kwargs):
-        """Turn the device off."""
-        self._controller._set_controller_variable("en", "0")
-        self._is_on = 0
-        self.schedule_update_ha_state()
+async def async_setup_entry(
+    hass: HomeAssistant, entry: dict, async_add_entities: Callable,
+):
+    """Set up the OpenSprinkler switches."""
+    entities = _create_entities(hass, entry)
+    async_add_entities(entities)
 
 
-class StationSwitch(SwitchEntity):
-    def __init__(self, station, states):
-        self._states = states
-        self._station = station
-        self._is_on = False
+def _create_entities(hass: HomeAssistant, entry: dict):
+    entities = []
 
-    @property
-    def name(self):
-        """Return the name of the binary sensor."""
-        return self._station.name
+    controller = hass.data[DOMAIN][entry.entry_id]["controller"]
+    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
+    name = entry.data[CONF_NAME]
 
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return bool(self._is_on)
+    entities.append(ControllerSwitch(entry.entry_id, name, controller, coordinator))
 
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Get the latest data """
-        self._is_on = self._station.status()
-
-    def turn_on(self, **kwargs):
-        """Turn the device on."""
-        mins = self._states.get(
-            "input_number.{}_timer".format(slugify(self._station.name))
+    for _, station in controller.programs.items():
+        entities.append(
+            ProgramSwitch(entry.entry_id, name, station, controller, coordinator)
         )
-        self._station.turn_on(int(float(mins.state)))
-        self._is_on = 1
-        self.schedule_update_ha_state()
+
+    return entities
+
+
+class ControllerSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+    def __init__(self, entry_id, name, controller, coordinator):
+        """Set up a new OpenSprinkler controller switch."""
+        self._entry_id = entry_id
+        self._controller = controller
+        self._entity_type = "switch"
+        super().__init__(entry_id, name, coordinator)
+
+    @property
+    def name(self):
+        """Return the name of controller switch."""
+        return f"{self._name} Operation"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_controller"
+
+    def _get_state(self) -> str:
+        """Retrieve latest state."""
+        return bool(self._controller.operation_enabled)
+
+    def turn_on(self, **kwargs):
+        """Enable the controller operation."""
+        self._controller.enable()
+        self._state = True
 
     def turn_off(self, **kwargs):
-        """Turn the device off."""
-        self._station.turn_off()
-        self._is_on = 0
-        self.schedule_update_ha_state()
+        """Disable the device operation."""
+        self._controller.disable()
+        self._state = False
 
 
-class ProgramSwitch(SwitchEntity):
-    def __init__(self, program):
+class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+    def __init__(self, entry_id, name, program, controller, coordinator):
+        """Set up a new OpenSprinkler program switch."""
+        self._entry_id = entry_id
         self._program = program
-        self._is_on = False
+        self._controller = controller
+        self._entity_type = "switch"
+        super().__init__(entry_id, name, coordinator)
 
     @property
     def name(self):
@@ -113,23 +81,20 @@ class ProgramSwitch(SwitchEntity):
         return self._program.name
 
     @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return bool(self._is_on)
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return f"{self._entry_id}_{self._entity_type}_program_{self._program.index}"
 
-    @Throttle(SCAN_INTERVAL)
-    def update(self):
-        """Get the latest data """
-        self._is_on = self._program.status()
+    def _get_state(self) -> str:
+        """Retrieve latest state."""
+        return bool(self._program.enabled)
 
     def turn_on(self, **kwargs):
         """Turn the device on."""
         self._program.enable()
-        self._is_on = 1
-        self.schedule_update_ha_state()
+        self._state = True
 
     def turn_off(self, **kwargs):
         """Turn the device off."""
         self._program.disable()
-        self._is_on = 0
-        self.schedule_update_ha_state()
+        self._state = False

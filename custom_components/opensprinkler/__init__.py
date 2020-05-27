@@ -22,7 +22,7 @@ from .const import DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "switch"]
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
