@@ -23,7 +23,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(ControllerSwitch(entry.entry_id, name, controller, coordinator))
+    entities.append(ControllerOperationSwitch(entry.entry_id, name, controller, coordinator))
 
     for _, program in controller.programs.items():
         entities.append(ProgramSwitch(entry.entry_id, name, program, coordinator))
@@ -34,7 +34,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class ControllerSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def __init__(self, entry_id, name, controller, coordinator):
         """Set up a new OpenSprinkler controller switch."""
         self._entry_id = entry_id
@@ -50,7 +50,7 @@ class ControllerSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_controller"
+        return f"{self._entry_id}_{self._entity_type}_controller_operation"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
@@ -77,7 +77,7 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
 
     @property
     def name(self):
-        """Return the name of the binary sensor."""
+        """Return the name of the switch."""
         return self._program.name
 
     @property
@@ -90,12 +90,12 @@ class ProgramSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         return bool(self._program.enabled)
 
     def turn_on(self, **kwargs):
-        """Turn the device on."""
+        """Enable the program."""
         self._program.enable()
         self._state = True
 
     def turn_off(self, **kwargs):
-        """Turn the device off."""
+        """Disable the program."""
         self._program.disable()
         self._state = False
 
@@ -110,7 +110,7 @@ class StationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
 
     @property
     def name(self):
-        """Return the name of the binary sensor."""
+        """Return the name of the switch."""
         return self._station.name
 
     @property
