@@ -64,7 +64,7 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
     @property
     def icon(self) -> str:
         """Return icon."""
-        return "mdi:water"
+        return "mdi:water-percent"
 
     @property
     def name(self) -> str:
@@ -118,6 +118,10 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
     def _get_state(self):
         """Retrieve latest state."""
         last_run = self._controller.last_run_end_time
+
+        if last_run == 0:
+            return None
+
         return utc_from_timestamp(last_run).isoformat()
 
 
@@ -179,6 +183,30 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
         return (
             f"{self._entry_id}_{self._entity_type}_station_status_{self._station.index}"
         )
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._station.is_master:
+            if self.state == "master_engaged":
+                return "mdi:water-pump"
+            else:
+                return "mdi:water-pump-off"
+
+        if self.state == "manual":
+            return "mdi:sprout"
+
+        if self.state == "once_program":
+            return "mdi:sprout"
+
+        if self.state == "program":
+            return "mdi:calendar"
+
+        if self.state == "waiting":
+            return "mdi:calendar-alert"
+
+        # idle, any others
+        return "mdi:valve-closed"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
