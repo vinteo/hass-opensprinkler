@@ -117,14 +117,6 @@ class OpenSprinklerEntity(RestoreEntity):
 
     def _get_controller_attributes(self, controller):
         attributes = {}
-        return attributes
-
-    def _get_program_attributes(self, program):
-        attributes = {}
-        return attributes
-
-    def _get_controller_attributes(self, controller):
-        attributes = {}
         for attr in [
             "firmware_version",
             "hardware_version",
