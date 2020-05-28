@@ -11,12 +11,10 @@
     "step": {
       "user": {
         "data": {
-          "host": "Host",
+          "url": "URL",
           "name": "Controller Name",
           "password": "Password",
-          "mac": "MAC Address",
-          "port": "Port",
-          "ssl": "Use SSL"
+          "mac": "MAC Address"
         },
         "title": "Connect to the OpenSprinkler controller"
       }

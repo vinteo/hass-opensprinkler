@@ -10,12 +10,10 @@ import voluptuous as vol
 
 from homeassistant import config_entries, exceptions
 from homeassistant.const import (
-    CONF_HOST,
     CONF_MAC,
     CONF_NAME,
     CONF_PASSWORD,
-    CONF_PORT,
-    CONF_SSL,
+    CONF_URL,
 )
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN  # pylint: disable=unused-import
@@ -24,12 +22,10 @@ _LOGGER = logging.getLogger(__name__)
 
 DEVICE_SCHEMA = vol.Schema(
     {
-        vol.Required(CONF_HOST): str,
+        vol.Required(CONF_URL): str,
         vol.Required(CONF_PASSWORD): str,
         vol.Required(CONF_MAC): str,
-        vol.Optional(CONF_PORT, default=DEFAULT_PORT): int,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Optional(CONF_SSL, default=False): bool,
     }
 )
 
@@ -45,12 +41,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
         if user_input is not None:
             try:
-                host = user_input[CONF_HOST]
+                url = user_input[CONF_URL]
                 password = user_input[CONF_PASSWORD]
-                port = user_input.get(CONF_PORT, DEFAULT_PORT)
-                ssl = user_input.get(CONF_SSL, False)
-                protocol = "https" if ssl else "http"
-                url = f"{protocol}://{host}:{port}"
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
                 controller = OpenSprinkler(url, password)
                 await self.hass.async_add_executor_job(controller.refresh)
@@ -58,13 +50,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 return self.async_create_entry(
                     title=name,
-                    data={
-                        CONF_HOST: host,
-                        CONF_PASSWORD: password,
-                        CONF_PORT: port,
-                        CONF_NAME: name,
-                        CONF_SSL: ssl,
-                    },
+                    data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name,},
                 )
             except OpenSprinklerConnectionError:
                 errors["base"] = "cannot_connect"

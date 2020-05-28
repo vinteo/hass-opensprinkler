@@ -5,12 +5,10 @@
       "user": {
         "title": "Connect to the OpenSprinkler Controller",
         "data": {
-          "host": "Host",
+          "url": "URL",
           "password": "Password",
-          "port": "Port",
           "mac": "MAC Address",
-          "name": "Device Name",
-          "ssl": "Use SSL"
+          "name": "Device Name"
         }
       }
     },

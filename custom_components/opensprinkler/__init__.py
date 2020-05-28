@@ -10,7 +10,7 @@ from pyopensprinkler import (
 )
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, CONF_SSL
+from homeassistant.const import CONF_PASSWORD, CONF_URL
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
@@ -34,9 +34,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up OpenSprinkler from a config entry."""
     hass.data.setdefault(DOMAIN, {})
 
+    url = entry.data.get(CONF_URL)
     password = entry.data.get(CONF_PASSWORD)
-    protocol = "https" if entry.data.get(CONF_SSL) else "http"
-    url = f"{protocol}://{entry.data.get(CONF_HOST)}:{entry.data.get(CONF_PORT, DEFAULT_PORT)}"
     try:
         controller = OpenSprinkler(url, password)
         await hass.async_add_executor_job(controller.refresh)
