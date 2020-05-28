@@ -115,6 +115,109 @@ class OpenSprinklerEntity(RestoreEntity):
         """Retrieve the state."""
         raise NotImplementedError
 
+    def _get_controller_attributes(self, controller):
+        attributes = {}
+        for attr in [
+            "firmware_version",
+            "hardware_version",
+            "last_run_station",
+            "last_run_program",
+            "last_run_duration",
+            "last_run_end_time",
+            "master_station_1",
+            "master_station_2",
+            "rain_delay_enabled",
+            "rain_delay_stop_time",
+            "rain_sensor_enabled",
+            "sensor_1_enabled",
+            "sensor_2_enabled",
+            "operation_enabled",
+            "water_level",
+        ]:
+            attributes[attr] = getattr(controller, attr)
+
+        # station counts
+        attributes["station_total_count"] = len(controller.stations)
+
+        attributes["station_enabled_count"] = len(
+            dict(filter(lambda e: e[1].enabled == True, controller.stations.items()))
+        )
+
+        attributes["station_is_running_count"] = len(
+            dict(filter(lambda e: e[1].is_running == True, controller.stations.items()))
+        )
+
+        for status in [
+            "manual",
+            "once_program",
+            "master_engaged",
+            "idle",
+            "program",
+            "waiting",
+        ]:
+            key = f"station_{status}_count"
+            attributes[key] = len(
+                dict(
+                    filter(lambda e: e[1].status == status, controller.stations.items())
+                )
+            )
+
+        # program counts
+        attributes["program_total_count"] = len(controller.programs)
+
+        attributes["program_enabled_count"] = len(
+            dict(filter(lambda e: e[1].enabled == True, controller.programs.items()))
+        )
+
+        attributes["program_is_running_count"] = len(
+            dict(filter(lambda e: e[1].is_running == True, controller.programs.items()))
+        )
+
+        return attributes
+
+    def _get_program_attributes(self, program):
+        attributes = {}
+        for attr in [
+            "name",
+            "index",
+            "enabled",
+            "is_running",
+            "use_weather_adjustments",
+            "odd_even_restriction",
+            "odd_even_restriction_name",
+            "program_schedule_type",
+            "program_schedule_type_name",
+            "start_time_type",
+            "start_time_type_name",
+        ]:
+            attributes[attr] = getattr(program, attr)
+        return attributes
+
+    def _get_station_attributes(self, station):
+        attributes = {}
+        for attr in [
+            "name",
+            "index",
+            "enabled",
+            "is_running",
+            "is_master",
+            "running_program_id",
+            "seconds_remaining",
+            "start_time",
+            "max_name_length",
+            "master_1_operation_enabled",
+            "master_2_operation_enabled",
+            "rain_delay_ignored",
+            "sensor_1_ignored",
+            "sensor_2_ignored",
+            "sequential_operation",
+            "special",
+            "station_type",
+            "status",
+        ]:
+            attributes[attr] = getattr(station, attr)
+        return attributes
+
     @property
     def device_info(self):
         """Return device information about Opensprinkler Controller."""
@@ -125,6 +228,19 @@ class OpenSprinklerEntity(RestoreEntity):
             "model": self._coordinator._controller.hardware_version,
             "sw_version": self._coordinator._controller.firmware_version,
         }
+
+    @property
+    def device_state_attributes(self):
+        if hasattr(self, "_program"):
+            return self._get_program_attributes(self._program)
+
+        if hasattr(self, "_station"):
+            return self._get_station_attributes(self._station)
+
+        if hasattr(self, "_controller"):
+            return self._get_controller_attributes(self._controller)
+
+        return None
 
     async def async_added_to_hass(self):
         """Register callbacks."""
