@@ -16,7 +16,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.util import Throttle
+from homeassistant.util import slugify, Throttle
 from homeassistant.util.dt import utc_from_timestamp
 
 from .const import DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
@@ -105,11 +105,11 @@ class OpenSprinklerCoordinator:
 class OpenSprinklerEntity(RestoreEntity):
     """Define a generic OpenSprinkler entity."""
 
-    def __init__(self, entry_id, name, coordinator):
+    def __init__(self, entry, name, coordinator):
         """Initialize."""
         self._state = None
         self._coordinator = coordinator
-        self._entry_id = entry_id
+        self._entry = entry
         self._name = name
 
     def _get_state(self):
@@ -238,7 +238,7 @@ class OpenSprinklerEntity(RestoreEntity):
     def device_info(self):
         """Return device information about Opensprinkler Controller."""
         return {
-            "identifiers": {(DOMAIN, self._entry_id)},
+            "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
             "name": self._name,
             "manufacturer": "OpenSprinkler",
             "model": self._coordinator._controller.hardware_version,
