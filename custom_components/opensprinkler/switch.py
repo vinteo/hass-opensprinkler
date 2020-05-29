@@ -71,12 +71,20 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def name(self):
         """Return the name of controller switch."""
-        return f"{self._name} Operation Enabled"
+        return f"{self._name} Enabled"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return f"{self._entry_id}_{self._entity_type}_controller_operation_enabled"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._controller.operation_enabled:
+            return "mdi:barley"
+
+        return "mdi:barley-off"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
@@ -110,6 +118,14 @@ class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return f"{self._entry_id}_{self._entity_type}_program_enabled_{self._program.index}"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._program.enabled:
+            return "mdi:calendar-clock"
+
+        return "mdi:calendar-remove"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
@@ -147,6 +163,20 @@ class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return f"{self._entry_id}_{self._entity_type}_station_enabled_{self._station.index}"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._station.is_master:
+            if self._station.enabled:
+                return "mdi:water-pump"
+            else:
+                return "mdi:water-pump-off"
+
+        if self._station.enabled:
+            return "mdi:water"
+
+        return "mdi:water-off"
 
     def _get_state(self) -> bool:
         """Retrieve latest state."""

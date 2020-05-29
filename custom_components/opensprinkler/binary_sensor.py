@@ -79,6 +79,14 @@ class ProgramIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return f"{self._entry_id}_{self._entity_type}_program_running_{self._program.index}"
 
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._program.is_running:
+            return "mdi:timer"
+
+        return "mdi:timer-off"
+
     def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._program.is_running)
@@ -106,6 +114,20 @@ class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return f"{self._entry_id}_{self._entity_type}_station_running_{self._station.index}"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._station.is_master:
+            if self._station.is_running:
+                return "mdi:water-pump"
+            else:
+                return "mdi:water-pump-off"
+
+        if self._station.is_running:
+            return "mdi:valve-open"
+
+        return "mdi:valve-closed"
 
     def _get_state(self) -> bool:
         """Retrieve latest state."""

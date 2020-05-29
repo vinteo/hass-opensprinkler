@@ -17,6 +17,7 @@ from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import Throttle
+from homeassistant.util.dt import utc_from_timestamp
 
 from .const import DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
 
@@ -116,7 +117,7 @@ class OpenSprinklerEntity(RestoreEntity):
         raise NotImplementedError
 
     def _get_controller_attributes(self, controller):
-        attributes = {}
+        attributes = {"opensprinkler_type": "controller"}
         for attr in [
             "firmware_version",
             "hardware_version",
@@ -135,6 +136,13 @@ class OpenSprinklerEntity(RestoreEntity):
             "water_level",
         ]:
             attributes[attr] = getattr(controller, attr)
+
+        if controller.last_run_end_time == 0:
+            attributes["last_run_end_time_iso"] = None
+        else:
+            attributes["last_run_end_time_iso"] = utc_from_timestamp(
+                controller.last_run_end_time
+            ).isoformat()
 
         # station counts
         attributes["station_total_count"] = len(controller.stations)
@@ -176,7 +184,7 @@ class OpenSprinklerEntity(RestoreEntity):
         return attributes
 
     def _get_program_attributes(self, program):
-        attributes = {}
+        attributes = {"opensprinkler_type": "program"}
         for attr in [
             "name",
             "index",
@@ -194,7 +202,7 @@ class OpenSprinklerEntity(RestoreEntity):
         return attributes
 
     def _get_station_attributes(self, station):
-        attributes = {}
+        attributes = {"opensprinkler_type": "station"}
         for attr in [
             "name",
             "index",
@@ -216,6 +224,14 @@ class OpenSprinklerEntity(RestoreEntity):
             "status",
         ]:
             attributes[attr] = getattr(station, attr)
+
+        if station.start_time == 0:
+            attributes["start_time_iso"] = None
+        else:
+            attributes["start_time_iso"] = utc_from_timestamp(
+                station.start_time
+            ).isoformat()
+
         return attributes
 
     @property
