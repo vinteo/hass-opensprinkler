@@ -82,9 +82,9 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def icon(self) -> str:
         """Return icon."""
         if self._controller.operation_enabled:
-            return "mdi:circle"
+            return "mdi:barley"
 
-        return "mdi:circle-outline"
+        return "mdi:barley-off"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""

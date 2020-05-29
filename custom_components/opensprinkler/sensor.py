@@ -193,19 +193,9 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
             else:
                 return "mdi:water-pump-off"
 
-        if self.state == "manual":
-            return "mdi:sprout"
+        if self._station.is_running:
+            return "mdi:valve-open"
 
-        if self.state == "once_program":
-            return "mdi:sprout"
-
-        if self.state == "program":
-            return "mdi:calendar"
-
-        if self.state == "waiting":
-            return "mdi:calendar-alert"
-
-        # idle, any others
         return "mdi:valve-closed"
 
     def _get_state(self) -> str:
