@@ -11,8 +11,8 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
-from . import OpenSprinklerSensor
-from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN_STATION, SERVICE_STOP_STATION
+from . import OpenSprinklerSensor, OpenSprinklerStationEntity
+from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -26,10 +26,10 @@ async def async_setup_entry(
 
     platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
-        SERVICE_RUN_STATION, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
+        SERVICE_RUN, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
     )
     platform.async_register_entity_service(
-        SERVICE_STOP_STATION, {}, "stop",
+        SERVICE_STOP, {}, "stop",
     )
 
 
@@ -200,11 +200,3 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
     def _get_state(self) -> str:
         """Retrieve latest state."""
         return self._station.status
-
-    def run(self, run_seconds=60):
-        """Run station."""
-        return self._station.run(run_seconds)
-
-    def stop(self):
-        """Stop station."""
-        return self._station.stop()

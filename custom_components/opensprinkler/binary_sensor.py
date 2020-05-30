@@ -10,13 +10,16 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util import slugify
 
-from . import OpenSprinklerBinarySensor
+from . import (
+    OpenSprinklerBinarySensor,
+    OpenSprinklerProgramEntity,
+    OpenSprinklerStationEntity,
+)
 from .const import (
     CONF_RUN_SECONDS,
     DOMAIN,
-    SERVICE_RUN_PROGRAM,
-    SERVICE_RUN_STATION,
-    SERVICE_STOP_STATION,
+    SERVICE_RUN,
+    SERVICE_STOP,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -31,13 +34,10 @@ async def async_setup_entry(
 
     platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
-        SERVICE_RUN_PROGRAM, {}, "run",
+        SERVICE_RUN, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
     )
     platform.async_register_entity_service(
-        SERVICE_RUN_STATION, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
-    )
-    platform.async_register_entity_service(
-        SERVICE_STOP_STATION, {}, "stop",
+        SERVICE_STOP, {}, "stop",
     )
 
 
@@ -57,7 +57,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class ProgramIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity):
+class ProgramIsRunningBinarySensor(
+    OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, BinarySensorEntity
+):
     """Represent a binary_sensor for is_running of a program."""
 
     def __init__(self, entry, name, program, coordinator):
@@ -90,12 +92,10 @@ class ProgramIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
         """Retrieve latest state."""
         return bool(self._program.is_running)
 
-    def run(self):
-        """Runs the program."""
-        self._program.run()
 
-
-class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity):
+class StationIsRunningBinarySensor(
+    OpenSprinklerStationEntity, OpenSprinklerBinarySensor, BinarySensorEntity
+):
     """Represent a binary_sensor for is_running of a station."""
 
     def __init__(self, entry, name, station, coordinator):
@@ -133,11 +133,3 @@ class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
     def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._station.is_running)
-
-    def run(self, run_seconds=60):
-        """Run station."""
-        return self._station.run(run_seconds)
-
-    def stop(self):
-        """Stop station."""
-        return self._station.stop()

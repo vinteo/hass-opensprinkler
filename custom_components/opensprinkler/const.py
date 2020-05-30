@@ -11,6 +11,5 @@ DEFAULT_PORT = 8080
 
 SCAN_INTERVAL = timedelta(seconds=5)
 
-SERVICE_RUN_PROGRAM = "run_program"
-SERVICE_RUN_STATION = "run_station"
-SERVICE_STOP_STATION = "stop_station"
+SERVICE_RUN = "run"
+SERVICE_STOP = "stop"
