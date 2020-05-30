@@ -43,6 +43,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(LastRunSensor(entry, name, controller, coordinator))
     entities.append(RainDelayStopTimeSensor(entry, name, controller, coordinator))
     entities.append(WaterLevelSensor(entry, name, controller, coordinator))
+    entities.append(FlowRateSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
         entities.append(StationStatusSensor(entry, name, station, coordinator))
@@ -51,7 +52,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
 
 class WaterLevelSensor(OpenSprinklerSensor, Entity):
-    """Represent a sensor that for water level."""
+    """Represent a sensor for water level."""
 
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler water level sensor."""
@@ -83,6 +84,36 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
     def _get_state(self) -> int:
         """Retrieve latest state."""
         return self._controller.water_level
+
+
+class FlowRateSensor(OpenSprinklerSensor, Entity):
+    """Represent a sensor for flow rate."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler water level sensor."""
+        self._name = name
+        self._controller = controller
+        self._entity_type = "sensor"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:speedometer"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Flow Rate"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_flow_rate")
+
+    def _get_state(self) -> int:
+        """Retrieve latest state."""
+        return self._controller.flow_rate
 
 
 class LastRunSensor(OpenSprinklerSensor, Entity):

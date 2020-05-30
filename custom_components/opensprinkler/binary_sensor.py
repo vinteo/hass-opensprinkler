@@ -48,6 +48,18 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
+    entities.append(
+        ControllerSensorActive(entry, name, "sensor_1_active", controller, coordinator)
+    )
+    entities.append(
+        ControllerSensorActive(entry, name, "sensor_2_active", controller, coordinator)
+    )
+    entities.append(
+        ControllerSensorActive(
+            entry, name, "rain_delay_active", controller, coordinator
+        )
+    )
+
     for _, program in controller.programs.items():
         entities.append(ProgramIsRunningBinarySensor(entry, name, program, coordinator))
 
@@ -55,6 +67,32 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         entities.append(StationIsRunningBinarySensor(entry, name, station, coordinator))
 
     return entities
+
+
+class ControllerSensorActive(OpenSprinklerBinarySensor, BinarySensorEntity):
+    """Represent a sensor that for water level."""
+
+    def __init__(self, entry, name, attr, controller, coordinator):
+        """Set up a new opensprinkler water level sensor."""
+        self._name = name
+        self._controller = controller
+        self._entity_type = "binary_sensor"
+        self._attr = attr
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} {self._attr.replace('_', ' ').title()}"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_{self._attr}")
+
+    def _get_state(self) -> int:
+        """Retrieve latest state."""
+        return bool(getattr(self._controller, self._attr))
 
 
 class ProgramIsRunningBinarySensor(
