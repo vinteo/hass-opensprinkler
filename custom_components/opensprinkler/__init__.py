@@ -192,12 +192,21 @@ class OpenSprinklerEntity(RestoreEntity):
             except:
                 pass
 
-        if controller.last_run_end_time == 0:
-            attributes["last_run_end_time_iso"] = None
-        else:
-            attributes["last_run_end_time_iso"] = utc_from_timestamp(
-                controller.last_run_end_time
-            ).isoformat()
+        for attr in [
+            "last_run_end_time",
+            "rain_delay_stop_time",
+            "last_weather_call",
+            "last_successfull_weather_call",
+            "last_reboot_time",
+        ]:
+            iso_attr = attr + "_iso"
+            if getattr(controller, attr) == 0:
+                attributes[attr] = None
+                attributes[iso_attr] = None
+            else:
+                attributes[iso_attr] = utc_from_timestamp(
+                    getattr(controller, attr)
+                ).isoformat()
 
         # station counts
         attributes["station_total_count"] = len(controller.stations)
