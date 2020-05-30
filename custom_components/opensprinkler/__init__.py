@@ -262,7 +262,11 @@ class OpenSprinklerEntity(RestoreEntity):
             "start_time_type",
             "start_time_type_name",
         ]:
-            attributes[attr] = getattr(program, attr)
+            try:
+                attributes[attr] = getattr(program, attr)
+            except:
+                pass
+
         return attributes
 
     def _get_station_attributes(self, station):
@@ -287,14 +291,20 @@ class OpenSprinklerEntity(RestoreEntity):
             "station_type",
             "status",
         ]:
-            attributes[attr] = getattr(station, attr)
+            try:
+                attributes[attr] = getattr(station, attr)
+            except:
+                pass
 
-        if station.start_time == 0:
-            attributes["start_time_iso"] = None
-        else:
-            attributes["start_time_iso"] = utc_from_timestamp(
-                station.start_time
-            ).isoformat()
+        for attr in ["start_time"]:
+            iso_attr = attr + "_iso"
+            if getattr(station, attr) == 0:
+                attributes[attr] = None
+                attributes[iso_attr] = None
+            else:
+                attributes[iso_attr] = utc_from_timestamp(
+                    getattr(station, attr)
+                ).isoformat()
 
         return attributes
 
