@@ -367,6 +367,12 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
         return self._state
 
 
+class OpenSprinklerControllerEntity:
+    def stop(self):
+        """Stops all stations."""
+        return self._controller.stop_all_stations()
+
+
 class OpenSprinklerProgramEntity:
     def run(self):
         """Runs the program."""

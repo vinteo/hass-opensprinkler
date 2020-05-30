@@ -12,6 +12,7 @@ from homeassistant.util import slugify
 
 from . import (
     OpenSprinklerBinarySensor,
+    OpenSprinklerControllerEntity,
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
@@ -69,7 +70,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class ControllerSensorActive(OpenSprinklerBinarySensor, BinarySensorEntity):
+class ControllerSensorActive(
+    OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, BinarySensorEntity
+):
     """Represent a sensor that for water level."""
 
     def __init__(self, entry, name, attr, controller, coordinator):

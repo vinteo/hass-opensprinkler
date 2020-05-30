@@ -11,7 +11,11 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
-from . import OpenSprinklerSensor, OpenSprinklerStationEntity
+from . import (
+    OpenSprinklerControllerEntity,
+    OpenSprinklerSensor,
+    OpenSprinklerStationEntity,
+)
 from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP
 
 _LOGGER = logging.getLogger(__name__)
@@ -51,7 +55,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class WaterLevelSensor(OpenSprinklerSensor, Entity):
+class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for water level."""
 
     def __init__(self, entry, name, controller, coordinator):
@@ -86,7 +90,7 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
         return self._controller.water_level
 
 
-class FlowRateSensor(OpenSprinklerSensor, Entity):
+class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for flow rate."""
 
     def __init__(self, entry, name, controller, coordinator):
@@ -116,7 +120,7 @@ class FlowRateSensor(OpenSprinklerSensor, Entity):
         return self._controller.flow_rate
 
 
-class LastRunSensor(OpenSprinklerSensor, Entity):
+class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor that for last run time."""
 
     def __init__(self, entry, name, controller, coordinator):
@@ -155,7 +159,9 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
         return utc_from_timestamp(last_run).isoformat()
 
 
-class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
+class RainDelayStopTimeSensor(
+    OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity
+):
     """Represent a sensor that for rain delay stop time."""
 
     def __init__(self, entry, name, controller, coordinator):
@@ -193,7 +199,7 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
         return utc_from_timestamp(rdst).isoformat()
 
 
-class StationStatusSensor(OpenSprinklerSensor, Entity):
+class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
     def __init__(self, entry, name, station, coordinator):

@@ -38,7 +38,7 @@ Note: *1.0.0 has major breaking changes, you will need to update any automations
 
 ## Using Services
 
-Available services are `opensprinkler.run` for programs and stations, and `opensprinkler.stop` for stations.
+Available services are `opensprinkler.run` for programs and stations, and `opensprinkler.stop` for stations or controller (to stop all stations).
 
 ```yaml
 service: opensprinkler.run
@@ -50,5 +50,5 @@ data:
 ```yaml
 service: opensprinkler.stop
 data:
-  entity_id: switch.station_name # Switches or sensors for stations
+  entity_id: switch.station_name # Switches or sensors for stations or controller
 ```

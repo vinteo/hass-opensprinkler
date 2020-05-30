@@ -9,16 +9,12 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util import slugify
 
 from . import (
+    OpenSprinklerControllerEntity,
     OpenSprinklerBinarySensor,
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import (
-    CONF_RUN_SECONDS,
-    DOMAIN,
-    SERVICE_RUN,
-    SERVICE_STOP,
-)
+from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP
 
 
 async def async_setup_entry(
@@ -55,7 +51,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class ControllerOperationSwitch(
+    OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new OpenSprinkler controller switch."""
         self._controller = controller
