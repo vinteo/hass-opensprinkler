@@ -186,7 +186,7 @@ class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._station.disable()
         self._state = False
 
-    def run(self, run_seconds=60):
+    def run(self, run_seconds):
         """Run station."""
         return self._station.run(run_seconds)
 

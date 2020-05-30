@@ -201,7 +201,7 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
         """Retrieve latest state."""
         return self._station.status
 
-    def run(self, run_seconds=60):
+    def run(self, run_seconds):
         """Run station."""
         return self._station.run(run_seconds)
 

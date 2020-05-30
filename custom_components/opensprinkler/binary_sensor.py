@@ -130,7 +130,7 @@ class StationIsRunningBinarySensor(OpenSprinklerBinarySensor, BinarySensorEntity
         """Retrieve latest state."""
         return bool(self._station.is_running)
 
-    def run(self, run_seconds=60):
+    def run(self, run_seconds):
         """Run station."""
         return self._station.run(run_seconds)
 
