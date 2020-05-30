@@ -12,9 +12,8 @@ from . import OpenSprinklerBinarySensor
 from .const import (
     CONF_RUN_SECONDS,
     DOMAIN,
-    SERVICE_RUN_PROGRAM,
-    SERVICE_RUN_STATION,
-    SERVICE_STOP_STATION,
+    SERVICE_RUN,
+    SERVICE_STOP,
 )
 
 
@@ -27,13 +26,10 @@ async def async_setup_entry(
 
     platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
-        SERVICE_RUN_PROGRAM, {}, "run",
+        SERVICE_RUN, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
     )
     platform.async_register_entity_service(
-        SERVICE_RUN_STATION, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
-    )
-    platform.async_register_entity_service(
-        SERVICE_STOP_STATION, {}, "stop",
+        SERVICE_STOP, {}, "stop",
     )
 
 

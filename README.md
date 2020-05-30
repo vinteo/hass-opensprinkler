@@ -33,28 +33,22 @@ Note: *1.0.0 has major breaking changes, you will need to update any automations
 
 - Program binary sensors now show running state instead of operation state. Please use the program switch states for program operation state.
 - Controller binary sensor is removed. Please use controller switch state for controller operation state.
-- Station switches now enable/disable instead of run/stop stations. Please use `opensprinkler.run_station` and `opensprinkler.stop_station` services to run and stop stations.
-- All scenes are removed. Please use the `opensprinkler.run_program` service to run programs.
+- Station switches now enable/disable instead of run/stop stations. Please use `opensprinkler.run` and `opensprinkler.stop` services to run and stop stations.
+- All scenes are removed. Please use the `opensprinkler.run` service to run programs.
 
 ## Using Services
 
-Available services are `opensprinkler.run_program`, `opensprinkler.run_station`, `opensprinkler.stop_station`.
+Available services are `opensprinkler.run` for programs and stations, and `opensprinkler.stop` for stations.
 
 ```yaml
-service: opensprinkler.run_program
+service: opensprinkler.run
 data:
-  entity_id: switch.program_name # Program switches
+  entity_id: switch.station_name # Switches or sensors for programs or stations
+  run_seconds: 60 # Seconds to run for (optional, stations only)
 ```
 
 ```yaml
-service: opensprinkler.run_station
+service: opensprinkler.stop
 data:
-  entity_id: switch.station_name # Station switches or sensors
-  run_seconds: 60 # Seconds to run for, optional
-```
-
-```yaml
-service: opensprinkler.stop_station
-data:
-  entity_id: switch.station_name # Station switches or sensors
+  entity_id: switch.station_name # Switches or sensors for stations
 ```

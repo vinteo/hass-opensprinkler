@@ -1,21 +1,15 @@
-run_program:
-  description: Runs a controller program
+run:
+  description: Runs a controller program or station
   fields:
     entity_id:
-      description: Program switch entity id
-      example: "switch.program_name"
-run_station:
-  description: Runs a controller station
-  fields:
-    entity_id:
-      description: Station sensor or switch entity id
+      description: Sensor or switch entity id for programs or stations
       example: "sensor.station_name"
     run_seconds:
-      description: Number of seconds to run for (optional)
+      description: Number of seconds to run for (optional, stations only)
       example: 60
-stop_station:
+stop:
   description: Stops a controller station
   fields:
     entity_id:
-      description: Station sensor or switch entity id
+      description: Sensor or switch entity id for stations
       example: "sensor.station_name"
