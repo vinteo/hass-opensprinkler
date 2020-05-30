@@ -8,6 +8,7 @@ from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.helpers.entity import Entity
+from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
 from . import OpenSprinklerSensor
@@ -39,14 +40,12 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(LastRunSensor(entry.entry_id, name, controller, coordinator))
-    entities.append(
-        RainDelayStopTimeSensor(entry.entry_id, name, controller, coordinator)
-    )
-    entities.append(WaterLevelSensor(entry.entry_id, name, controller, coordinator))
+    entities.append(LastRunSensor(entry, name, controller, coordinator))
+    entities.append(RainDelayStopTimeSensor(entry, name, controller, coordinator))
+    entities.append(WaterLevelSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
-        entities.append(StationStatusSensor(entry.entry_id, name, station, coordinator))
+        entities.append(StationStatusSensor(entry, name, station, coordinator))
 
     return entities
 
@@ -54,12 +53,12 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class WaterLevelSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for water level."""
 
-    def __init__(self, entry_id, name, controller, coordinator):
+    def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
         self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def icon(self) -> str:
@@ -74,7 +73,7 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_water_level"
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_water_level")
 
     @property
     def unit_of_measurement(self) -> str:
@@ -89,11 +88,11 @@ class WaterLevelSensor(OpenSprinklerSensor, Entity):
 class LastRunSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for last run time."""
 
-    def __init__(self, entry_id, name, controller, coordinator):
+    def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler last run sensor."""
         self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def device_class(self):
@@ -113,7 +112,7 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_last_run"
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_last_run")
 
     def _get_state(self):
         """Retrieve latest state."""
@@ -128,11 +127,11 @@ class LastRunSensor(OpenSprinklerSensor, Entity):
 class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor that for rain delay stop time."""
 
-    def __init__(self, entry_id, name, controller, coordinator):
+    def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler rain delay stop time sensor."""
         self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def device_class(self):
@@ -152,7 +151,7 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_rdst"
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_rdst")
 
     def _get_state(self):
         """Retrieve latest state."""
@@ -166,11 +165,11 @@ class RainDelayStopTimeSensor(OpenSprinklerSensor, Entity):
 class StationStatusSensor(OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
-    def __init__(self, entry_id, name, station, coordinator):
+    def __init__(self, entry, name, station, coordinator):
         """Set up a new OpenSprinkler station sensor."""
         self._station = station
         self._entity_type = "sensor"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def name(self) -> str:
@@ -180,8 +179,8 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return (
-            f"{self._entry_id}_{self._entity_type}_station_status_{self._station.index}"
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_station_status_{self._station.index}"
         )
 
     @property

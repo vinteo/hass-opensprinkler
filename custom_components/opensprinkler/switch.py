@@ -6,6 +6,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.util import slugify
 
 from . import OpenSprinklerBinarySensor
 from .const import (
@@ -43,30 +44,23 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(
-        ControllerOperationSwitch(entry.entry_id, name, controller, coordinator)
-    )
+    entities.append(ControllerOperationSwitch(entry, name, controller, coordinator))
 
     for _, program in controller.programs.items():
-        entities.append(
-            ProgramEnabledSwitch(entry.entry_id, name, program, coordinator)
-        )
+        entities.append(ProgramEnabledSwitch(entry, name, program, coordinator))
 
     for _, station in controller.stations.items():
-        entities.append(
-            StationEnabledSwitch(entry.entry_id, name, station, coordinator)
-        )
+        entities.append(StationEnabledSwitch(entry, name, station, coordinator))
 
     return entities
 
 
 class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
-    def __init__(self, entry_id, name, controller, coordinator):
+    def __init__(self, entry, name, controller, coordinator):
         """Set up a new OpenSprinkler controller switch."""
-        self._entry_id = entry_id
         self._controller = controller
         self._entity_type = "switch"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def name(self):
@@ -76,7 +70,9 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_controller_operation_enabled"
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_controller_operation_enabled"
+        )
 
     @property
     def icon(self) -> str:
@@ -102,12 +98,11 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
 
 
 class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
-    def __init__(self, entry_id, name, program, coordinator):
+    def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
-        self._entry_id = entry_id
         self._program = program
         self._entity_type = "switch"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def name(self):
@@ -117,7 +112,9 @@ class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_program_enabled_{self._program.index}"
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_program_enabled_{self._program.index}"
+        )
 
     @property
     def icon(self) -> str:
@@ -147,12 +144,11 @@ class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
 
 
 class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
-    def __init__(self, entry_id, name, station, coordinator):
+    def __init__(self, entry, name, station, coordinator):
         """Set up a new OpenSprinkler station switch."""
-        self._entry_id = entry_id
         self._station = station
         self._entity_type = "switch"
-        super().__init__(entry_id, name, coordinator)
+        super().__init__(entry, name, coordinator)
 
     @property
     def name(self):
@@ -162,7 +158,9 @@ class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return f"{self._entry_id}_{self._entity_type}_station_enabled_{self._station.index}"
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_station_enabled_{self._station.index}"
+        )
 
     @property
     def icon(self) -> str:

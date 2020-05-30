@@ -15,6 +15,7 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_URL,
 )
+from homeassistant.util import slugify
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN  # pylint: disable=unused-import
 
@@ -46,7 +47,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
                 controller = OpenSprinkler(url, password)
                 await self.hass.async_add_executor_job(controller.refresh)
-                await self.async_set_unique_id(user_input[CONF_MAC])
+                await self.async_set_unique_id(slugify(user_input[CONF_MAC]))
 
                 return self.async_create_entry(
                     title=name,
