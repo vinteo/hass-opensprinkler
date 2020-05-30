@@ -127,12 +127,14 @@ class OpenSprinklerEntity(RestoreEntity):
             "last_run_end_time",
             "master_station_1",
             "master_station_2",
-            "rain_delay_enabled",
+            "rain_delay_active",
             "rain_delay_stop_time",
             "rain_sensor_enabled",
+            "sensor_1_active",
+            "sensor_2_active",
             "sensor_1_enabled",
             "sensor_2_enabled",
-            "operation_enabled",
+            "enabled",
             "water_level",
         ]:
             attributes[attr] = getattr(controller, attr)
