@@ -71,20 +71,20 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(
-            f"{self._entry.unique_id}_{self._entity_type}_controller_operation_enabled"
+            f"{self._entry.unique_id}_{self._entity_type}_controller_enabled"
         )
 
     @property
     def icon(self) -> str:
         """Return icon."""
-        if self._controller.operation_enabled:
+        if self._controller.enabled:
             return "mdi:barley"
 
         return "mdi:barley-off"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
-        return bool(self._controller.operation_enabled)
+        return bool(self._controller.enabled)
 
     def turn_on(self, **kwargs):
         """Enable the controller operation."""
