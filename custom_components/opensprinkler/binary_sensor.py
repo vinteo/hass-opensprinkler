@@ -33,7 +33,7 @@ async def async_setup_entry(
         SERVICE_RUN_PROGRAM, {}, "run",
     )
     platform.async_register_entity_service(
-        SERVICE_RUN_STATION, {vol.Required(CONF_RUN_SECONDS): cv.positive_int}, "run",
+        SERVICE_RUN_STATION, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
     )
     platform.async_register_entity_service(
         SERVICE_STOP_STATION, {}, "stop",
