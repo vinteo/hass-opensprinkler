@@ -8,7 +8,11 @@ from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util import slugify
 
-from . import OpenSprinklerBinarySensor
+from . import (
+    OpenSprinklerBinarySensor,
+    OpenSprinklerProgramEntity,
+    OpenSprinklerStationEntity,
+)
 from .const import (
     CONF_RUN_SECONDS,
     DOMAIN,
@@ -93,7 +97,9 @@ class ControllerOperationSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._state = False
 
 
-class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class ProgramEnabledSwitch(
+    OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
         self._program = program
@@ -134,12 +140,10 @@ class ProgramEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         self._program.disable()
         self._state = False
 
-    def run(self):
-        """Runs the program."""
-        self._program.run()
 
-
-class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
+class StationEnabledSwitch(
+    OpenSprinklerStationEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
     def __init__(self, entry, name, station, coordinator):
         """Set up a new OpenSprinkler station switch."""
         self._station = station
@@ -185,11 +189,3 @@ class StationEnabledSwitch(OpenSprinklerBinarySensor, SwitchEntity):
         """Disable the station."""
         self._station.disable()
         self._state = False
-
-    def run(self, run_seconds):
-        """Run station."""
-        return self._station.run(run_seconds)
-
-    def stop(self):
-        """Stop station."""
-        return self._station.stop()

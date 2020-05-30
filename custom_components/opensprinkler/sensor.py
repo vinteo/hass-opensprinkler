@@ -11,7 +11,7 @@ from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
-from . import OpenSprinklerSensor
+from . import OpenSprinklerSensor, OpenSprinklerStationEntity
 from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP
 
 _LOGGER = logging.getLogger(__name__)
@@ -200,11 +200,3 @@ class StationStatusSensor(OpenSprinklerSensor, Entity):
     def _get_state(self) -> str:
         """Retrieve latest state."""
         return self._station.status
-
-    def run(self, run_seconds):
-        """Run station."""
-        return self._station.run(run_seconds)
-
-    def stop(self):
-        """Stop station."""
-        return self._station.stop()

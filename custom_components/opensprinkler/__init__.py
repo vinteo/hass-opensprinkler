@@ -293,3 +293,19 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
     def state(self):
         """Return the state of the sensor."""
         return self._state
+
+
+class OpenSprinklerProgramEntity:
+    def run(self):
+        """Runs the program."""
+        return self._program.run()
+
+
+class OpenSprinklerStationEntity:
+    def run(self, run_seconds=None):
+        """Run station."""
+        return self._station.run(run_seconds)
+
+    def stop(self):
+        """Stop station."""
+        return self._station.stop()
