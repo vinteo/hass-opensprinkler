@@ -1,4 +1,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+![](https://github.com/vinteo/hass-opensprinkler/workflows/HACS/badge.svg)
+![](https://github.com/vinteo/hass-opensprinkler/workflows/hassfest/badge.svg)
+![](https://github.com/vinteo/hass-opensprinkler/workflows/Linting/badge.svg)
 
 # OpenSprinkler Integration for Home Assistant
 
