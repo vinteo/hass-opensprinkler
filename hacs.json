@@ -1,5 +1,6 @@
 {
-  "name": "Opensprinkler integration for Home Assistant",
+  "name": "OpenSprinkler integration for Home Assistant",
+  "domains": ["binary_sensor", "sensor", "switch"],
   "render_readme": true,
   "iot_class": "Local Polling"
 }

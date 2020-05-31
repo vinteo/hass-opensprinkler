@@ -1,6 +1,6 @@
-## hass-opensprinkler
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
 
-OpenSprinkler custom component for Home Assistant
+# OpenSprinkler Integration for Home Assistant
 
 Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
