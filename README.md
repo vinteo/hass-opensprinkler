@@ -47,7 +47,7 @@ Available services are `opensprinkler.run` for programs and stations, and `opens
 service: opensprinkler.run
 data:
   entity_id: switch.station_name # Switches or sensors for programs or stations
-  run_seconds: 60 # Seconds to run for (optional, stations only)
+  run_seconds: 60 # Seconds to run for (optional, defaults to 60 seconds, stations only)
 ```
 
 ```yaml
