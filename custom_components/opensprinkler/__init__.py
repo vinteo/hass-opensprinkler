@@ -91,7 +91,7 @@ class OpenSprinklerCoordinator:
         """Register time interval listener."""
         if not self._cancel_time_interval_listener:
             self._cancel_time_interval_listener = async_track_time_interval(
-                self._hass, self._async_update_listener_action, timedelta(seconds=15),
+                self._hass, self._async_update_listener_action, SCAN_INTERVAL,
             )
 
     @callback
@@ -200,13 +200,12 @@ class OpenSprinklerEntity(RestoreEntity):
             "last_reboot_time",
         ]:
             iso_attr = attr + "_iso"
-            if getattr(controller, attr) == 0:
+            timestamp = getattr(controller, attr)
+            if not timestamp:
                 attributes[attr] = None
                 attributes[iso_attr] = None
             else:
-                attributes[iso_attr] = utc_from_timestamp(
-                    getattr(controller, attr)
-                ).isoformat()
+                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
 
         # station counts
         attributes["station_total_count"] = len(controller.stations)
@@ -298,13 +297,12 @@ class OpenSprinklerEntity(RestoreEntity):
 
         for attr in ["start_time"]:
             iso_attr = attr + "_iso"
-            if getattr(station, attr) == 0:
+            timestamp = getattr(station, attr, 0)
+            if not timestamp:
                 attributes[attr] = None
                 attributes[iso_attr] = None
             else:
-                attributes[iso_attr] = utc_from_timestamp(
-                    getattr(station, attr)
-                ).isoformat()
+                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
 
         return attributes
 
