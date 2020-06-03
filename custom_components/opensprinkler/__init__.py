@@ -341,7 +341,6 @@ class OpenSprinklerEntity(RestoreEntity):
         await super().async_will_remove_from_hass()
         self._coordinator.deregister_time_interval_listener()
 
-    @Throttle(SCAN_INTERVAL)
     def update(self) -> None:
         """Update latest state."""
         self._state = self._get_state()
