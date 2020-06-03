@@ -1,6 +1,5 @@
 """OpenSprinkler integration."""
 import asyncio
-from datetime import timedelta
 import logging
 
 from pyopensprinkler import (
@@ -16,7 +15,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.util import slugify, Throttle
+from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
 from .const import DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
@@ -341,7 +340,6 @@ class OpenSprinklerEntity(RestoreEntity):
         await super().async_will_remove_from_hass()
         self._coordinator.deregister_time_interval_listener()
 
-    @Throttle(SCAN_INTERVAL)
     def update(self) -> None:
         """Update latest state."""
         self._state = self._get_state()

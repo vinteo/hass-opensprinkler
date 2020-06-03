@@ -16,12 +16,7 @@ from . import (
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import (
-    CONF_RUN_SECONDS,
-    DOMAIN,
-    SERVICE_RUN,
-    SERVICE_STOP,
-)
+from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
