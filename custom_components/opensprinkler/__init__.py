@@ -85,6 +85,7 @@ class OpenSprinklerCoordinator:
 
     async def _async_update_listener_action(self, now):
         """Define an async_track_time_interval action to update data."""
+        _LOGGER.warn("test: refresh")
         await self._hass.async_add_executor_job(self._controller.refresh)
 
     async def async_register_time_interval_listener(self):
@@ -111,7 +112,6 @@ class OpenSprinklerEntity(RestoreEntity):
         self._coordinator = coordinator
         self._entry = entry
         self._name = name
-        self.update = Throttle(SCAN_INTERVAL)(self._update)
 
     def _get_state(self):
         """Retrieve the state."""
@@ -333,10 +333,9 @@ class OpenSprinklerEntity(RestoreEntity):
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self.async_on_remove(async_dispatcher_connect(
-            self.hass, DOMAIN, self.update))
+        self.async_on_remove(async_dispatcher_connect(self.hass, DOMAIN, self.update))
         await self._coordinator.async_register_time_interval_listener()
-        self._update()
+        self.update()
 
     async def async_will_remove_from_hass(self):
         """Disconnect dispatcher listeners and deregister API interest."""
@@ -344,7 +343,8 @@ class OpenSprinklerEntity(RestoreEntity):
         self._coordinator.deregister_time_interval_listener()
 
     @Throttle(SCAN_INTERVAL)
-    def _update(self) -> None:
+    def update(self) -> None:
+        _LOGGER.warn("test: update")
         """Update latest state."""
         self._state = self._get_state()
 
