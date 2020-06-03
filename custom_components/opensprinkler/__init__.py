@@ -111,6 +111,7 @@ class OpenSprinklerEntity(RestoreEntity):
         self._coordinator = coordinator
         self._entry = entry
         self._name = name
+        self.update = Throttle(SCAN_INTERVAL)(self._update)
 
     def _get_state(self):
         """Retrieve the state."""
@@ -332,9 +333,10 @@ class OpenSprinklerEntity(RestoreEntity):
 
     async def async_added_to_hass(self):
         """Register callbacks."""
-        self.async_on_remove(async_dispatcher_connect(self.hass, DOMAIN, self.update))
+        self.async_on_remove(async_dispatcher_connect(
+            self.hass, DOMAIN, self.update))
         await self._coordinator.async_register_time_interval_listener()
-        self.update()
+        self._update()
 
     async def async_will_remove_from_hass(self):
         """Disconnect dispatcher listeners and deregister API interest."""
@@ -342,7 +344,7 @@ class OpenSprinklerEntity(RestoreEntity):
         self._coordinator.deregister_time_interval_listener()
 
     @Throttle(SCAN_INTERVAL)
-    def update(self) -> None:
+    def _update(self) -> None:
         """Update latest state."""
         self._state = self._get_state()
 
