@@ -85,7 +85,6 @@ class OpenSprinklerCoordinator:
 
     async def _async_update_listener_action(self, now):
         """Define an async_track_time_interval action to update data."""
-        _LOGGER.warn("test: refresh")
         await self._hass.async_add_executor_job(self._controller.refresh)
 
     async def async_register_time_interval_listener(self):
@@ -344,7 +343,6 @@ class OpenSprinklerEntity(RestoreEntity):
 
     @Throttle(SCAN_INTERVAL)
     def update(self) -> None:
-        _LOGGER.warn("test: update")
         """Update latest state."""
         self._state = self._get_state()
 
