@@ -14,7 +14,7 @@ from . import (
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP
+from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP, SCAN_INTERVAL
 
 
 async def async_setup_entry(

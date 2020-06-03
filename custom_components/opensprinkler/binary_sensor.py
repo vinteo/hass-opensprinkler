@@ -21,6 +21,7 @@ from .const import (
     DOMAIN,
     SERVICE_RUN,
     SERVICE_STOP,
+    SCAN_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
