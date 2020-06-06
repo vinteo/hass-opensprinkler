@@ -64,13 +64,28 @@ data:
 
 #### Run Once Program Example
 
+To run an once program, the run seconds can either be a list of seconds per station or a list of index and second pairs.
+The following two examples are equivalent.
+
 ```yaml
 service: opensprinkler.run
 data:
   entity_id: switch.controller_name # Switches or sensors for controller
   run_seconds: # Seconds to run for each station (required)
     - 60
+    - 0
     - 30
+```
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # Station and index and seconds pairs (required)
+    - index: 0
+      run_seconds: 60
+    - index: 2
+      run_seconds: 30
 ```
 
 ### Stop Examples

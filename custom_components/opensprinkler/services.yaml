@@ -5,7 +5,7 @@ run:
       description: Sensor or switch entity id for programs or stations
       example: "sensor.station_name"
     run_seconds:
-      description: Number of seconds to run for (optional for stations, defaults to 60 seconds; required for controllers, list of seconds for each station)
+      description: Number of seconds to run (optional for stations, defaults to 60 seconds; required for controllers, list of seconds for each station or index and seconds pairs)
       example: 60
 stop:
   description: Stops a station or all station (for controller)
