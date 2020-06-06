@@ -364,6 +364,12 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
+    def run(self, run_seconds=None):
+        """Run once program."""
+        if run_seconds == None or not isinstance(run_seconds, list):
+            raise Exception("List of run seconds is required for controller")
+        return self._controller.run_once_program(run_seconds)
+
     def stop(self):
         """Stops all stations."""
         return self._controller.stop_all_stations()
@@ -378,6 +384,8 @@ class OpenSprinklerProgramEntity:
 class OpenSprinklerStationEntity:
     def run(self, run_seconds=None):
         """Run station."""
+        if run_seconds is not None and not isinstance(run_seconds, int):
+            raise Exception("Run seconds should be an integer value for station")
         return self._station.run(run_seconds)
 
     def stop(self):

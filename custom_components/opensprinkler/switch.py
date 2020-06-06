@@ -1,11 +1,9 @@
 from typing import Callable
 
-import voluptuous as vol
-
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.components.switch import SwitchEntity
-from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers import entity_platform
 from homeassistant.util import slugify
 
 from . import (
@@ -14,7 +12,15 @@ from . import (
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import CONF_RUN_SECONDS, DOMAIN, SERVICE_RUN, SERVICE_STOP, SCAN_INTERVAL
+from .const import (
+    CONF_RUN_SECONDS,
+    DOMAIN,
+    SCAN_INTERVAL,
+    SCHEMA_SERVICE_RUN,
+    SCHEMA_SERVICE_STOP,
+    SERVICE_RUN,
+    SERVICE_STOP,
+)
 
 
 async def async_setup_entry(
@@ -26,10 +32,10 @@ async def async_setup_entry(
 
     platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
-        SERVICE_RUN, {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}, "run",
+        SERVICE_RUN, SCHEMA_SERVICE_RUN, "run",
     )
     platform.async_register_entity_service(
-        SERVICE_STOP, {}, "stop",
+        SERVICE_STOP, SCHEMA_SERVICE_STOP, "stop",
     )
 
 
