@@ -41,17 +41,106 @@ Note: *1.0.0 has major breaking changes, you will need to update any automations
 
 ## Using Services
 
-Available services are `opensprinkler.run` for programs and stations, and `opensprinkler.stop` for stations or controller (to stop all stations).
+Available services are `opensprinkler.run` for programs, stations and controllers (for running once program), and `opensprinkler.stop` for stations or controller (to stop all stations).
+
+### Run Examples
+
+#### Run Program Example
 
 ```yaml
 service: opensprinkler.run
 data:
-  entity_id: switch.station_name # Switches or sensors for programs or stations
-  run_seconds: 60 # Seconds to run for (optional, defaults to 60 seconds, stations only)
+  entity_id: switch.program_name # Switches or sensors for programs
 ```
+
+#### Run Station Example
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.station_name # Switches or sensors for stations
+  run_seconds: 60 # Seconds to run (optional, defaults to 60 seconds)
+```
+
+#### Run Once Program Example
+
+To run an once program, the run seconds can either be a list of seconds per station or a list of index and second pairs.
+The following examples are all equivalent.
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # Seconds to run for each station (required)
+    - 60
+    - 0
+    - 30
+```
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # List of station index and run seconds pairs (required)
+    - index: 0
+      run_seconds: 60
+    - index: 2
+      run_seconds: 30
+```
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # Dictionary of station index and run seconds key/value pairs (required)
+    0: 60
+    2: 30
+```
+
+### Stop Examples
+
+#### Stop Station Example
 
 ```yaml
 service: opensprinkler.stop
 data:
-  entity_id: switch.station_name # Switches or sensors for stations or controller
+  entity_id: switch.station_name # Switches or sensors for stations
+```
+
+#### Stop All Stations Example
+
+```yaml
+service: opensprinkler.stop
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+```
+
+## Creating a Station Switch
+
+If you wish to have a switch for your stations, here is an example using the switch template and input number.
+Add the following to your YAML configuration (`configuration.yaml`).
+
+```yaml
+switch:
+  - platform: template
+    switches:
+      fruits_station:
+        value_template: "{{ is_state('binary_sensor.s01_station_running', 'on') }}"
+        turn_on:
+          service: opensprinkler.run
+          data_template:
+            entity_id: binary_sensor.s01_station_running
+            # Run seconds uses the input_number below.
+            run_seconds: "{{ ((states('input_number.s01_station_minutes') | float) * 60) | int }}"
+        turn_off:
+          service: opensprinkler.stop
+          data:
+            entity_id: binary_sensor.s01_station_running
+​
+input_number:
+  s01_station_minutes:
+    initial: 1
+    min: 1
+    max: 10
+    step: 1
 ```

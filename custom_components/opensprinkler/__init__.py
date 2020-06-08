@@ -18,7 +18,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
-from .const import DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
+from .const import CONF_INDEX, CONF_RUN_SECONDS, DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -364,6 +364,45 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
+    def run(self, run_seconds=None):
+        """Run once program."""
+        if run_seconds == None or (
+            not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
+        ):
+            raise Exception(
+                "List of run seconds or dict of index/second pairs is required for controller"
+            )
+
+        if isinstance(run_seconds, dict):
+            run_seconds_list = []
+            for x in range(max(list(map(int, run_seconds.keys()))) + 1):
+                run_seconds_list.append(
+                    run_seconds.get(str(x))
+                    if run_seconds.get(str(x)) is not None
+                    else 0
+                )
+            return self._controller.run_once_program(run_seconds_list)
+
+        if not isinstance(run_seconds[0], int):
+            run_seconds_by_index = {}
+            run_seconds_indexes = []
+            for run_seconds_config in run_seconds:
+                run_seconds_indexes.append(run_seconds_config[CONF_INDEX])
+                run_seconds_by_index[
+                    run_seconds_config[CONF_INDEX]
+                ] = run_seconds_config[CONF_RUN_SECONDS]
+
+            run_seconds_list = []
+            for x in range(max(run_seconds_indexes) + 1):
+                run_seconds_list.append(
+                    run_seconds_by_index.get(x)
+                    if run_seconds_by_index.get(x) is not None
+                    else 0
+                )
+            return self._controller.run_once_program(run_seconds_list)
+
+        return self._controller.run_once_program(run_seconds)
+
     def stop(self):
         """Stops all stations."""
         return self._controller.stop_all_stations()
@@ -378,6 +417,8 @@ class OpenSprinklerProgramEntity:
 class OpenSprinklerStationEntity:
     def run(self, run_seconds=None):
         """Run station."""
+        if run_seconds is not None and not isinstance(run_seconds, int):
+            raise Exception("Run seconds should be an integer value for station")
         return self._station.run(run_seconds)
 
     def stop(self):
