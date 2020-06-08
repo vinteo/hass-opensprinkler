@@ -366,8 +366,22 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 class OpenSprinklerControllerEntity:
     def run(self, run_seconds=None):
         """Run once program."""
-        if run_seconds == None or not isinstance(run_seconds, list):
-            raise Exception("List of run seconds is required for controller")
+        if run_seconds == None or (
+            not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
+        ):
+            raise Exception(
+                "List of run seconds or dict of index/second pairs is required for controller"
+            )
+
+        if isinstance(run_seconds, dict):
+            run_seconds_list = []
+            for x in range(max(list(map(int, run_seconds.keys()))) + 1):
+                run_seconds_list.append(
+                    run_seconds.get(str(x))
+                    if run_seconds.get(str(x)) is not None
+                    else 0
+                )
+            return self._controller.run_once_program(run_seconds_list)
 
         if not isinstance(run_seconds[0], int):
             run_seconds_by_index = {}

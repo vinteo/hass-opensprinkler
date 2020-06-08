@@ -24,6 +24,7 @@ SCHEMA_SERVICE_RUN = {
         cv.ensure_list(cv.positive_int),
         cv.ensure_list(SCHEMA_SERVICE_RUN_SECONDS),
         cv.positive_int,
+        vol.Schema({}, extra=vol.ALLOW_EXTRA),
     )
 }
 SCHEMA_SERVICE_STOP = {}
