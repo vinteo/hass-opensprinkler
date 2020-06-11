@@ -53,7 +53,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
         async def async_update_data():
             """Fetch data from OpenSprinkler."""
-            print("refreshing OpenSprinkler data")
+            _LOGGER.debug("refreshing data")
             async with async_timeout.timeout(TIMEOUT):
                 await hass.async_add_executor_job(controller.refresh)
                 if not controller._state:
@@ -61,7 +61,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
                 return controller._state
 
-        scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
