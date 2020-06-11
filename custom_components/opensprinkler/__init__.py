@@ -1,6 +1,9 @@
 """OpenSprinkler integration."""
 import asyncio
+import async_timeout
 import logging
+
+from datetime import timedelta
 
 from pyopensprinkler import (
     Controller as OpenSprinkler,
@@ -9,20 +12,28 @@ from pyopensprinkler import (
 )
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_URL
+from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.dispatcher import async_dispatcher_connect
 from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
-from .const import CONF_INDEX, CONF_RUN_SECONDS, DEFAULT_PORT, DOMAIN, SCAN_INTERVAL
+from .const import (
+    CONF_INDEX,
+    CONF_RUN_SECONDS,
+    DEFAULT_PORT,
+    DOMAIN,
+    DEFAULT_SCAN_INTERVAL,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["binary_sensor", "sensor", "switch"]
+TIMEOUT = 10
 
 
 async def async_setup(hass: HomeAssistant, config: dict):
@@ -38,8 +49,30 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     password = entry.data.get(CONF_PASSWORD)
     try:
         controller = OpenSprinkler(url, password)
-        await hass.async_add_executor_job(controller.refresh)
-        coordinator = OpenSprinklerCoordinator(hass, controller)
+        controller.refresh_on_update = False
+
+        async def async_update_data():
+            """Fetch data from OpenSprinkler."""
+            print("refreshing OpenSprinkler data")
+            async with async_timeout.timeout(TIMEOUT):
+                await hass.async_add_executor_job(controller.refresh)
+                if not controller._state:
+                    raise UpdateFailed("Error fetching OpenSprinkler state")
+
+                return controller._state
+
+        scan_interval = entry.data.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        coordinator = DataUpdateCoordinator(
+            hass,
+            _LOGGER,
+            name="OpenSprinkler resource status",
+            update_method=async_update_data,
+            update_interval=timedelta(seconds=scan_interval),
+        )
+
+        # initial load before loading platforms
+        await coordinator.async_refresh()
+
         hass.data[DOMAIN][entry.entry_id] = {
             "coordinator": coordinator,
             "controller": controller,
@@ -73,40 +106,11 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
     return unload_ok
 
 
-class OpenSprinklerCoordinator:
-    """Define a generic OpenSprinkler entity."""
-
-    def __init__(self, hass, controller):
-        """Initialize."""
-        self._cancel_time_interval_listener = None
-        self._hass = hass
-        self._controller = controller
-
-    async def _async_update_listener_action(self, now):
-        """Define an async_track_time_interval action to update data."""
-        await self._hass.async_add_executor_job(self._controller.refresh)
-
-    async def async_register_time_interval_listener(self):
-        """Register time interval listener."""
-        if not self._cancel_time_interval_listener:
-            self._cancel_time_interval_listener = async_track_time_interval(
-                self._hass, self._async_update_listener_action, SCAN_INTERVAL,
-            )
-
-    @callback
-    def deregister_time_interval_listener(self):
-        """Deregister time interval listener."""
-        if self._cancel_time_interval_listener:
-            self._cancel_time_interval_listener()
-            self._cancel_time_interval_listener = None
-
-
 class OpenSprinklerEntity(RestoreEntity):
     """Define a generic OpenSprinkler entity."""
 
     def __init__(self, entry, name, coordinator):
         """Initialize."""
-        self._state = None
         self._coordinator = coordinator
         self._entry = entry
         self._name = name
@@ -308,12 +312,15 @@ class OpenSprinklerEntity(RestoreEntity):
     @property
     def device_info(self):
         """Return device information about Opensprinkler Controller."""
+
+        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
+
         return {
             "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
             "name": self._name,
             "manufacturer": "OpenSprinkler",
-            "model": self._coordinator._controller.hardware_version,
-            "sw_version": self._coordinator._controller.firmware_version,
+            "model": controller.hardware_version,
+            "sw_version": controller.firmware_version,
         }
 
     @property
@@ -329,20 +336,24 @@ class OpenSprinklerEntity(RestoreEntity):
 
         return None
 
+    @property
+    def should_poll(self):
+        """No need to poll. Coordinator notifies entity of updates."""
+        return False
+
+    @property
+    def available(self):
+        """Return if entity is available."""
+        return self._coordinator.last_update_success
+
     async def async_added_to_hass(self):
-        """Register callbacks."""
-        self.async_on_remove(async_dispatcher_connect(self.hass, DOMAIN, self.update))
-        await self._coordinator.async_register_time_interval_listener()
-        self.update()
+        self.async_on_remove(
+            self._coordinator.async_add_listener(self.async_write_ha_state)
+        )
 
-    async def async_will_remove_from_hass(self):
-        """Disconnect dispatcher listeners and deregister API interest."""
-        await super().async_will_remove_from_hass()
-        self._coordinator.deregister_time_interval_listener()
-
-    def update(self) -> None:
+    async def async_update(self):
         """Update latest state."""
-        self._state = self._get_state()
+        await self._coordinator.async_request_refresh()
 
 
 class OpenSprinklerBinarySensor(OpenSprinklerEntity):
@@ -351,7 +362,7 @@ class OpenSprinklerBinarySensor(OpenSprinklerEntity):
     @property
     def is_on(self):
         """Return true if the binary sensor is on."""
-        return self._state
+        return self._get_state()
 
 
 class OpenSprinklerSensor(OpenSprinklerEntity):
@@ -360,7 +371,7 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
     @property
     def state(self):
         """Return the state of the sensor."""
-        return self._state
+        return self._get_state()
 
 
 class OpenSprinklerControllerEntity:

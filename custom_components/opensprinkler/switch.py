@@ -15,7 +15,6 @@ from . import (
 from .const import (
     CONF_RUN_SECONDS,
     DOMAIN,
-    SCAN_INTERVAL,
     SCHEMA_SERVICE_RUN,
     SCHEMA_SERVICE_STOP,
     SERVICE_RUN,
@@ -90,15 +89,15 @@ class ControllerOperationSwitch(
         """Retrieve latest state."""
         return bool(self._controller.enabled)
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Enable the controller operation."""
-        self._controller.enable()
-        self._state = True
+        await self.hass.async_add_executor_job(self._controller.enable)
+        await self._coordinator.async_request_refresh()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Disable the device operation."""
-        self._controller.disable()
-        self._state = False
+        await self.hass.async_add_executor_job(self._controller.disable)
+        await self._coordinator.async_request_refresh()
 
 
 class ProgramEnabledSwitch(
@@ -134,15 +133,15 @@ class ProgramEnabledSwitch(
         """Retrieve latest state."""
         return bool(self._program.enabled)
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Enable the program."""
-        self._program.enable()
-        self._state = True
+        await self.hass.async_add_executor_job(self._program.enable)
+        await self._coordinator.async_request_refresh()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Disable the program."""
-        self._program.disable()
-        self._state = False
+        await self.hass.async_add_executor_job(self._program.disable)
+        await self._coordinator.async_request_refresh()
 
 
 class StationEnabledSwitch(
@@ -184,12 +183,12 @@ class StationEnabledSwitch(
         """Retrieve latest state."""
         return bool(self._station.enabled)
 
-    def turn_on(self, **kwargs):
+    async def async_turn_on(self, **kwargs):
         """Enable the station."""
-        self._station.enable()
-        self._state = True
+        await self.hass.async_add_executor_job(self._station.enable)
+        await self._coordinator.async_request_refresh()
 
-    def turn_off(self, **kwargs):
+    async def async_turn_off(self, **kwargs):
         """Disable the station."""
-        self._station.disable()
-        self._state = False
+        await self.hass.async_add_executor_job(self._station.disable)
+        await self._coordinator.async_request_refresh()

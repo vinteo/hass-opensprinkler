@@ -17,7 +17,6 @@ from . import (
 from .const import (
     CONF_RUN_SECONDS,
     DOMAIN,
-    SCAN_INTERVAL,
     SCHEMA_SERVICE_RUN,
     SCHEMA_SERVICE_STOP,
     SERVICE_RUN,
