@@ -1,8 +1,6 @@
 """Define constants for the OpenSprinkler component."""
 import voluptuous as vol
 
-from datetime import timedelta
-
 from homeassistant.helpers import config_validation as cv
 
 CONF_INDEX = "index"
@@ -13,7 +11,7 @@ DOMAIN = "opensprinkler"
 DEFAULT_NAME = "OpenSprinkler"
 DEFAULT_PORT = 8080
 
-SCAN_INTERVAL = timedelta(seconds=5)
+DEFAULT_SCAN_INTERVAL = 5
 
 SCHEMA_SERVICE_RUN_SECONDS = {
     vol.Required(CONF_INDEX): cv.positive_int,
