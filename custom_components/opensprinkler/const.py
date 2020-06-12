@@ -5,6 +5,7 @@ from homeassistant.helpers import config_validation as cv
 
 CONF_INDEX = "index"
 CONF_RUN_SECONDS = "run_seconds"
+CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
 
 DOMAIN = "opensprinkler"
 
@@ -23,7 +24,8 @@ SCHEMA_SERVICE_RUN = {
         cv.ensure_list(SCHEMA_SERVICE_RUN_SECONDS),
         cv.positive_int,
         vol.Schema({}, extra=vol.ALLOW_EXTRA),
-    )
+    ),
+    vol.Optional(CONF_CONTINUE_RUNNING_STATIONS): cv.boolean,
 }
 SCHEMA_SERVICE_STOP = {}
 

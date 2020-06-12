@@ -302,7 +302,7 @@ class OpenSprinklerControllerEntity:
 
         return attributes
 
-    async def run(self, run_seconds=None):
+    async def run(self, run_seconds=None, continue_running_stations=None):
         """Run once program."""
         if run_seconds == None or (
             not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
@@ -311,13 +311,22 @@ class OpenSprinklerControllerEntity:
                 "List of run seconds or dict of index/second pairs is required for controller"
             )
 
+        if continue_running_stations == None:
+            continue_running_stations = False
+
+        await self.hass.async_add_executor_job(self._controller.refresh)
+
         if isinstance(run_seconds, dict):
             run_seconds_list = []
-            for x in range(max(list(map(int, run_seconds.keys()))) + 1):
+            for _, station in self._controller.stations.items():
                 run_seconds_list.append(
-                    run_seconds.get(str(x))
-                    if run_seconds.get(str(x)) is not None
-                    else 0
+                    run_seconds.get(str(station.index))
+                    if run_seconds.get(str(station.index)) is not None
+                    else (
+                        0
+                        if continue_running_stations == True
+                        else station.seconds_remaining
+                    )
                 )
             await self.hass.async_add_executor_job(
                 self._controller.run_once_program, run_seconds_list
@@ -327,19 +336,21 @@ class OpenSprinklerControllerEntity:
 
         if not isinstance(run_seconds[0], int):
             run_seconds_by_index = {}
-            run_seconds_indexes = []
             for run_seconds_config in run_seconds:
-                run_seconds_indexes.append(run_seconds_config[CONF_INDEX])
                 run_seconds_by_index[
                     run_seconds_config[CONF_INDEX]
                 ] = run_seconds_config[CONF_RUN_SECONDS]
 
             run_seconds_list = []
-            for x in range(max(run_seconds_indexes) + 1):
+            for _, station in self._controller.stations.items():
                 run_seconds_list.append(
-                    run_seconds_by_index.get(x)
-                    if run_seconds_by_index.get(x) is not None
-                    else 0
+                    run_seconds_by_index.get(station.index)
+                    if run_seconds_by_index.get(station.index) is not None
+                    else (
+                        0
+                        if continue_running_stations == True
+                        else station.seconds_remaining
+                    )
                 )
 
             await self.hass.async_add_executor_job(
