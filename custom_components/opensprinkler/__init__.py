@@ -375,7 +375,7 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
-    def run(self, run_seconds=None):
+    async def run(self, run_seconds=None):
         """Run once program."""
         if run_seconds == None or (
             not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
@@ -392,7 +392,11 @@ class OpenSprinklerControllerEntity:
                     if run_seconds.get(str(x)) is not None
                     else 0
                 )
-            return self._controller.run_once_program(run_seconds_list)
+            await self.hass.async_add_executor_job(
+                self._controller.run_once_program, run_seconds_list
+            )
+            await self._coordinator.async_request_refresh()
+            return
 
         if not isinstance(run_seconds[0], int):
             run_seconds_by_index = {}
@@ -410,28 +414,42 @@ class OpenSprinklerControllerEntity:
                     if run_seconds_by_index.get(x) is not None
                     else 0
                 )
-            return self._controller.run_once_program(run_seconds_list)
 
-        return self._controller.run_once_program(run_seconds)
+            await self.hass.async_add_executor_job(
+                self._controller.run_once_program, run_seconds_list
+            )
+            await self._coordinator.async_request_refresh()
+            return
 
-    def stop(self):
+        await self.hass.async_add_executor_job(
+            self._controller.run_once_program, run_seconds
+        )
+        await self._coordinator.async_request_refresh()
+        return
+
+    async def stop(self):
         """Stops all stations."""
-        return self._controller.stop_all_stations()
+        await self.hass.async_add_executor_job(self._controller.stop_all_stations)
+        await self._coordinator.async_request_refresh()
 
 
 class OpenSprinklerProgramEntity:
-    def run(self):
+    async def run(self):
         """Runs the program."""
-        return self._program.run()
+        await self.hass.async_add_executor_job(self._program.run)
+        await self._coordinator.async_request_refresh()
 
 
 class OpenSprinklerStationEntity:
-    def run(self, run_seconds=None):
+    async def run(self, run_seconds=None):
         """Run station."""
         if run_seconds is not None and not isinstance(run_seconds, int):
             raise Exception("Run seconds should be an integer value for station")
-        return self._station.run(run_seconds)
 
-    def stop(self):
+        await self.hass.async_add_executor_job(self._station.run, run_seconds)
+        await self._coordinator.async_request_refresh()
+
+    async def stop(self):
         """Stop station."""
-        return self._station.stop()
+        await self.hass.async_add_executor_job(self._station.stop)
+        await self._coordinator.async_request_refresh()
