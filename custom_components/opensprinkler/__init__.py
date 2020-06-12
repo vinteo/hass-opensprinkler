@@ -119,7 +119,62 @@ class OpenSprinklerEntity(RestoreEntity):
         """Retrieve the state."""
         raise NotImplementedError
 
-    def _get_controller_attributes(self, controller):
+    @property
+    def device_info(self):
+        """Return device information about Opensprinkler Controller."""
+
+        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
+
+        return {
+            "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
+            "name": self._name,
+            "manufacturer": "OpenSprinkler",
+            "model": controller.hardware_version,
+            "sw_version": controller.firmware_version,
+        }
+
+    @property
+    def should_poll(self):
+        """No need to poll. Coordinator notifies entity of updates."""
+        return False
+
+    @property
+    def available(self):
+        """Return if entity is available."""
+        return self._coordinator.last_update_success
+
+    async def async_added_to_hass(self):
+        self.async_on_remove(
+            self._coordinator.async_add_listener(self.async_write_ha_state)
+        )
+
+    async def async_update(self):
+        """Update latest state."""
+        await self._coordinator.async_request_refresh()
+
+
+class OpenSprinklerBinarySensor(OpenSprinklerEntity):
+    """Define a generic OpenSprinkler binary sensor."""
+
+    @property
+    def is_on(self):
+        """Return true if the binary sensor is on."""
+        return self._get_state()
+
+
+class OpenSprinklerSensor(OpenSprinklerEntity):
+    """Define a generic OpenSprinkler sensor."""
+
+    @property
+    def state(self):
+        """Return the state of the sensor."""
+        return self._get_state()
+
+
+class OpenSprinklerControllerEntity:
+    @property
+    def device_state_attributes(self):
+        controller = self._controller
         attributes = {"opensprinkler_type": "controller"}
         for attr in [
             "enabled",
@@ -212,11 +267,9 @@ class OpenSprinklerEntity(RestoreEntity):
 
         # station counts
         attributes["station_total_count"] = len(controller.stations)
-
         attributes["station_enabled_count"] = len(
             dict(filter(lambda e: e[1].enabled == True, controller.stations.items()))
         )
-
         attributes["station_is_running_count"] = len(
             dict(filter(lambda e: e[1].is_running == True, controller.stations.items()))
         )
@@ -232,149 +285,23 @@ class OpenSprinklerEntity(RestoreEntity):
             key = f"station_{status}_count"
             attributes[key] = len(
                 dict(
-                    filter(lambda e: e[1].status == status, controller.stations.items())
+                    filter(
+                        lambda e: e[1].status == status, controller.stations.items(),
+                    )
                 )
             )
 
         # program counts
         attributes["program_total_count"] = len(controller.programs)
-
         attributes["program_enabled_count"] = len(
             dict(filter(lambda e: e[1].enabled == True, controller.programs.items()))
         )
-
         attributes["program_is_running_count"] = len(
             dict(filter(lambda e: e[1].is_running == True, controller.programs.items()))
         )
 
         return attributes
 
-    def _get_program_attributes(self, program):
-        attributes = {"opensprinkler_type": "program"}
-        for attr in [
-            "name",
-            "index",
-            "enabled",
-            "is_running",
-            "use_weather_adjustments",
-            "odd_even_restriction",
-            "odd_even_restriction_name",
-            "program_schedule_type",
-            "program_schedule_type_name",
-            "start_time_type",
-            "start_time_type_name",
-        ]:
-            try:
-                attributes[attr] = getattr(program, attr)
-            except:
-                pass
-
-        return attributes
-
-    def _get_station_attributes(self, station):
-        attributes = {"opensprinkler_type": "station"}
-        for attr in [
-            "name",
-            "index",
-            "enabled",
-            "is_running",
-            "is_master",
-            "running_program_id",
-            "seconds_remaining",
-            "start_time",
-            "max_name_length",
-            "master_1_operation_enabled",
-            "master_2_operation_enabled",
-            "rain_delay_ignored",
-            "sensor_1_ignored",
-            "sensor_2_ignored",
-            "sequential_operation",
-            "special",
-            "station_type",
-            "status",
-        ]:
-            try:
-                attributes[attr] = getattr(station, attr)
-            except:
-                pass
-
-        for attr in ["start_time"]:
-            iso_attr = attr + "_iso"
-            timestamp = getattr(station, attr, 0)
-            if not timestamp:
-                attributes[attr] = None
-                attributes[iso_attr] = None
-            else:
-                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
-
-        return attributes
-
-    @property
-    def device_info(self):
-        """Return device information about Opensprinkler Controller."""
-
-        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
-
-        return {
-            "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
-            "name": self._name,
-            "manufacturer": "OpenSprinkler",
-            "model": controller.hardware_version,
-            "sw_version": controller.firmware_version,
-        }
-
-    @property
-    def device_state_attributes(self):
-        if hasattr(self, "_program"):
-            return self._get_program_attributes(self._program)
-
-        if hasattr(self, "_station"):
-            return self._get_station_attributes(self._station)
-
-        if hasattr(self, "_controller"):
-            return self._get_controller_attributes(self._controller)
-
-        return None
-
-    @property
-    def should_poll(self):
-        """No need to poll. Coordinator notifies entity of updates."""
-        return False
-
-    @property
-    def available(self):
-        """Return if entity is available."""
-        return self._coordinator.last_update_success
-
-    async def async_added_to_hass(self):
-        self.async_on_remove(
-            self._coordinator.async_add_listener(self.async_write_ha_state)
-        )
-
-    async def async_update(self):
-        """Update latest state."""
-        await self._coordinator.async_request_refresh()
-
-
-class OpenSprinklerBinarySensor(OpenSprinklerEntity):
-    """Define a generic OpenSprinkler binary sensor."""
-
-    @property
-    def is_on(self):
-        """Return true if the binary sensor is on."""
-        return self._get_state()
-
-
-class OpenSprinklerSensor(OpenSprinklerEntity):
-    """Define a generic OpenSprinkler sensor."""
-
-    @property
-    def state(self):
-        """Return the state of the sensor."""
-        return self._get_state()
-
-
-class OpenSprinklerControllerEntity:
     async def run(self, run_seconds=None):
         """Run once program."""
         if run_seconds == None or (
@@ -434,6 +361,29 @@ class OpenSprinklerControllerEntity:
 
 
 class OpenSprinklerProgramEntity:
+    @property
+    def device_state_attributes(self):
+        attributes = {"opensprinkler_type": "program"}
+        for attr in [
+            "name",
+            "index",
+            "enabled",
+            "is_running",
+            "use_weather_adjustments",
+            "odd_even_restriction",
+            "odd_even_restriction_name",
+            "program_schedule_type",
+            "program_schedule_type_name",
+            "start_time_type",
+            "start_time_type_name",
+        ]:
+            try:
+                attributes[attr] = getattr(self._program, attr)
+            except:
+                pass
+
+        return attributes
+
     async def run(self):
         """Runs the program."""
         await self.hass.async_add_executor_job(self._program.run)
@@ -441,6 +391,45 @@ class OpenSprinklerProgramEntity:
 
 
 class OpenSprinklerStationEntity:
+    @property
+    def device_state_attributes(self):
+        attributes = {"opensprinkler_type": "station"}
+        for attr in [
+            "name",
+            "index",
+            "enabled",
+            "is_running",
+            "is_master",
+            "running_program_id",
+            "seconds_remaining",
+            "start_time",
+            "max_name_length",
+            "master_1_operation_enabled",
+            "master_2_operation_enabled",
+            "rain_delay_ignored",
+            "sensor_1_ignored",
+            "sensor_2_ignored",
+            "sequential_operation",
+            "special",
+            "station_type",
+            "status",
+        ]:
+            try:
+                attributes[attr] = getattr(self._station, attr)
+            except:
+                pass
+
+        for attr in ["start_time"]:
+            iso_attr = attr + "_iso"
+            timestamp = getattr(self._station, attr, 0)
+            if not timestamp:
+                attributes[attr] = None
+                attributes[iso_attr] = None
+            else:
+                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
+
+        return attributes
+
     async def run(self, run_seconds=None):
         """Run station."""
         if run_seconds is not None and not isinstance(run_seconds, int):
