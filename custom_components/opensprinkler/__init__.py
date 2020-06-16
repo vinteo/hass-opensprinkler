@@ -293,11 +293,25 @@ class OpenSprinklerControllerEntity:
 
         # program counts
         attributes["program_total_count"] = len(controller.programs)
+
+        def is_enabled(program):
+            try:
+                return program.enabled == True
+            except:
+                return False
+
         attributes["program_enabled_count"] = len(
-            dict(filter(lambda e: e[1].enabled == True, controller.programs.items()))
+            dict(filter(lambda e: is_enabled(e[1]), controller.programs.items()))
         )
+
+        def is_running(program):
+            try:
+                return program.enabled == True
+            except:
+                return False
+
         attributes["program_is_running_count"] = len(
-            dict(filter(lambda e: e[1].is_running == True, controller.programs.items()))
+            dict(filter(lambda e: is_running(e[1]), controller.programs.items()))
         )
 
         return attributes
@@ -361,6 +375,13 @@ class OpenSprinklerControllerEntity:
 
 
 class OpenSprinklerProgramEntity:
+    @property
+    def available(self):
+        try:
+            return len(self._program.name) > 0
+        except:
+            return False
+
     @property
     def device_state_attributes(self):
         attributes = {"opensprinkler_type": "program"}

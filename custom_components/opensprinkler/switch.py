@@ -106,13 +106,14 @@ class ProgramEnabledSwitch(
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
         self._program = program
+        self._program_name = program.name
         self._entity_type = "switch"
         super().__init__(entry, name, coordinator)
 
     @property
     def name(self):
         """Return the name of the switch."""
-        return self._program.name + " Program Enabled"
+        return self._program_name + " Program Enabled"
 
     @property
     def unique_id(self) -> str:
@@ -124,14 +125,20 @@ class ProgramEnabledSwitch(
     @property
     def icon(self) -> str:
         """Return icon."""
-        if self._program.enabled:
-            return "mdi:calendar-clock"
+        try:
+            if self._program.enabled:
+                return "mdi:calendar-clock"
+        except:
+            pass
 
         return "mdi:calendar-remove"
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
-        return bool(self._program.enabled)
+        try:
+            return bool(self._program.enabled)
+        except:
+            return None
 
     async def async_turn_on(self, **kwargs):
         """Enable the program."""

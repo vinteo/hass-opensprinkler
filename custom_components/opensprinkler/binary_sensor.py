@@ -106,13 +106,14 @@ class ProgramIsRunningBinarySensor(
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler station sensor."""
         self._program = program
+        self._program_name = program.name
         self._entity_type = "binary_sensor"
         super().__init__(entry, name, coordinator)
 
     @property
     def name(self) -> str:
         """Return the name of this sensor."""
-        return self._program.name + " Program Running"
+        return self._program_name + " Program Running"
 
     @property
     def unique_id(self) -> str:
@@ -124,14 +125,21 @@ class ProgramIsRunningBinarySensor(
     @property
     def icon(self) -> str:
         """Return icon."""
-        if self._program.is_running:
-            return "mdi:timer"
+        try:
+            if self._program.is_running:
+                return "mdi:timer"
+        except:
+            pass
 
         return "mdi:timer-off"
 
     def _get_state(self) -> bool:
         """Retrieve latest state."""
-        return bool(self._program.is_running)
+        try:
+            is_running = bool(self._program.is_running)
+            return is_running
+        except:
+            return None
 
 
 class StationIsRunningBinarySensor(
