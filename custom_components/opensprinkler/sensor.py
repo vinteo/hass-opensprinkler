@@ -15,7 +15,6 @@ from . import (
     OpenSprinklerStationEntity,
 )
 from .const import (
-    CONF_RUN_SECONDS,
     DOMAIN,
     SCHEMA_SERVICE_RUN,
     SCHEMA_SERVICE_STOP,

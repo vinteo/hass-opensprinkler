@@ -7,6 +7,9 @@ run:
     run_seconds:
       description: Number of seconds to run (optional for stations, defaults to 60 seconds; required for controllers, list of seconds for each station or index and seconds pairs)
       example: 60
+    continue_running_stations:
+      description: Keeps running stations that are not specified running (only used for controllers with index/second pairs, optional, defaults to False)
+      example: False
 stop:
   description: Stops a station or all station (for controller)
   fields:

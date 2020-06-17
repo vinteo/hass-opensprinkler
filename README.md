@@ -97,6 +97,32 @@ data:
     2: 30
 ```
 
+By default running once program will stop all other stations that are running, you can specify
+`continue_running_stations` to true to allow the stations to continue running. This only works when
+specifying the run seconds in index/second pairs.
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # List of station index and run seconds pairs (required)
+    - index: 0
+      run_seconds: 60
+    - index: 2
+      run_seconds: 30
+  continue_running_stations: True # Whether to keep running stations running (optional, defaults to False)
+```
+
+```yaml
+service: opensprinkler.run
+data:
+  entity_id: switch.controller_name # Switches or sensors for controller
+  run_seconds: # Dictionary of station index and run seconds key/value pairs (required)
+    0: 60
+    2: 30
+  continue_running_stations: True # Whether to keep running stations running (optional, defaults to False)
+```
+
 ### Stop Examples
 
 #### Stop Station Example
