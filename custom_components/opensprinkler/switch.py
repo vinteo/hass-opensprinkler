@@ -42,20 +42,15 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
 
     controller = hass.data[DOMAIN][entry.entry_id]["controller"]
-    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(ControllerOperationSwitch(entry, name, coordinator, controller))
+    entities.append(ControllerOperationSwitch(entry, name))
 
     for _, program in controller.programs.items():
-        entities.append(
-            ProgramEnabledSwitch(entry, name, program, coordinator, controller)
-        )
+        entities.append(ProgramEnabledSwitch(entry, name, program))
 
     for _, station in controller.stations.items():
-        entities.append(
-            StationEnabledSwitch(entry, name, station, coordinator, controller)
-        )
+        entities.append(StationEnabledSwitch(entry, name, station))
 
     return entities
 
@@ -63,10 +58,10 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ControllerOperationSwitch(
     OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, coordinator, controller):
+    def __init__(self, entry, name):
         """Set up a new OpenSprinkler controller switch."""
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self):
@@ -83,14 +78,14 @@ class ControllerOperationSwitch(
     @property
     def icon(self) -> str:
         """Return icon."""
-        if self._controller.enabled:
+        if self._get_controller().enabled:
             return "mdi:barley"
 
         return "mdi:barley-off"
 
     @property
     def device_state_attributes(self):
-        controller = self._controller
+        controller = self._get_controller()
         attributes = {"opensprinkler_type": "controller"}
         for attr in [
             "firmware_version",
@@ -126,27 +121,27 @@ class ControllerOperationSwitch(
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
-        return bool(self._controller.enabled)
+        return bool(self._get_controller().enabled)
 
     async def async_turn_on(self, **kwargs):
         """Enable the controller operation."""
-        await self.hass.async_add_executor_job(self._controller.enable)
+        await self.hass.async_add_executor_job(self._get_controller().enable)
         await self.async_update()
 
     async def async_turn_off(self, **kwargs):
         """Disable the device operation."""
-        await self.hass.async_add_executor_job(self._controller.disable)
+        await self.hass.async_add_executor_job(self._get_controller().disable)
         await self.async_update()
 
 
 class ProgramEnabledSwitch(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, program, coordinator, controller):
+    def __init__(self, entry, name, program):
         """Set up a new OpenSprinkler program switch."""
         self._program = program
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self):
@@ -186,11 +181,11 @@ class ProgramEnabledSwitch(
 class StationEnabledSwitch(
     OpenSprinklerStationEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, station, coordinator, controller):
+    def __init__(self, entry, name, station):
         """Set up a new OpenSprinkler station switch."""
         self._station = station
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self):

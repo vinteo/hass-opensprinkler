@@ -130,10 +130,8 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry):
 class OpenSprinklerEntity(RestoreEntity):
     """Define a generic OpenSprinkler entity."""
 
-    def __init__(self, entry, name, coordinator, controller):
+    def __init__(self, entry, name):
         """Initialize."""
-        self._coordinator = coordinator
-        self._controller = controller
         self._entry = entry
         self._name = name
 
@@ -141,12 +139,17 @@ class OpenSprinklerEntity(RestoreEntity):
         """Retrieve the state."""
         raise NotImplementedError
 
+    def _get_controller(self):
+        return self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
+
+    def _get_coordinator(self):
+        return self.hass.data[DOMAIN][self._entry.entry_id]["coordinator"]
+
     @property
     def device_info(self):
         """Return device information about Opensprinkler Controller."""
 
-        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
-
+        controller = self._get_controller()
         return {
             "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
             "name": self._name,
@@ -163,16 +166,16 @@ class OpenSprinklerEntity(RestoreEntity):
     @property
     def available(self):
         """Return if entity is available."""
-        return self._coordinator.last_update_success
+        return self._get_coordinator().last_update_success
 
     async def async_added_to_hass(self):
         self.async_on_remove(
-            self._coordinator.async_add_listener(self.async_write_ha_state)
+            self._get_coordinator().async_add_listener(self.async_write_ha_state)
         )
 
     async def async_update(self):
         """Update latest state."""
-        await self.hass.async_add_executor_job(self._controller.refresh)
+        await self.hass.async_add_executor_job(self._get_controller().refresh)
         self.async_write_ha_state()
 
 
@@ -211,7 +214,7 @@ class OpenSprinklerControllerEntity:
 
         if isinstance(run_seconds, dict):
             run_seconds_list = []
-            for _, station in self._controller.stations.items():
+            for _, station in self._get_controller().stations.items():
                 run_seconds_list.append(
                     run_seconds.get(str(station.index))
                     if run_seconds.get(str(station.index)) is not None
@@ -222,9 +225,9 @@ class OpenSprinklerControllerEntity:
                     )
                 )
             await self.hass.async_add_executor_job(
-                self._controller.run_once_program, run_seconds_list
+                self._get_controller().run_once_program, run_seconds_list
             )
-            await self._coordinator.async_request_refresh()
+            await self.async_update()
             return
 
         if not isinstance(run_seconds[0], int):
@@ -235,7 +238,7 @@ class OpenSprinklerControllerEntity:
                 ] = run_seconds_config[CONF_RUN_SECONDS]
 
             run_seconds_list = []
-            for _, station in self._controller.stations.items():
+            for _, station in self._get_controller().stations.items():
                 run_seconds_list.append(
                     run_seconds_by_index.get(station.index)
                     if run_seconds_by_index.get(station.index) is not None
@@ -247,20 +250,20 @@ class OpenSprinklerControllerEntity:
                 )
 
             await self.hass.async_add_executor_job(
-                self._controller.run_once_program, run_seconds_list
+                self._get_controller().run_once_program, run_seconds_list
             )
             await self.async_update()
             return
 
         await self.hass.async_add_executor_job(
-            self._controller.run_once_program, run_seconds
+            self._get_controller().run_once_program, run_seconds
         )
         await self.async_update()
         return
 
     async def stop(self):
         """Stops all stations."""
-        await self.hass.async_add_executor_job(self._controller.stop_all_stations)
+        await self.hass.async_add_executor_job(self._get_controller().stop_all_stations)
         await self.async_update()
 
 

@@ -45,30 +45,17 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities = []
 
     controller = hass.data[DOMAIN][entry.entry_id]["controller"]
-    coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(
-        ControllerSensorActive(entry, name, "sensor_1_active", coordinator, controller)
-    )
-    entities.append(
-        ControllerSensorActive(entry, name, "sensor_2_active", coordinator, controller)
-    )
-    entities.append(
-        ControllerSensorActive(
-            entry, name, "rain_delay_active", coordinator, controller
-        )
-    )
+    entities.append(ControllerSensorActive(entry, name, "sensor_1_active"))
+    entities.append(ControllerSensorActive(entry, name, "sensor_2_active"))
+    entities.append(ControllerSensorActive(entry, name, "rain_delay_active"))
 
     for _, program in controller.programs.items():
-        entities.append(
-            ProgramIsRunningBinarySensor(entry, name, program, coordinator, controller)
-        )
+        entities.append(ProgramIsRunningBinarySensor(entry, name, program))
 
     for _, station in controller.stations.items():
-        entities.append(
-            StationIsRunningBinarySensor(entry, name, station, coordinator, controller)
-        )
+        entities.append(StationIsRunningBinarySensor(entry, name, station))
 
     return entities
 
@@ -78,12 +65,12 @@ class ControllerSensorActive(
 ):
     """Represent a sensor that for water level."""
 
-    def __init__(self, entry, name, attr, coordinator, controller):
+    def __init__(self, entry, name, attr):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
         self._entity_type = "binary_sensor"
         self._attr = attr
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self) -> str:
@@ -97,7 +84,8 @@ class ControllerSensorActive(
 
     def _get_state(self) -> int:
         """Retrieve latest state."""
-        return bool(getattr(self._controller, self._attr))
+        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
+        return bool(getattr(controller, self._attr))
 
 
 class ProgramIsRunningBinarySensor(
@@ -105,11 +93,11 @@ class ProgramIsRunningBinarySensor(
 ):
     """Represent a binary_sensor for is_running of a program."""
 
-    def __init__(self, entry, name, program, coordinator, controller):
+    def __init__(self, entry, name, program):
         """Set up a new OpenSprinkler station sensor."""
         self._program = program
         self._entity_type = "binary_sensor"
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self) -> str:
@@ -141,11 +129,11 @@ class StationIsRunningBinarySensor(
 ):
     """Represent a binary_sensor for is_running of a station."""
 
-    def __init__(self, entry, name, station, coordinator, controller):
+    def __init__(self, entry, name, station):
         """Set up a new OpenSprinkler station sensor."""
         self._station = station
         self._entity_type = "binary_sensor"
-        super().__init__(entry, name, coordinator, controller)
+        super().__init__(entry, name)
 
     @property
     def name(self) -> str:
