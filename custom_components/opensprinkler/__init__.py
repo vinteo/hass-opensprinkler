@@ -66,10 +66,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
         async def async_update_data():
             """Fetch data from OpenSprinkler."""
-
-            if mqtt_option:  # skip refresh
-                return
-
             _LOGGER.debug("refreshing data")
             async with async_timeout.timeout(TIMEOUT):
                 try:
@@ -82,7 +78,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
                 return controller._state
 
-        scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        scan_interval = (
+            300
+            if mqtt_option
+            else entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
+        )
         coordinator = DataUpdateCoordinator(
             hass,
             _LOGGER,
