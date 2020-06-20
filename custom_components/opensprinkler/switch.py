@@ -45,13 +45,17 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(ControllerOperationSwitch(entry, name, controller, coordinator))
+    entities.append(ControllerOperationSwitch(entry, name, coordinator, controller))
 
     for _, program in controller.programs.items():
-        entities.append(ProgramEnabledSwitch(entry, name, program, coordinator))
+        entities.append(
+            ProgramEnabledSwitch(entry, name, program, coordinator, controller)
+        )
 
     for _, station in controller.stations.items():
-        entities.append(StationEnabledSwitch(entry, name, station, coordinator))
+        entities.append(
+            StationEnabledSwitch(entry, name, station, coordinator, controller)
+        )
 
     return entities
 
@@ -59,11 +63,10 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ControllerOperationSwitch(
     OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, coordinator, controller):
         """Set up a new OpenSprinkler controller switch."""
-        self._controller = controller
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self):
@@ -128,22 +131,22 @@ class ControllerOperationSwitch(
     async def async_turn_on(self, **kwargs):
         """Enable the controller operation."""
         await self.hass.async_add_executor_job(self._controller.enable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()
 
     async def async_turn_off(self, **kwargs):
         """Disable the device operation."""
         await self.hass.async_add_executor_job(self._controller.disable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()
 
 
 class ProgramEnabledSwitch(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, program, coordinator):
+    def __init__(self, entry, name, program, coordinator, controller):
         """Set up a new OpenSprinkler program switch."""
         self._program = program
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self):
@@ -172,22 +175,22 @@ class ProgramEnabledSwitch(
     async def async_turn_on(self, **kwargs):
         """Enable the program."""
         await self.hass.async_add_executor_job(self._program.enable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()
 
     async def async_turn_off(self, **kwargs):
         """Disable the program."""
         await self.hass.async_add_executor_job(self._program.disable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()
 
 
 class StationEnabledSwitch(
     OpenSprinklerStationEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
-    def __init__(self, entry, name, station, coordinator):
+    def __init__(self, entry, name, station, coordinator, controller):
         """Set up a new OpenSprinkler station switch."""
         self._station = station
         self._entity_type = "switch"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self):
@@ -222,9 +225,9 @@ class StationEnabledSwitch(
     async def async_turn_on(self, **kwargs):
         """Enable the station."""
         await self.hass.async_add_executor_job(self._station.enable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()
 
     async def async_turn_off(self, **kwargs):
         """Disable the station."""
         await self.hass.async_add_executor_job(self._station.disable)
-        await self._coordinator.async_request_refresh()
+        await self.async_update()

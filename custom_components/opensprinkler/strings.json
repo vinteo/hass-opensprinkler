@@ -8,7 +8,8 @@
           "url": "URL",
           "password": "Password",
           "mac": "MAC Address",
-          "name": "Device Name"
+          "name": "Device Name",
+          "mqtt": "Use MQTT"
         }
       }
     },

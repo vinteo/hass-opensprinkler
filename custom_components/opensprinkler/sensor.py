@@ -48,13 +48,15 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
 
-    entities.append(LastRunSensor(entry, name, controller, coordinator))
-    entities.append(RainDelayStopTimeSensor(entry, name, controller, coordinator))
-    entities.append(WaterLevelSensor(entry, name, controller, coordinator))
-    entities.append(FlowRateSensor(entry, name, controller, coordinator))
+    entities.append(LastRunSensor(entry, name, coordinator, controller))
+    entities.append(RainDelayStopTimeSensor(entry, name, coordinator, controller))
+    entities.append(WaterLevelSensor(entry, name, coordinator, controller))
+    entities.append(FlowRateSensor(entry, name, coordinator, controller))
 
     for _, station in controller.stations.items():
-        entities.append(StationStatusSensor(entry, name, station, coordinator))
+        entities.append(
+            StationStatusSensor(entry, name, station, coordinator, controller)
+        )
 
     return entities
 
@@ -62,12 +64,11 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for water level."""
 
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, coordinator, controller):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
-        self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def icon(self) -> str:
@@ -97,12 +98,11 @@ class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entit
 class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for flow rate."""
 
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, coordinator, controller):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
-        self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def icon(self) -> str:
@@ -127,11 +127,10 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
 class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor that for last run time."""
 
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, coordinator, controller):
         """Set up a new opensprinkler last run sensor."""
-        self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def device_class(self):
@@ -168,11 +167,10 @@ class RainDelayStopTimeSensor(
 ):
     """Represent a sensor that for rain delay stop time."""
 
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, coordinator, controller):
         """Set up a new opensprinkler rain delay stop time sensor."""
-        self._controller = controller
         self._entity_type = "sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def device_class(self):
@@ -206,11 +204,11 @@ class RainDelayStopTimeSensor(
 class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entity):
     """Represent a sensor for status of station."""
 
-    def __init__(self, entry, name, station, coordinator):
+    def __init__(self, entry, name, station, coordinator, controller):
         """Set up a new OpenSprinkler station sensor."""
         self._station = station
         self._entity_type = "sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self) -> str:

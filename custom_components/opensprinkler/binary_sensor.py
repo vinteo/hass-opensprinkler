@@ -49,22 +49,26 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     name = entry.data[CONF_NAME]
 
     entities.append(
-        ControllerSensorActive(entry, name, "sensor_1_active", controller, coordinator)
+        ControllerSensorActive(entry, name, "sensor_1_active", coordinator, controller)
     )
     entities.append(
-        ControllerSensorActive(entry, name, "sensor_2_active", controller, coordinator)
+        ControllerSensorActive(entry, name, "sensor_2_active", coordinator, controller)
     )
     entities.append(
         ControllerSensorActive(
-            entry, name, "rain_delay_active", controller, coordinator
+            entry, name, "rain_delay_active", coordinator, controller
         )
     )
 
     for _, program in controller.programs.items():
-        entities.append(ProgramIsRunningBinarySensor(entry, name, program, coordinator))
+        entities.append(
+            ProgramIsRunningBinarySensor(entry, name, program, coordinator, controller)
+        )
 
     for _, station in controller.stations.items():
-        entities.append(StationIsRunningBinarySensor(entry, name, station, coordinator))
+        entities.append(
+            StationIsRunningBinarySensor(entry, name, station, coordinator, controller)
+        )
 
     return entities
 
@@ -74,13 +78,12 @@ class ControllerSensorActive(
 ):
     """Represent a sensor that for water level."""
 
-    def __init__(self, entry, name, attr, controller, coordinator):
+    def __init__(self, entry, name, attr, coordinator, controller):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
-        self._controller = controller
         self._entity_type = "binary_sensor"
         self._attr = attr
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self) -> str:
@@ -102,11 +105,11 @@ class ProgramIsRunningBinarySensor(
 ):
     """Represent a binary_sensor for is_running of a program."""
 
-    def __init__(self, entry, name, program, coordinator):
+    def __init__(self, entry, name, program, coordinator, controller):
         """Set up a new OpenSprinkler station sensor."""
         self._program = program
         self._entity_type = "binary_sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self) -> str:
@@ -138,11 +141,11 @@ class StationIsRunningBinarySensor(
 ):
     """Represent a binary_sensor for is_running of a station."""
 
-    def __init__(self, entry, name, station, coordinator):
+    def __init__(self, entry, name, station, coordinator, controller):
         """Set up a new OpenSprinkler station sensor."""
         self._station = station
         self._entity_type = "binary_sensor"
-        super().__init__(entry, name, coordinator)
+        super().__init__(entry, name, coordinator, controller)
 
     @property
     def name(self) -> str:
