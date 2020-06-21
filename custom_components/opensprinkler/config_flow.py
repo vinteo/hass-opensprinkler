@@ -25,7 +25,7 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_URL): str,
         vol.Required(CONF_PASSWORD): str,
-        vol.Required(CONF_MAC): str,
+        vol.Optional(CONF_MAC): str,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
     }
 )
@@ -45,9 +45,18 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 url = user_input[CONF_URL]
                 password = user_input[CONF_PASSWORD]
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
+                mac_address = user_input.get(CONF_MAC)
+
                 controller = OpenSprinkler(url, password)
                 await self.hass.async_add_executor_job(controller.refresh)
-                await self.async_set_unique_id(slugify(user_input[CONF_MAC]))
+
+                if controller.mac_address is None:
+                    if not mac_address:
+                        raise MacAddressRequiredError
+
+                    await self.async_set_unique_id(slugify(mac_address))
+                else:
+                    await self.async_set_unique_id(slugify(controller.mac_address))
 
                 return self.async_create_entry(
                     title=name,
@@ -57,6 +66,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 errors["base"] = "cannot_connect"
             except OpenSprinklerAuthError:
                 errors["base"] = "invalid_auth"
+            except MacAddressRequiredError:
+                errors[CONF_MAC] = "mac_address_required"
             except Exception:  # pylint: disable=broad-except
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
@@ -70,5 +81,5 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         return await self.async_step_user(user_input)
 
 
-class CannotConnect(exceptions.HomeAssistantError):
-    """Error to indicate we cannot connect."""
+class MacAddressRequiredError(Exception):
+    """Error to mac address required."""

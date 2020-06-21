@@ -21,7 +21,7 @@ Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
 1. Install using [HACS](https://github.com/custom-components/hacs). Or install manually by copying `custom_components/opensprinkler` folder into `<config_dir>/custom_components`
 2. Restart Home Assistant.
-3. In the Home Assistant UI, navigate to `Configuration` then `Integrations`. Click on the add integration button at the bottom right and select `OpenSprinkler`. Fill out the options and save.
+3. In the Home Assistant UI, navigate to `Configuration` then `Integrations`. Click on the add integration button at the bottom right and select `OpenSprinkler`. Fill out the options and save. MAC address is only required for firmware below 2.1.9 (4), otherwise it can be left blank.
 
 ### Upgrading from pre 1.0.0
 
