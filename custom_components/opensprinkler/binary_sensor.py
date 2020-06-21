@@ -84,8 +84,7 @@ class ControllerSensorActive(
 
     def _get_state(self) -> int:
         """Retrieve latest state."""
-        controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
-        return bool(getattr(controller, self._attr))
+        return bool(getattr(self._get_controller(), self._attr))
 
 
 class ProgramIsRunningBinarySensor(
