@@ -55,7 +55,11 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             """Fetch data from OpenSprinkler."""
             _LOGGER.debug("refreshing data")
             async with async_timeout.timeout(TIMEOUT):
-                await hass.async_add_executor_job(controller.refresh)
+                try:
+                    await hass.async_add_executor_job(controller.refresh)
+                except Exception as exc:
+                    raise UpdateFailed("Error fetching OpenSprinkler state") from exc
+
                 if not controller._state:
                     raise UpdateFailed("Error fetching OpenSprinkler state")
 

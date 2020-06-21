@@ -2,7 +2,7 @@
   "domain": "opensprinkler",
   "name": "OpenSprinkler",
   "documentation": "https://github.com/vinteo/hass-opensprinkler",
-  "requirements": ["pyopensprinkler==0.6.5"],
+  "requirements": ["pyopensprinkler==0.6.6"],
   "dependencies": [],
   "codeowners": ["@vinteo"],
   "config_flow": true

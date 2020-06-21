@@ -6,6 +6,7 @@
     "error": {
       "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
       "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "mac_address_required": "MAC Address required for firmware below 2.1.9 (4)",
       "unknown": "[%key:common::config_flow::error::unknown%]"
     },
     "step": {
