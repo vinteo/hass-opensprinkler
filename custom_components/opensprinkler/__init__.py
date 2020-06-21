@@ -60,7 +60,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         if mqtt_option:
 
             async def on_message(message):
-                await hass.async_add_executor_job(controller.refresh)
+                try:
+                    await hass.async_add_executor_job(controller.refresh)
+                except Exception as exc:
+                    raise UpdateFailed("Error fetching OpenSprinkler state") from exc
 
             await mqtt.async_subscribe(hass, MQTT_TOPIC, on_message)
 
