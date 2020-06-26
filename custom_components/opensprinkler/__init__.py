@@ -207,11 +207,31 @@ class OpenSprinklerControllerEntity:
             "rain_sensor_enabled",
             "flow_sensor_enabled",
             "soil_sensor_enabled",
+            "last_weather_call",
+            "last_successfull_weather_call",
+            "last_weather_call_error",
+            "last_weather_call_error_name",
+            "last_reboot_time",
+            "last_reboot_cause",
+            "last_reboot_cause_name",
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)
             except:
                 pass
+
+        for attr in [
+            "last_weather_call",
+            "last_successfull_weather_call",
+            "last_reboot_time",
+        ]:
+            iso_attr = attr + "_iso"
+            timestamp = getattr(controller, attr)
+            if not timestamp:
+                attributes[attr] = None
+                attributes[iso_attr] = None
+            else:
+                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
 
         # station counts
         attributes["station_total_count"] = len(controller.stations)
