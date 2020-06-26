@@ -187,23 +187,9 @@ class OpenSprinklerControllerEntity:
             "last_run_station",
             "last_run_program",
             "last_run_duration",
-            "master_station_1",
-            "master_station_1_time_on_adjustment",
-            "master_station_1_time_off_adjustment",
-            "master_station_2",
-            "master_station_2_time_on_adjustment",
-            "master_station_2_time_off_adjustment",
             "rain_sensor_active",
             "sensor_1_enabled",
-            "sensor_1_type",
-            "sensor_1_option",
-            "sensor_1_delayed_on_time",
-            "sensor_1_delayed_off_time",
             "sensor_2_enabled",
-            "sensor_2_type",
-            "sensor_2_option",
-            "sensor_2_delayed_on_time",
-            "sensor_2_delayed_off_time",
             "rain_sensor_enabled",
             "flow_sensor_enabled",
             "soil_sensor_enabled",
@@ -346,11 +332,6 @@ class OpenSprinklerProgramEntity:
         for attr in [
             "name",
             "index",
-            "use_weather_adjustments",
-            "odd_even_restriction",
-            "program_schedule_type",
-            "start_time_type",
-            "start_time_type_name",
         ]:
             try:
                 attributes[attr] = getattr(self._program, attr)
@@ -376,14 +357,10 @@ class OpenSprinklerStationEntity:
             "running_program_id",
             "seconds_remaining",
             "start_time",
-            "master_1_operation_enabled",
-            "master_2_operation_enabled",
             "rain_delay_ignored",
             "sensor_1_ignored",
             "sensor_2_ignored",
             "sequential_operation",
-            "special",
-            "station_type",
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
