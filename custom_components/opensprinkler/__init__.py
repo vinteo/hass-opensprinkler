@@ -176,136 +176,6 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
-    @property
-    def device_state_attributes(self):
-        controller = self._controller
-        attributes = {"opensprinkler_type": "controller"}
-        for attr in [
-            "enabled",
-            "firmware_version",
-            "hardware_version",
-            "hardware_type",
-            "hardware_type_name",
-            "device_id",
-            "ignore_password_enabled",
-            "special_station_auto_refresh_enabled",
-            "detected_expansion_board_count",
-            "maximum_expansion_board_count",
-            "dhcp_enabled",
-            "ip_address",
-            "ip_subnet",
-            "gateway_address",
-            "dns_address",
-            "ntp_address",
-            "ntp_enabled",
-            "last_run_station",
-            "last_run_program",
-            "last_run_duration",
-            "last_run_end_time",
-            "rssi",
-            "latitude",
-            "longitude",
-            "current_draw",
-            "master_station_1",
-            "master_station_1_time_on_adjustment",
-            "master_station_1_time_off_adjustment",
-            "master_station_2",
-            "master_station_2_time_on_adjustment",
-            "master_station_2_time_off_adjustment",
-            "rain_delay_active",
-            "rain_delay_stop_time",
-            "rain_sensor_active",
-            "sensor_1_active",
-            "sensor_1_enabled",
-            "sensor_1_type",
-            "sensor_1_type_name",
-            "sensor_1_option",
-            "sensor_1_option_name",
-            "sensor_1_delayed_on_time",
-            "sensor_1_delayed_off_time",
-            "sensor_2_active",
-            "sensor_2_enabled",
-            "sensor_2_type",
-            "sensor_2_type_name",
-            "sensor_2_option",
-            "sensor_2_option_name",
-            "sensor_2_delayed_on_time",
-            "sensor_2_delayed_off_time",
-            "rain_sensor_enabled",
-            "flow_sensor_enabled",
-            "soil_sensor_enabled",
-            "program_switch_sensor_enabled",
-            "flow_rate",
-            "flow_count_window",
-            "flow_count",
-            "last_weather_call",
-            "last_successfull_weather_call",
-            "last_weather_call_error",
-            "last_weather_call_error_name",
-            "sunrise",
-            "sunset",
-            "last_reboot_time",
-            "last_reboot_cause",
-            "last_reboot_cause_name",
-            "water_level",
-        ]:
-            try:
-                attributes[attr] = getattr(controller, attr)
-            except:
-                pass
-
-        for attr in [
-            "last_run_end_time",
-            "rain_delay_stop_time",
-            "last_weather_call",
-            "last_successfull_weather_call",
-            "last_reboot_time",
-        ]:
-            iso_attr = attr + "_iso"
-            timestamp = getattr(controller, attr)
-            if not timestamp:
-                attributes[attr] = None
-                attributes[iso_attr] = None
-            else:
-                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
-
-        # station counts
-        attributes["station_total_count"] = len(controller.stations)
-        attributes["station_enabled_count"] = len(
-            dict(filter(lambda e: e[1].enabled == True, controller.stations.items()))
-        )
-        attributes["station_is_running_count"] = len(
-            dict(filter(lambda e: e[1].is_running == True, controller.stations.items()))
-        )
-
-        for status in [
-            "manual",
-            "once_program",
-            "master_engaged",
-            "idle",
-            "program",
-            "waiting",
-        ]:
-            key = f"station_{status}_count"
-            attributes[key] = len(
-                dict(
-                    filter(
-                        lambda e: e[1].status == status, controller.stations.items(),
-                    )
-                )
-            )
-
-        # program counts
-        attributes["program_total_count"] = len(controller.programs)
-        attributes["program_enabled_count"] = len(
-            dict(filter(lambda e: e[1].enabled == True, controller.programs.items()))
-        )
-        attributes["program_is_running_count"] = len(
-            dict(filter(lambda e: e[1].is_running == True, controller.programs.items()))
-        )
-
-        return attributes
-
     async def run(self, run_seconds=None, continue_running_stations=None):
         """Run once program."""
         if run_seconds == None or (
@@ -382,15 +252,6 @@ class OpenSprinklerProgramEntity:
         for attr in [
             "name",
             "index",
-            "enabled",
-            "is_running",
-            "use_weather_adjustments",
-            "odd_even_restriction",
-            "odd_even_restriction_name",
-            "program_schedule_type",
-            "program_schedule_type_name",
-            "start_time_type",
-            "start_time_type_name",
         ]:
             try:
                 attributes[attr] = getattr(self._program, attr)
@@ -412,22 +273,9 @@ class OpenSprinklerStationEntity:
         for attr in [
             "name",
             "index",
-            "enabled",
-            "is_running",
             "is_master",
             "running_program_id",
             "seconds_remaining",
-            "start_time",
-            "max_name_length",
-            "master_1_operation_enabled",
-            "master_2_operation_enabled",
-            "rain_delay_ignored",
-            "sensor_1_ignored",
-            "sensor_2_ignored",
-            "sequential_operation",
-            "special",
-            "station_type",
-            "status",
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
@@ -435,13 +283,11 @@ class OpenSprinklerStationEntity:
                 pass
 
         for attr in ["start_time"]:
-            iso_attr = attr + "_iso"
             timestamp = getattr(self._station, attr, 0)
             if not timestamp:
                 attributes[attr] = None
-                attributes[iso_attr] = None
             else:
-                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
+                attributes[attr] = utc_from_timestamp(timestamp).isoformat()
 
         return attributes
 

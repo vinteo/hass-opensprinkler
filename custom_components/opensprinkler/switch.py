@@ -5,6 +5,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers import entity_platform
 from homeassistant.util import slugify
+from homeassistant.util.dt import utc_from_timestamp
 
 from . import (
     OpenSprinklerControllerEntity,
@@ -83,6 +84,42 @@ class ControllerOperationSwitch(
             return "mdi:barley"
 
         return "mdi:barley-off"
+
+    @property
+    def device_state_attributes(self):
+        controller = self._controller
+        attributes = {"opensprinkler_type": "controller"}
+        for attr in [
+            "firmware_version",
+            "hardware_version",
+            "hardware_type",
+            "last_run_station",
+            "last_run_program",
+            "last_run_duration",
+            "sensor_1_enabled",
+            "sensor_2_enabled",
+            "last_weather_call_error",
+            "last_weather_call_error_name",
+            "last_reboot_cause",
+            "last_reboot_cause_name",
+        ]:
+            try:
+                attributes[attr] = getattr(controller, attr)
+            except:
+                pass
+
+        for attr in [
+            "last_weather_call",
+            "last_successfull_weather_call",
+            "last_reboot_time",
+        ]:
+            timestamp = getattr(controller, attr)
+            if not timestamp:
+                attributes[attr] = None
+            else:
+                attributes[attr] = utc_from_timestamp(timestamp).isoformat()
+
+        return attributes
 
     def _get_state(self) -> str:
         """Retrieve latest state."""
