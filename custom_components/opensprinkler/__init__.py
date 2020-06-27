@@ -276,10 +276,6 @@ class OpenSprinklerStationEntity:
             "is_master",
             "running_program_id",
             "seconds_remaining",
-            "rain_delay_ignored",
-            "sensor_1_ignored",
-            "sensor_2_ignored",
-            "sequential_operation",
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
