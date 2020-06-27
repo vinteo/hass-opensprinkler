@@ -275,14 +275,13 @@ class OpenSprinklerStationEntity:
             "index",
             "is_master",
             "running_program_id",
-            "seconds_remaining",
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
             except:
                 pass
 
-        for attr in ["start_time"]:
+        for attr in ["start_time", "end_time"]:
             timestamp = getattr(self._station, attr, 0)
             if not timestamp:
                 attributes[attr] = None
