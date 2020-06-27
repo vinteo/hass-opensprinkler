@@ -102,11 +102,8 @@ class ControllerOperationSwitch(
             "rain_sensor_enabled",
             "flow_sensor_enabled",
             "soil_sensor_enabled",
-            "last_weather_call",
-            "last_successfull_weather_call",
             "last_weather_call_error",
             "last_weather_call_error_name",
-            "last_reboot_time",
             "last_reboot_cause",
             "last_reboot_cause_name",
         ]:
@@ -120,48 +117,11 @@ class ControllerOperationSwitch(
             "last_successfull_weather_call",
             "last_reboot_time",
         ]:
-            iso_attr = attr + "_iso"
             timestamp = getattr(controller, attr)
             if not timestamp:
                 attributes[attr] = None
-                attributes[iso_attr] = None
             else:
-                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
-
-        # station counts
-        attributes["station_total_count"] = len(controller.stations)
-        attributes["station_enabled_count"] = len(
-            dict(filter(lambda e: e[1].enabled == True, controller.stations.items()))
-        )
-        attributes["station_is_running_count"] = len(
-            dict(filter(lambda e: e[1].is_running == True, controller.stations.items()))
-        )
-
-        for status in [
-            "manual",
-            "once_program",
-            "master_engaged",
-            "idle",
-            "program",
-            "waiting",
-        ]:
-            key = f"station_{status}_count"
-            attributes[key] = len(
-                dict(
-                    filter(
-                        lambda e: e[1].status == status, controller.stations.items(),
-                    )
-                )
-            )
-
-        # program counts
-        attributes["program_total_count"] = len(controller.programs)
-        attributes["program_enabled_count"] = len(
-            dict(filter(lambda e: e[1].enabled == True, controller.programs.items()))
-        )
-        attributes["program_is_running_count"] = len(
-            dict(filter(lambda e: e[1].is_running == True, controller.programs.items()))
-        )
+                attributes[attr] = utc_from_timestamp(timestamp).isoformat()
 
         return attributes
 

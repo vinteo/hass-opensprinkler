@@ -276,7 +276,6 @@ class OpenSprinklerStationEntity:
             "is_master",
             "running_program_id",
             "seconds_remaining",
-            "start_time",
             "rain_delay_ignored",
             "sensor_1_ignored",
             "sensor_2_ignored",
@@ -288,13 +287,11 @@ class OpenSprinklerStationEntity:
                 pass
 
         for attr in ["start_time"]:
-            iso_attr = attr + "_iso"
             timestamp = getattr(self._station, attr, 0)
             if not timestamp:
                 attributes[attr] = None
-                attributes[iso_attr] = None
             else:
-                attributes[iso_attr] = utc_from_timestamp(timestamp).isoformat()
+                attributes[attr] = utc_from_timestamp(timestamp).isoformat()
 
         return attributes
 
