@@ -89,6 +89,31 @@ class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entit
         """Return the units of measurement."""
         return "%"
 
+    @property
+    def device_state_attributes(self):
+        controller = self._controller
+        attributes = {}
+        for attr in [
+            "last_weather_call_error",
+            "last_weather_call_error_name",
+        ]:
+            try:
+                attributes[attr] = getattr(controller, attr)
+            except:
+                pass
+
+        for attr in [
+            "last_weather_call",
+            "last_successfull_weather_call",
+        ]:
+            timestamp = getattr(controller, attr)
+            if not timestamp:
+                attributes[attr] = None
+            else:
+                attributes[attr] = utc_from_timestamp(timestamp).isoformat()
+
+        return attributes
+
     def _get_state(self) -> int:
         """Retrieve latest state."""
         return self._controller.water_level
@@ -152,6 +177,22 @@ class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_last_run")
+
+    @property
+    def device_state_attributes(self):
+        controller = self._controller
+        attributes = {}
+        for attr in [
+            "last_run_station",
+            "last_run_program",
+            "last_run_duration",
+        ]:
+            try:
+                attributes[attr] = getattr(controller, attr)
+            except:
+                pass
+
+        return attributes
 
     def _get_state(self):
         """Retrieve latest state."""

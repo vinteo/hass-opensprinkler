@@ -49,14 +49,14 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     name = entry.data[CONF_NAME]
 
     entities.append(
-        ControllerSensorActive(entry, name, "sensor_1_active", controller, coordinator)
+        ControllerSensorActive(entry, name, "sensor_1", controller, coordinator)
     )
     entities.append(
-        ControllerSensorActive(entry, name, "sensor_2_active", controller, coordinator)
+        ControllerSensorActive(entry, name, "sensor_2", controller, coordinator)
     )
     entities.append(
         ControllerSensorActive(
-            entry, name, "rain_delay_active", controller, coordinator
+            entry, name, "rain_delay", controller, coordinator
         )
     )
 
@@ -74,12 +74,13 @@ class ControllerSensorActive(
 ):
     """Represent a sensor that for water level."""
 
-    def __init__(self, entry, name, attr, controller, coordinator):
+    def __init__(self, entry, name, sensor, controller, coordinator):
         """Set up a new opensprinkler water level sensor."""
         self._name = name
         self._controller = controller
         self._entity_type = "binary_sensor"
-        self._attr = attr
+        self._sensor = sensor
+        self._attr = sensor + "_active"
         super().__init__(entry, name, coordinator)
 
     @property
@@ -91,6 +92,17 @@ class ControllerSensorActive(
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_{self._attr}")
+
+    @property
+    def device_state_attributes(self):
+        controller = self._controller
+        attributes = {}
+        try:
+            attributes[self._sensor + "_enabled"] = getattr(controller, self._sensor + "_enabled")
+        except:
+            pass
+
+        return attributes
 
     def _get_state(self) -> int:
         """Retrieve latest state."""
