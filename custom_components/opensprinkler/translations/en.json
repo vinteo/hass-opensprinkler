@@ -15,7 +15,8 @@
           "url": "URL",
           "name": "Controller Name",
           "password": "Password",
-          "mac": "MAC Address"
+          "mac": "MAC Address",
+          "mqtt": "Use MQTT"
         },
         "title": "Connect to the OpenSprinkler controller"
       }
