@@ -129,12 +129,19 @@ class OpenSprinklerEntity(RestoreEntity):
 
         controller = self.hass.data[DOMAIN][self._entry.entry_id]["controller"]
 
+        model = controller.hardware_version_name or "Unknown"
+        if controller.hardware_type_name:
+            model += f" - ({controller.hardware_type_name})"
+
+        firmware = controller.firmware_version_name or "Unknown"
+        firmware += f" ({ controller.firmware_minor_version })"
+
         return {
             "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
             "name": self._name,
             "manufacturer": "OpenSprinkler",
-            "model": controller.hardware_version,
-            "sw_version": controller.firmware_version,
+            "model": model,
+            "sw_version": firmware,
         }
 
     @property
