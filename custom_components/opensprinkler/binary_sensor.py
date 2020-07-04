@@ -55,9 +55,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         ControllerSensorActive(entry, name, "sensor_2", controller, coordinator)
     )
     entities.append(
-        ControllerSensorActive(
-            entry, name, "rain_delay", controller, coordinator
-        )
+        ControllerSensorActive(entry, name, "rain_delay", controller, coordinator)
     )
 
     for _, program in controller.programs.items():
@@ -98,7 +96,9 @@ class ControllerSensorActive(
         controller = self._controller
         attributes = {}
         try:
-            attributes[self._sensor + "_enabled"] = getattr(controller, self._sensor + "_enabled")
+            attributes[self._sensor + "_enabled"] = getattr(
+                controller, self._sensor + "_enabled"
+            )
         except:
             pass
 
