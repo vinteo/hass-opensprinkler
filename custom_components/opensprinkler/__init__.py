@@ -56,7 +56,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             _LOGGER.debug("refreshing data")
             async with async_timeout.timeout(TIMEOUT):
                 try:
-                    await hass.async_add_executor_job(controller.refresh)
+                    await controller.refresh()
                 except Exception as exc:
                     raise UpdateFailed("Error fetching OpenSprinkler state") from exc
 
@@ -195,7 +195,7 @@ class OpenSprinklerControllerEntity:
         if continue_running_stations == None:
             continue_running_stations = False
 
-        await self.hass.async_add_executor_job(self._controller.refresh)
+        await self._controller.refresh()
 
         if isinstance(run_seconds, dict):
             run_seconds_list = []
@@ -209,9 +209,7 @@ class OpenSprinklerControllerEntity:
                         else station.seconds_remaining
                     )
                 )
-            await self.hass.async_add_executor_job(
-                self._controller.run_once_program, run_seconds_list
-            )
+            await self._controller.run_once_program(run_seconds_list)
             await self._coordinator.async_request_refresh()
             return
 
@@ -234,21 +232,17 @@ class OpenSprinklerControllerEntity:
                     )
                 )
 
-            await self.hass.async_add_executor_job(
-                self._controller.run_once_program, run_seconds_list
-            )
+            await self._controller.run_once_program(run_seconds_list)
             await self._coordinator.async_request_refresh()
             return
 
-        await self.hass.async_add_executor_job(
-            self._controller.run_once_program, run_seconds
-        )
+        await self._controller.run_once_program(run_seconds)
         await self._coordinator.async_request_refresh()
         return
 
     async def stop(self):
         """Stops all stations."""
-        await self.hass.async_add_executor_job(self._controller.stop_all_stations)
+        await self._controller.stop_all_stations()
         await self._coordinator.async_request_refresh()
 
 
@@ -269,7 +263,7 @@ class OpenSprinklerProgramEntity:
 
     async def run(self):
         """Runs the program."""
-        await self.hass.async_add_executor_job(self._program.run)
+        await self._program.run()
         await self._coordinator.async_request_refresh()
 
 
@@ -302,10 +296,10 @@ class OpenSprinklerStationEntity:
         if run_seconds is not None and not isinstance(run_seconds, int):
             raise Exception("Run seconds should be an integer value for station")
 
-        await self.hass.async_add_executor_job(self._station.run, run_seconds)
+        await self._station.run(run_seconds)
         await self._coordinator.async_request_refresh()
 
     async def stop(self):
         """Stop station."""
-        await self.hass.async_add_executor_job(self._station.stop)
+        await self._station.stop()
         await self._coordinator.async_request_refresh()
