@@ -115,12 +115,12 @@ class ControllerOperationSwitch(
 
     async def async_turn_on(self, **kwargs):
         """Enable the controller operation."""
-        await self.hass.async_add_executor_job(self._controller.enable)
+        await self._controller.enable()
         await self._coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Disable the device operation."""
-        await self.hass.async_add_executor_job(self._controller.disable)
+        await self._controller.disable()
         await self._coordinator.async_request_refresh()
 
 
@@ -159,12 +159,12 @@ class ProgramEnabledSwitch(
 
     async def async_turn_on(self, **kwargs):
         """Enable the program."""
-        await self.hass.async_add_executor_job(self._program.enable)
+        await self._program.enable()
         await self._coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Disable the program."""
-        await self.hass.async_add_executor_job(self._program.disable)
+        await self._program.disable()
         await self._coordinator.async_request_refresh()
 
 
@@ -209,10 +209,10 @@ class StationEnabledSwitch(
 
     async def async_turn_on(self, **kwargs):
         """Enable the station."""
-        await self.hass.async_add_executor_job(self._station.enable)
+        await self._station.enable()
         await self._coordinator.async_request_refresh()
 
     async def async_turn_off(self, **kwargs):
         """Disable the station."""
-        await self.hass.async_add_executor_job(self._station.disable)
+        await self._station.disable()
         await self._coordinator.async_request_refresh()
