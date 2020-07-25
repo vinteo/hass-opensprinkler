@@ -48,7 +48,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 mac_address = user_input.get(CONF_MAC)
 
                 controller = OpenSprinkler(url, password)
-                await self.hass.async_add_executor_job(controller.refresh)
+                await controller.refresh()
 
                 if controller.mac_address is None:
                     if not mac_address:
@@ -57,6 +57,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     await self.async_set_unique_id(slugify(mac_address))
                 else:
                     await self.async_set_unique_id(slugify(controller.mac_address))
+
+                await controller.session_close()
 
                 return self.async_create_entry(
                     title=name,
