@@ -159,13 +159,13 @@ switch:
         turn_on:
           service: opensprinkler.run
           data_template:
-            entity_id: binary_sensor.s01_station_running
+            entity_id: switch.s01_station_enabled
             # Run seconds uses the input_number below.
             run_seconds: "{{ ((states('input_number.s01_station_minutes') | float) * 60) | int }}"
         turn_off:
           service: opensprinkler.stop
           data:
-            entity_id: binary_sensor.s01_station_running
+            entity_id: switch.s01_station_enabled
 ​
 input_number:
   s01_station_minutes:
