@@ -15,6 +15,7 @@ from homeassistant.const import (
     CONF_PASSWORD,
     CONF_URL,
 )
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import slugify
 
 from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN  # pylint: disable=unused-import
@@ -47,8 +48,9 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
                 mac_address = user_input.get(CONF_MAC)
 
-                controller = OpenSprinkler(url, password)
-                await self.hass.async_add_executor_job(controller.refresh)
+                opts = {"session": async_get_clientsession(self.hass)}
+                controller = OpenSprinkler(url, password, opts)
+                await controller.refresh()
 
                 if controller.mac_address is None:
                     if not mac_address:
