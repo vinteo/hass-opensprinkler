@@ -136,9 +136,9 @@ class ProgramIsRunningBinarySensor(
     def icon(self) -> str:
         """Return icon."""
         if self._program.is_running:
-            return "mdi:timer"
+            return "mdi:timer-outline"
 
-        return "mdi:timer-off"
+        return "mdi:timer-off-outline"
 
     def _get_state(self) -> bool:
         """Retrieve latest state."""
