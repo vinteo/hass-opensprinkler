@@ -144,6 +144,11 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_flow_rate")
 
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of the flow rate."""
+        return "liters/pulse"
+
     def _get_state(self) -> int:
         """Retrieve latest state."""
         return self._controller.flow_rate
