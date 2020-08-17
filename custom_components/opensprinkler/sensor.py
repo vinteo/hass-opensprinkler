@@ -147,7 +147,7 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
     @property
     def unit_of_measurement(self):
         """Return the unit of the flow rate."""
-        return "liters/pulse"
+        return "L/min"
 
     def _get_state(self) -> int:
         """Retrieve latest state."""
