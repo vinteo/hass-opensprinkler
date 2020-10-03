@@ -10,7 +10,6 @@ CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
 DOMAIN = "opensprinkler"
 
 DEFAULT_NAME = "OpenSprinkler"
-DEFAULT_PORT = 8080
 
 DEFAULT_SCAN_INTERVAL = 5
 

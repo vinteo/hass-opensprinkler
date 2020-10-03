@@ -13,11 +13,9 @@ from pyopensprinkler import (
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.helpers.dispatcher import async_dispatcher_connect
-from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
 from homeassistant.util import slugify
@@ -26,7 +24,6 @@ from homeassistant.util.dt import utc_from_timestamp
 from .const import (
     CONF_INDEX,
     CONF_RUN_SECONDS,
-    DEFAULT_PORT,
     DOMAIN,
     DEFAULT_SCAN_INTERVAL,
 )
@@ -187,14 +184,14 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 class OpenSprinklerControllerEntity:
     async def run(self, run_seconds=None, continue_running_stations=None):
         """Run once program."""
-        if run_seconds == None or (
+        if run_seconds is None or (
             not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
         ):
             raise Exception(
                 "List of run seconds or dict of index/second pairs is required for controller"
             )
 
-        if continue_running_stations == None:
+        if continue_running_stations is None:
             continue_running_stations = False
 
         await self._controller.refresh()
@@ -205,11 +202,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     run_seconds.get(str(station.index))
                     if run_seconds.get(str(station.index)) is not None
-                    else (
-                        0
-                        if continue_running_stations == True
-                        else station.seconds_remaining
-                    )
+                    else (0 if continue_running_stations else station.seconds_remaining)
                 )
             await self._controller.run_once_program(run_seconds_list)
             await self._coordinator.async_request_refresh()
@@ -227,11 +220,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     run_seconds_by_index.get(station.index)
                     if run_seconds_by_index.get(station.index) is not None
-                    else (
-                        0
-                        if continue_running_stations == True
-                        else station.seconds_remaining
-                    )
+                    else (0 if continue_running_stations else station.seconds_remaining)
                 )
 
             await self._controller.run_once_program(run_seconds_list)
@@ -258,7 +247,7 @@ class OpenSprinklerProgramEntity:
         ]:
             try:
                 attributes[attr] = getattr(self._program, attr)
-            except:
+            except:  # noqa: E722
                 pass
 
         return attributes
@@ -281,7 +270,7 @@ class OpenSprinklerStationEntity:
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
-            except:
+            except:  # noqa: E722
                 pass
 
         for attr in ["start_time", "end_time"]:
