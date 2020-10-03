@@ -99,7 +99,7 @@ class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entit
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)
-            except:
+            except:  # noqa: E722
                 pass
 
         for attr in [
@@ -194,7 +194,7 @@ class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)
-            except:
+            except:  # noqa: E722
                 pass
 
         return attributes

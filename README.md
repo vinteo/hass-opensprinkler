@@ -1,9 +1,9 @@
-[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
-![](https://github.com/vinteo/hass-opensprinkler/workflows/HACS/badge.svg)
-![](https://github.com/vinteo/hass-opensprinkler/workflows/hassfest/badge.svg)
-![](https://github.com/vinteo/hass-opensprinkler/workflows/Linting/badge.svg)
-
 # OpenSprinkler Integration for Home Assistant
+
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/custom-components/hacs)
+![HACS Build](https://github.com/vinteo/hass-opensprinkler/workflows/HACS/badge.svg)
+![HASS Build](https://github.com/vinteo/hass-opensprinkler/workflows/hassfest/badge.svg)
+![Linting](https://github.com/vinteo/hass-opensprinkler/workflows/Linting/badge.svg)
 
 Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
@@ -29,7 +29,7 @@ Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
 ### Upgrading from pre 1.0.0
 
-Note: *1.0.0 has major breaking changes, you will need to update any automations, scripts, etc*
+Note: _1.0.0 has major breaking changes, you will need to update any automations, scripts, etc_
 
 1. Remove yaml configuration.
 2. Uninstall using HACS or delete the `hass_opensprinkler` folder in `<config_dir>/custom_components`

@@ -95,7 +95,7 @@ class ControllerOperationSwitch(
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)
-            except:
+            except:  # noqa: E722
                 pass
 
         for attr in [

@@ -99,7 +99,7 @@ class ControllerSensorActive(
             attributes[self._sensor + "_enabled"] = getattr(
                 controller, self._sensor + "_enabled"
             )
-        except:
+        except:  # noqa: E722
             pass
 
         return attributes

@@ -8,7 +8,7 @@ from pyopensprinkler import (
 )
 import voluptuous as vol
 
-from homeassistant import config_entries, exceptions
+from homeassistant import config_entries
 from homeassistant.const import (
     CONF_MAC,
     CONF_NAME,
@@ -18,7 +18,7 @@ from homeassistant.const import (
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import slugify
 
-from .const import DEFAULT_NAME, DEFAULT_PORT, DOMAIN  # pylint: disable=unused-import
+from .const import DEFAULT_NAME, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -62,7 +62,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 return self.async_create_entry(
                     title=name,
-                    data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name,},
+                    data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name},
                 )
             except OpenSprinklerConnectionError:
                 errors["base"] = "cannot_connect"
