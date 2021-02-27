@@ -1,15 +1,15 @@
 from typing import Callable
 
+from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
-from homeassistant.components.switch import SwitchEntity
 from homeassistant.helpers import entity_platform
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
 from . import (
-    OpenSprinklerControllerEntity,
     OpenSprinklerBinarySensor,
+    OpenSprinklerControllerEntity,
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )

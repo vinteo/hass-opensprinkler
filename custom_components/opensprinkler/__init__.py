@@ -1,32 +1,28 @@
 """OpenSprinkler integration."""
 import asyncio
-import async_timeout
 import logging
-
 from datetime import timedelta
 
-from pyopensprinkler import (
-    Controller as OpenSprinkler,
-    OpenSprinklerAuthError,
-    OpenSprinklerConnectionError,
-)
-
+import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
 from homeassistant.core import HomeAssistant
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
-
-from .const import (
-    CONF_INDEX,
-    CONF_RUN_SECONDS,
-    DOMAIN,
-    DEFAULT_SCAN_INTERVAL,
+from pyopensprinkler import Controller as OpenSprinkler
+from pyopensprinkler import (
+    OpenSprinklerAuthError,
+    OpenSprinklerConnectionError,
 )
+
+from .const import CONF_INDEX, CONF_RUN_SECONDS, DEFAULT_SCAN_INTERVAL, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
