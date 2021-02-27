@@ -123,7 +123,7 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
     """Represent a sensor for flow rate."""
 
     def __init__(self, entry, name, controller, coordinator):
-        """Set up a new opensprinkler water level sensor."""
+        """Set up a new opensprinkler flow rate sensor."""
         self._name = name
         self._controller = controller
         self._entity_type = "sensor"

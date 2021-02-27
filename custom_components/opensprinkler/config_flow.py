@@ -1,22 +1,16 @@
 """Config flow for OpenSprinkler integration."""
 import logging
 
+import voluptuous as vol
+from homeassistant import config_entries
+from homeassistant.const import CONF_MAC, CONF_NAME, CONF_PASSWORD, CONF_URL
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.util import slugify
+from pyopensprinkler import Controller as OpenSprinkler
 from pyopensprinkler import (
-    Controller as OpenSprinkler,
     OpenSprinklerAuthError,
     OpenSprinklerConnectionError,
 )
-import voluptuous as vol
-
-from homeassistant import config_entries
-from homeassistant.const import (
-    CONF_MAC,
-    CONF_NAME,
-    CONF_PASSWORD,
-    CONF_URL,
-)
-from homeassistant.helpers.aiohttp_client import async_get_clientsession
-from homeassistant.util import slugify
 
 from .const import DEFAULT_NAME, DOMAIN
 
