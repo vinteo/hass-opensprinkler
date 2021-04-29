@@ -26,7 +26,9 @@ _LOGGER = logging.getLogger(__name__)
 
 
 async def async_setup_entry(
-    hass: HomeAssistant, entry: dict, async_add_entities: Callable,
+    hass: HomeAssistant,
+    entry: dict,
+    async_add_entities: Callable,
 ):
     """Set up the OpenSprinkler binary sensors."""
     entities = _create_entities(hass, entry)
@@ -34,10 +36,14 @@ async def async_setup_entry(
 
     platform = entity_platform.current_platform.get()
     platform.async_register_entity_service(
-        SERVICE_RUN, SCHEMA_SERVICE_RUN, "run",
+        SERVICE_RUN,
+        SCHEMA_SERVICE_RUN,
+        "run",
     )
     platform.async_register_entity_service(
-        SERVICE_STOP, SCHEMA_SERVICE_STOP, "stop",
+        SERVICE_STOP,
+        SCHEMA_SERVICE_STOP,
+        "stop",
     )
 
 
