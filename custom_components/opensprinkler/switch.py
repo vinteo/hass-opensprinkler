@@ -3,7 +3,6 @@ from typing import Callable
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_platform
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 
@@ -13,13 +12,7 @@ from . import (
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import (
-    DOMAIN,
-    SCHEMA_SERVICE_RUN,
-    SCHEMA_SERVICE_STOP,
-    SERVICE_RUN,
-    SERVICE_STOP,
-)
+from .const import DOMAIN
 
 
 async def async_setup_entry(
@@ -30,18 +23,6 @@ async def async_setup_entry(
     """Set up the OpenSprinkler switches."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
-
-    platform = entity_platform.current_platform.get()
-    platform.async_register_entity_service(
-        SERVICE_RUN,
-        SCHEMA_SERVICE_RUN,
-        "run",
-    )
-    platform.async_register_entity_service(
-        SERVICE_STOP,
-        SCHEMA_SERVICE_STOP,
-        "stop",
-    )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):

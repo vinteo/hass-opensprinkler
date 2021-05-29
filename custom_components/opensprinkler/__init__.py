@@ -6,9 +6,11 @@ from datetime import timedelta
 import async_timeout
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
+from homeassistant.helpers.entity_platform import async_get_platforms
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import (
     DataUpdateCoordinator,
@@ -22,7 +24,16 @@ from pyopensprinkler import (
     OpenSprinklerConnectionError,
 )
 
-from .const import CONF_INDEX, CONF_RUN_SECONDS, DEFAULT_SCAN_INTERVAL, DOMAIN
+from .const import (
+    CONF_INDEX,
+    CONF_RUN_SECONDS,
+    DEFAULT_SCAN_INTERVAL,
+    DOMAIN,
+    SCHEMA_SERVICE_RUN,
+    SCHEMA_SERVICE_STOP,
+    SERVICE_RUN,
+    SERVICE_STOP,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -87,6 +98,31 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         hass.async_create_task(
             hass.config_entries.async_forward_entry_setup(entry, component)
         )
+
+    # Setup services
+    async def _async_send_run_command(call: ServiceCall):
+        await hass.helpers.service.entity_service_call(
+            async_get_platforms(hass, DOMAIN), SERVICE_RUN, call
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_RUN,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_RUN),
+        service_func=_async_send_run_command,
+    )
+
+    async def _async_send_stop_command(call: ServiceCall):
+        await hass.helpers.service.entity_service_call(
+            async_get_platforms(hass, DOMAIN), SERVICE_STOP, call
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_STOP,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_STOP),
+        service_func=_async_send_stop_command,
+    )
 
     return True
 
