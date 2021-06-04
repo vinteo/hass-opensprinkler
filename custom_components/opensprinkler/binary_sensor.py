@@ -5,7 +5,6 @@ from typing import Callable
 from homeassistant.components.binary_sensor import BinarySensorEntity
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_platform
 from homeassistant.util import slugify
 
 from . import (
@@ -14,13 +13,7 @@ from . import (
     OpenSprinklerProgramEntity,
     OpenSprinklerStationEntity,
 )
-from .const import (
-    DOMAIN,
-    SCHEMA_SERVICE_RUN,
-    SCHEMA_SERVICE_STOP,
-    SERVICE_RUN,
-    SERVICE_STOP,
-)
+from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,18 +26,6 @@ async def async_setup_entry(
     """Set up the OpenSprinkler binary sensors."""
     entities = _create_entities(hass, entry)
     async_add_entities(entities)
-
-    platform = entity_platform.current_platform.get()
-    platform.async_register_entity_service(
-        SERVICE_RUN,
-        SCHEMA_SERVICE_RUN,
-        "run",
-    )
-    platform.async_register_entity_service(
-        SERVICE_STOP,
-        SCHEMA_SERVICE_STOP,
-        "stop",
-    )
 
 
 def _create_entities(hass: HomeAssistant, entry: dict):
