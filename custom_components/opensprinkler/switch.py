@@ -77,6 +77,8 @@ class ControllerOperationSwitch(
         controller = self._controller
         attributes = {"opensprinkler_type": "controller"}
         for attr in [
+            "firmware_version",
+            "firmware_minor_version",
             "last_reboot_cause",
             "last_reboot_cause_name",
         ]:
