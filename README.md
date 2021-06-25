@@ -17,6 +17,8 @@ Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 - Services to run and stop stations
 - Service to run programs
 
+To have a Lovelace card for the UI, [opensprinkler-card](https://github.com/rianadon/opensprinkler-card) can be used.
+
 ## Installation
 
 1. Install using [HACS](https://github.com/custom-components/hacs). Or install manually by copying `custom_components/opensprinkler` folder into `<config_dir>/custom_components`
