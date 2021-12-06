@@ -77,7 +77,7 @@ class WaterLevelSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entit
         return "%"
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         controller = self._controller
         attributes = {}
         for attr in [
@@ -171,7 +171,7 @@ class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_last_run")
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         controller = self._controller
         attributes = {}
         for attr in [

@@ -73,7 +73,7 @@ class ControllerOperationSwitch(
         return "mdi:barley-off"
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         controller = self._controller
         attributes = {"opensprinkler_type": "controller"}
         for attr in [

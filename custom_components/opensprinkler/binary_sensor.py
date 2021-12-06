@@ -79,7 +79,7 @@ class ControllerSensorActive(
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_{self._attr}")
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         controller = self._controller
         attributes = {}
         try:
