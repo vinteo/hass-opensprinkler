@@ -273,7 +273,7 @@ class OpenSprinklerControllerEntity:
 
 class OpenSprinklerProgramEntity:
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         attributes = {"opensprinkler_type": "program"}
         for attr in [
             "name",
@@ -294,7 +294,7 @@ class OpenSprinklerProgramEntity:
 
 class OpenSprinklerStationEntity:
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         attributes = {"opensprinkler_type": "station"}
         for attr in [
             "name",
