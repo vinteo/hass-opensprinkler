@@ -11,7 +11,7 @@ Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
 - Binary sensors for station and programs to show running state
 - Sensors for each station to show status
-- Sensors for water level, last run time and rain delay stop time
+- Sensors for water level, last runtime and rain delay stop time
 - Switches for each program and station to enable/disable program or station
 - Switch to enable/disable OpenSprinkler controller operation
 - Services to run and stop stations
