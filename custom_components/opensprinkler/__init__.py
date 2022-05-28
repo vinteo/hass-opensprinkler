@@ -27,7 +27,6 @@ from pyopensprinkler import (
 from .const import (
     CONF_INDEX,
     CONF_RUN_SECONDS,
-    CONF_WATER_LEVEL,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SCHEMA_SERVICE_RUN,
