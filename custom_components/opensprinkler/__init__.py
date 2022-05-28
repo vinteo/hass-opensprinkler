@@ -30,8 +30,10 @@ from .const import (
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
     SCHEMA_SERVICE_RUN,
+    SCHEMA_SERVICE_SET_WATER_LEVEL,
     SCHEMA_SERVICE_STOP,
     SERVICE_RUN,
+    SERVICE_SET_WATER_LEVEL,
     SERVICE_STOP,
 )
 
@@ -122,6 +124,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         service=SERVICE_STOP,
         schema=cv.make_entity_service_schema(SCHEMA_SERVICE_STOP),
         service_func=_async_send_stop_command,
+    )
+
+    async def _async_send_set_water_level_command(call: ServiceCall):
+        await hass.helpers.service.entity_service_call(
+            async_get_platforms(hass, DOMAIN), SERVICE_SET_WATER_LEVEL, call
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_SET_WATER_LEVEL,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_SET_WATER_LEVEL),
+        service_func=_async_send_set_water_level_command,
     )
 
     return True
@@ -268,6 +282,11 @@ class OpenSprinklerControllerEntity:
     async def stop(self):
         """Stops all stations."""
         await self._controller.stop_all_stations()
+        await self._coordinator.async_request_refresh()
+
+    async def set_water_level(self, water_level: int):
+        """Set water level percentage"""
+        await self._controller.set_water_level(water_level)
         await self._coordinator.async_request_refresh()
 
 
