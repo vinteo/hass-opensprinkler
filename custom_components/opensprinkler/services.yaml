@@ -16,3 +16,12 @@ stop:
     entity_id:
       description: Sensor or switch entity id for stations or controller
       example: "sensor.station_name"
+set_water_level:
+  description: Set water level percentage
+  fields:
+    entity_id:
+      description: Entity id of an Opensprinkler water level sensor
+      example: "sensor.opensprinkler_water_level"
+    water_level:
+      description: Percentage of water level
+      example: 100

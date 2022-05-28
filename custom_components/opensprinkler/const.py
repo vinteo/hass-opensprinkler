@@ -5,6 +5,7 @@ from homeassistant.helpers import config_validation as cv
 CONF_INDEX = "index"
 CONF_RUN_SECONDS = "run_seconds"
 CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
+CONF_WATER_LEVEL = "water_level"
 
 DOMAIN = "opensprinkler"
 
@@ -27,5 +28,10 @@ SCHEMA_SERVICE_RUN = {
 }
 SCHEMA_SERVICE_STOP = {}
 
+SCHEMA_SERVICE_SET_WATER_LEVEL = {
+    vol.Required(CONF_WATER_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+}
+
 SERVICE_RUN = "run"
 SERVICE_STOP = "stop"
+SERVICE_SET_WATER_LEVEL = "set_water_level"
