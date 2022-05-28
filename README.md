@@ -147,6 +147,17 @@ data:
   entity_id: switch.controller_name # Switches or sensors for controller
 ```
 
+### Set Water Level Example
+
+This sets the water level to 50%, i.e. all stations will run half of their normally configured time.
+
+```yaml
+service: opensprinkler.set_water_level
+data:
+  entity_id: sensor.opensprinkler_water_level
+  water_level: 50
+```
+
 ## Creating a Station Switch
 
 If you wish to have a switch for your stations, here is an example using the switch template and input number.
