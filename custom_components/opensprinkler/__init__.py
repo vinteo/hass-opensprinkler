@@ -181,6 +181,7 @@ class OpenSprinklerEntity(RestoreEntity):
             "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
             "name": self._name,
             "manufacturer": "OpenSprinkler",
+            "configuration_url": self._entry.data.get(CONF_URL),
             "model": model,
             "sw_version": firmware,
         }
