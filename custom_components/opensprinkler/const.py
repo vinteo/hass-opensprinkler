@@ -29,7 +29,7 @@ SCHEMA_SERVICE_RUN = {
 SCHEMA_SERVICE_STOP = {}
 
 SCHEMA_SERVICE_SET_WATER_LEVEL = {
-    vol.Required(CONF_WATER_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+    vol.Required(CONF_WATER_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=0, max=250)),
 }
 
 SERVICE_RUN = "run"
