@@ -2,7 +2,8 @@
 import logging
 from typing import Callable
 
-from homeassistant.const import CONF_NAME, DEVICE_CLASS_TIMESTAMP
+from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
@@ -153,7 +154,7 @@ class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     @property
     def device_class(self):
         """Return the device class."""
-        return DEVICE_CLASS_TIMESTAMP
+        return SensorDeviceClass.TIMESTAMP
 
     @property
     def icon(self) -> str:
@@ -210,7 +211,7 @@ class RainDelayStopTimeSensor(
     @property
     def device_class(self):
         """Return the device class."""
-        return DEVICE_CLASS_TIMESTAMP
+        return SensorDeviceClass.TIMESTAMP
 
     @property
     def icon(self) -> str:
