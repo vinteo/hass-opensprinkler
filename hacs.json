@@ -1,5 +1,5 @@
 {
   "name": "OpenSprinkler integration for Home Assistant",
-  "homeassistant": "2021.12.0",
+  "homeassistant": "2023.3.0b0",
   "render_readme": true
 }
