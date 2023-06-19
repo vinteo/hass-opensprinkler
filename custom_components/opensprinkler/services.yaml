@@ -38,3 +38,9 @@ set_water_level:
           max: 250
           mode: slider
           unit_of_measurement: "%"
+reboot:
+  description: Reboot the controller
+  fields:
+    entity_id:
+      description: Switch entity id for controller
+      example: "switch.opensprinkler_enabled"
