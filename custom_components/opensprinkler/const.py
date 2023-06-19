@@ -32,6 +32,9 @@ SCHEMA_SERVICE_SET_WATER_LEVEL = {
     vol.Required(CONF_WATER_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=0, max=250)),
 }
 
+SCHEMA_SERVICE_REBOOT = {}
+
 SERVICE_RUN = "run"
 SERVICE_STOP = "stop"
 SERVICE_SET_WATER_LEVEL = "set_water_level"
+SERVICE_REBOOT = "reboot"

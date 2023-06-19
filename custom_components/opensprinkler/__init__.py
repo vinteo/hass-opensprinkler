@@ -26,9 +26,11 @@ from .const import (
     SCHEMA_SERVICE_RUN,
     SCHEMA_SERVICE_SET_WATER_LEVEL,
     SCHEMA_SERVICE_STOP,
+    SCHEMA_SERVICE_REBOOT,
     SERVICE_RUN,
     SERVICE_SET_WATER_LEVEL,
     SERVICE_STOP,
+    SERVICE_REBOOT,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -130,6 +132,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         service=SERVICE_SET_WATER_LEVEL,
         schema=cv.make_entity_service_schema(SCHEMA_SERVICE_SET_WATER_LEVEL),
         service_func=_async_send_set_water_level_command,
+    )
+
+    async def _async_send_reboot_command(call: ServiceCall):
+        await hass.helpers.service.entity_service_call(
+            async_get_platforms(hass, DOMAIN), SERVICE_REBOOT, call
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_REBOOT,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_REBOOT),
+        service_func=_async_send_reboot_command,
     )
 
     return True
@@ -282,6 +296,11 @@ class OpenSprinklerControllerEntity:
     async def set_water_level(self, water_level: int):
         """Set water level percentage"""
         await self._controller.set_water_level(water_level)
+        await self._coordinator.async_request_refresh()
+
+    async def reboot(self):
+        """Reboot controller."""
+        await self._controller.reboot()
         await self._coordinator.async_request_refresh()
 
 
