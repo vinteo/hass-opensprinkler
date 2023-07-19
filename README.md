@@ -158,6 +158,15 @@ data:
   water_level: 50
 ```
 
+### Reboot Controller Example
+
+This reboots the controller.
+
+```yaml
+service: opensprinkler.reboot
+data:
+  entity_id: switch.opensprinkler_enabled
+```
 ## Creating a Station Switch
 
 If you wish to have a switch for your stations, here is an example using the switch template and input number.
