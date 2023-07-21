@@ -37,6 +37,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     for _, program in controller.programs.items():
         entities.append(ProgramEnabledSwitch(entry, name, program, coordinator))
 
+    for _, program in controller.programs.items():
+        entities.append(ProgramUseWeatherSwitch(entry, name, program, coordinator))
+
     for _, station in controller.stations.items():
         entities.append(StationEnabledSwitch(entry, name, station, coordinator))
 
@@ -154,6 +157,50 @@ class ProgramEnabledSwitch(
     async def async_turn_off(self, **kwargs):
         """Disable the program."""
         await self._program.disable()
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramUseWeatherSwitch(
+    OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program use weather switch."""
+        self._program = program
+        self._entity_type = "switch"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self):
+        """Return the name of the switch."""
+        return self._program.name + " Program Use Weather"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_program_use_weather_{self._program.index}"
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._program.use_weather_adjustments:
+            return "mdi:weather-sunny"
+
+        return "mdi:weather-sunny-off"
+
+    def _get_state(self) -> bool:
+        """Retrieve latest state."""
+        return bool(self._program.use_weather_adjustments)
+
+    async def async_turn_on(self, **kwargs):
+        """Enable weather adjustments."""
+        await self._program.set_use_weather_adjustments(1)
+        await self._coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs):
+        """Disable weather adjustments."""
+        await self._program.set_use_weather_adjustments(0)
         await self._coordinator.async_request_refresh()
 
 
