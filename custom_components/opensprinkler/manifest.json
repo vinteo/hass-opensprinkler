@@ -7,6 +7,6 @@
   "documentation": "https://github.com/vinteo/hass-opensprinkler",
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/vinteo/hass-opensprinkler/issues",
-  "requirements": ["pyopensprinkler==0.7.6"],
-  "version": "1.1.16"
+  "requirements": ["pyopensprinkler==0.7.7"],
+  "version": "1.1.17"
 }
