@@ -189,7 +189,7 @@ class ProgramUseWeatherSwitch(
 
         return "mdi:weather-sunny-off"
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._program.use_weather_adjustments)
 
