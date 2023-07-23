@@ -35,7 +35,7 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["binary_sensor", "number", "sensor", "switch", "text"]
+PLATFORMS = ["binary_sensor", "number", "select", "sensor", "switch", "text"]
 TIMEOUT = 10
 
 
@@ -240,6 +240,10 @@ class OpenSprinklerSensor(OpenSprinklerEntity):
 
 class OpenSprinklerNumber(OpenSprinklerEntity):
     """Define a generic OpenSprinkler number."""
+
+
+class OpenSprinklerSelect(OpenSprinklerEntity):
+    """Define a generic OpenSprinkler select."""
 
 
 class OpenSprinklerText(OpenSprinklerEntity):
