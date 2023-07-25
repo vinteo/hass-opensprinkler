@@ -36,6 +36,10 @@ def _create_entities(hass: HomeAssistant, entry: dict):
                 ProgramDurationNumber(entry, name, program, station, coordinator)
             )
 
+    for _, program in controller.programs.items():
+        entities.append(ProgramIntervalDaysNumber(entry, name, program, coordinator))
+        entities.append(ProgramStartingInDaysNumber(entry, name, program, coordinator))
+
     return entities
 
 
@@ -45,7 +49,7 @@ class ProgramDurationNumber(
     """Represent a number for duration of a station in a program."""
 
     def __init__(self, entry, name, program, station, coordinator):
-        """Set up a new OpenSprinkler program/station sensor."""
+        """Set up a new OpenSprinkler program/station number."""
         self._program = program
         self._station = station
         self._entity_type = "number"
@@ -65,12 +69,12 @@ class ProgramDurationNumber(
 
     @property
     def native_unit_of_measurement(self) -> str:
-        """Return the units of measurement."""
+        """The unit of measurement that the sensor's value is expressed in."""
         return "min"
 
     @property
     def mode(self) -> str:
-        """Return the units of measurement."""
+        """Defines how the number should be displayed in the UI."""
         return "auto"
 
     @property
@@ -79,8 +83,18 @@ class ProgramDurationNumber(
         return "mdi:timer-sand"
 
     @property
+    def native_max_value(self) -> float:
+        """The maximum accepted value in the number's native_unit_of_measurement."""
+        return 1080.0
+
+    @property
+    def native_min_value(self) -> float:
+        """The minimum accepted value in the number's native_unit_of_measurement."""
+        return 0.0
+
+    @property
     def native_value(self) -> float:
-        """Retrieve latest duration in minutes."""
+        """The value of the number in the number's native_unit_of_measurement."""
         return round(self._program.station_durations[self._station.index] / 60.0)
 
     async def async_set_native_value(self, value: float) -> None:
@@ -88,4 +102,122 @@ class ProgramDurationNumber(
         await self._program.set_station_duration(
             self._station.index, round(value * 60.0)
         )
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramIntervalDaysNumber(
+    OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
+):
+    """Represent a number for Interval Days of a program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program number for Interval Days."""
+        self._program = program
+        self._entity_type = "number"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this number."""
+        return f"{self._program.name} Interval Days"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_interval_days_{self._program.index}"
+        )
+
+    @property
+    def native_unit_of_measurement(self) -> str:
+        """The unit of measurement that the sensor's value is expressed in."""
+        return "d"
+
+    @property
+    def mode(self) -> str:
+        """Defines how the number should be displayed in the UI."""
+        return "auto"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:calendar-expand-horizontal"
+
+    @property
+    def native_max_value(self) -> float:
+        """The maximum accepted value in the number's native_unit_of_measurement."""
+        return 128.0
+
+    @property
+    def native_min_value(self) -> float:
+        """The minimum accepted value in the number's native_unit_of_measurement."""
+        return max(1.0, self._program.days0 + 1.0)
+
+    @property
+    def native_value(self) -> float:
+        """The value of the number in the number's native_unit_of_measurement."""
+        return self._program.days1
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self._program.set_days1(round(value))
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramStartingInDaysNumber(
+    OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
+):
+    """Represent a number for Starting In Days of a program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program number for Starting In Days."""
+        self._program = program
+        self._entity_type = "number"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this number."""
+        return f"{self._program.name} Starting In Days"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_starting_in_days_{self._program.index}"
+        )
+
+    @property
+    def native_unit_of_measurement(self) -> str:
+        """The unit of measurement that the sensor's value is expressed in."""
+        return "d"
+
+    @property
+    def mode(self) -> str:
+        """Defines how the number should be displayed in the UI."""
+        return "auto"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:calendar-start"
+
+    @property
+    def native_max_value(self) -> float:
+        """The maximum accepted value in the number's native_unit_of_measurement."""
+        return self._program.days1 - 1.0
+
+    @property
+    def native_min_value(self) -> float:
+        """The minimum accepted value in the number's native_unit_of_measurement."""
+        return 0.0
+
+    @property
+    def native_value(self) -> float:
+        """The value of the number in the number's native_unit_of_measurement."""
+        return self._program.days0
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self._program.set_days0(round(value))
         await self._coordinator.async_request_refresh()
