@@ -40,6 +40,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(RainDelayStopTimeSensor(entry, name, controller, coordinator))
     entities.append(WaterLevelSensor(entry, name, controller, coordinator))
     entities.append(FlowRateSensor(entry, name, controller, coordinator))
+    entities.append(CurrentDrawSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
         entities.append(StationStatusSensor(entry, name, station, coordinator))
@@ -275,3 +276,38 @@ class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entit
     def _get_state(self) -> str:
         """Retrieve latest state."""
         return self._station.status
+
+
+class CurrentDrawSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
+    """Represent a sensor for total current draw of all zones."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler current draw sensor."""
+        self._name = name
+        self._controller = controller
+        self._entity_type = "sensor"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:meter-electric-outline"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Current Draw"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_current_draw")
+
+    @property
+    def unit_of_measurement(self) -> str:
+        """Return the units of measurement."""
+        return "mA"
+
+    def _get_state(self) -> int:
+        """Retrieve latest state."""
+        return self._controller.current_draw
