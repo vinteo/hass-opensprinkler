@@ -21,5 +21,59 @@
       }
     }
   },
+  "services": {
+    "run": {
+      "name": "Run",
+      "description": "Runs a controller program or station.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Sensor or switch entity id for programs or stations."
+        },
+        "run_seconds": {
+          "name": "Run seconds",
+          "description": "Number of seconds to run (optional for stations, defaults to 60 seconds; required for controllers, list of seconds for each station or index and seconds pairs)."
+        },
+        "continue_running_stations": {
+          "name": "Continue running stations",
+          "description": "Keeps running stations that are not specified running (only used for controllers with index/second pairs, optional, defaults to False)."
+        }
+      }
+    },
+    "stop": {
+      "name": "Stop",
+      "description": "Stops a station or all station (for controller).",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Sensor or switch entity id for stations or controller."
+        }
+      }
+    },
+    "set_water_level": {
+      "name": "Set water level",
+      "description": "Set water level percentage.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "The water level entity to change."
+        },
+        "water_level": {
+          "name": "Water level",
+          "description": "Percentage of water level."
+        }
+      }
+    },
+    "reboot": {
+      "name": "Reboot",
+      "description": "Reboot the controller.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Switch entity id for controller."
+        }
+      }
+    }
+  },
   "title": "OpenSprinkler"
 }
