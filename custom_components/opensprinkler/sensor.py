@@ -41,6 +41,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(WaterLevelSensor(entry, name, controller, coordinator))
     entities.append(FlowRateSensor(entry, name, controller, coordinator))
     entities.append(CurrentDrawSensor(entry, name, controller, coordinator))
+    entities.append(ControllerCurrentTimeSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
         entities.append(StationStatusSensor(entry, name, station, coordinator))
@@ -311,3 +312,43 @@ class CurrentDrawSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Enti
     def _get_state(self) -> int:
         """Retrieve latest state."""
         return self._controller.current_draw
+
+
+class ControllerCurrentTimeSensor(
+    OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity
+):
+    """Represent a sensor for the controller current time."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler controller current time sensor."""
+        self._controller = controller
+        self._entity_type = "sensor"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return SensorDeviceClass.TIMESTAMP
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:clock-check"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Current Time"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_devt")
+
+    def _get_state(self):
+        """Retrieve latest state."""
+        devt = self._controller.device_time
+        if devt == 0:
+            return None
+
+        return utc_from_timestamp(devt).isoformat()
