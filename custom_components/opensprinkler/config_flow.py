@@ -2,6 +2,7 @@
 import logging
 
 import voluptuous as vol
+from aiohttp.client_exceptions import InvalidURL
 from homeassistant import config_entries
 from homeassistant.const import CONF_MAC, CONF_NAME, CONF_PASSWORD, CONF_URL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -55,6 +56,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     title=name,
                     data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name},
                 )
+            except InvalidURL:
+                errors["base"] = "invalid_url"
             except OpenSprinklerConnectionError:
                 errors["base"] = "cannot_connect"
             except OpenSprinklerAuthError:
