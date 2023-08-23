@@ -1,21 +1,23 @@
 {
+  "title": "OpenSprinkler",
   "config": {
     "abort": {
-      "already_configured": "[%key:common::config_flow::abort::already_configured_device%]"
+      "already_configured": "Device is already configured"
     },
     "error": {
-      "cannot_connect": "[%key:common::config_flow::error::cannot_connect%]",
-      "invalid_auth": "[%key:common::config_flow::error::invalid_auth%]",
+      "invalid_url": "URL is malformed (example: http://192.168.0.1)",
+      "cannot_connect": "Failed to connect",
+      "invalid_auth": "Invalid authentication",
       "mac_address_required": "MAC Address required for firmware below 2.1.9 (4)",
-      "unknown": "[%key:common::config_flow::error::unknown%]"
+      "unknown": "Unexpected error"
     },
     "step": {
       "user": {
         "data": {
           "url": "URL",
-          "name": "Controller Name",
           "password": "Password",
-          "mac": "MAC Address"
+          "mac": "MAC Address",
+          "name": "Controller Name"
         },
         "title": "Connect to the OpenSprinkler controller"
       }
@@ -74,6 +76,5 @@
         }
       }
     }
-  },
-  "title": "OpenSprinkler"
+  }
 }
