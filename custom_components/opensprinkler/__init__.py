@@ -39,11 +39,6 @@ PLATFORMS = ["binary_sensor", "number", "select", "sensor", "switch", "text", "t
 TIMEOUT = 10
 
 
-async def async_setup(hass: HomeAssistant, config: dict):
-    """Set up the openSprinkler component from YAML."""
-    return True
-
-
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up OpenSprinkler from a config entry."""
     hass.data.setdefault(DOMAIN, {})
