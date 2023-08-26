@@ -4,6 +4,7 @@ import logging
 from datetime import timedelta
 
 import async_timeout
+from aiohttp.client_exceptions import InvalidURL
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
 from homeassistant.core import HomeAssistant, ServiceCall
@@ -56,8 +57,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             async with async_timeout.timeout(TIMEOUT):
                 try:
                     await controller.refresh()
-                except Exception as exc:
-                    raise UpdateFailed("Error fetching OpenSprinkler state") from exc
+                except (
+                    InvalidURL,
+                    OpenSprinklerConnectionError,
+                    OpenSprinklerAuthError,
+                ) as e:
+                    _LOGGER.error(e)
+                except Exception as e:
+                    _LOGGER.exception(e)
 
                 if not controller._state:
                     raise UpdateFailed("Error fetching OpenSprinkler state")
