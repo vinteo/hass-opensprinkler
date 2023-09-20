@@ -24,7 +24,7 @@ To have a Lovelace card for the UI, [opensprinkler-card](https://github.com/rian
 1. Install using [HACS](https://github.com/custom-components/hacs). Or install manually by copying `custom_components/opensprinkler` folder into `<config_dir>/custom_components`
 2. Restart Home Assistant.
 3. In the Home Assistant UI, navigate to `Configuration` then `Integrations`. Click on the add integration button at the bottom right and select `OpenSprinkler`. Fill out the options and save.
-   - URL - Should in the form of `http://<ip or host>:<port>`. The default port for OpenSprinkler is `8080`. SSL (HTTPS) is also supported.
+   - URL - Should be in the form of `http://<ip or host>:<port>`. The port can be omitted unless you have changed it, as the default port for OpenSprinkler is `80`. SSL (HTTPS) is also supported.
    - Password - The OpenSprinkler controller password.
    - MAC Address - MAC address of the device. This is only required for firmware below 2.1.9 (4), otherwise it can be left blank.
    - Controller Name - The name of the device that appears in Home Assistant.
