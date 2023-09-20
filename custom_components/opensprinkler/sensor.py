@@ -345,6 +345,11 @@ class ControllerCurrentTimeSensor(
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(f"{self._entry.unique_id}_{self._entity_type}_devt")
 
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set entity disabled by default."""
+        return False
+
     def _get_state(self):
         """Retrieve latest state."""
         devt = self._controller.device_time
