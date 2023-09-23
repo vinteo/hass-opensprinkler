@@ -10,9 +10,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerProgramEntity, OpenSprinklerTime
-from .const import DOMAIN
+from .const import DOMAIN, START_TIME_SUNRISE_BIT, START_TIME_SUNSET_BIT
 
 _LOGGER = logging.getLogger(__name__)
+
+
+@staticmethod
+def is_set(x, n):
+    return x & 1 << n != 0
 
 
 async def async_setup_entry(
@@ -69,7 +74,13 @@ class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity
         """The value of the time."""
         start_index = 0
         minutes = self._program.program_start_times[start_index]
-        the_time = datetime.time(round(minutes / 60), minutes % 60, 0)
+        # Temporary patch until sunset/sunrise times supported by pyopensprinkler
+        if is_set(minutes, START_TIME_SUNSET_BIT) or is_set(
+            minutes, START_TIME_SUNRISE_BIT
+        ):
+            the_time = datetime.time(0, 0)
+        else:
+            the_time = datetime.time(round(minutes / 60), minutes % 60, 0)
         return the_time
 
     async def async_set_value(self, value: time) -> None:
