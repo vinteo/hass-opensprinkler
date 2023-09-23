@@ -8,7 +8,8 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerProgramEntity, OpenSprinklerSelect
-from .const import DOMAIN
+from .const import DOMAIN, START_TIME_SUNRISE_BIT, START_TIME_SUNSET_BIT
+from .utilities import is_set
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +35,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         entities.append(ProgramRestrictionsSelect(entry, name, program, coordinator))
         entities.append(ProgramTypeSelect(entry, name, program, coordinator))
         entities.append(ProgramStartTimesSelect(entry, name, program, coordinator))
+        entities.append(
+            ProgramStartTimeOffsetTypeSelect(entry, name, program, coordinator)
+        )
 
     return entities
 
@@ -196,4 +200,67 @@ class ProgramStartTimesSelect(
             case "Fixed":
                 value = 1
         await self._program.set_start_time_type(value)
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramStartTimeOffsetTypeSelect(
+    OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectEntity
+):
+    """Represent select for the start time offset type of a program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program select for start time offset type."""
+        self._program = program
+        self._entity_type = "select"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this select."""
+        return f"{self._program.name} Start Time Offset Type"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_start_time_offset_type_{self._program.index}"
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:clock-start"
+
+    @property
+    def options(self) -> list[str]:
+        """A list of available options as strings"""
+        return ["From Midnight", "From Sunset", "From Sunrise"]
+
+    @property
+    def current_option(self) -> str:
+        """The current select option"""
+        start_index = 0
+        start0 = self._program.program_start_times[start_index]
+
+        if is_set(start0, START_TIME_SUNSET_BIT):
+            return "From Sunset"
+        elif is_set(start0, START_TIME_SUNRISE_BIT):
+            return "From Sunrise"
+        else:
+            return "From Midnight"
+
+    async def async_select_option(self, option: str) -> None:
+        """Change the selected option."""
+        match option:
+            case "From Midnight":
+                value = 0
+            case "From Sunset":
+                value = 1
+            case "From Sunrise":
+                value = 2
+
+        start_index = 0
+        await self._program.set_program_start_time(
+            start_index, value << START_TIME_SUNSET_BIT
+        )
         await self._coordinator.async_request_refresh()

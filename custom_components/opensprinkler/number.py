@@ -8,7 +8,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerNumber, OpenSprinklerProgramEntity
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    START_TIME_MINUTES_MASK,
+    START_TIME_SIGN_BIT,
+    START_TIME_SUNRISE_BIT,
+    START_TIME_SUNSET_BIT,
+)
+from .utilities import is_set
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,6 +46,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     for _, program in controller.programs.items():
         entities.append(ProgramIntervalDaysNumber(entry, name, program, coordinator))
         entities.append(ProgramStartingInDaysNumber(entry, name, program, coordinator))
+        entities.append(ProgramStartTimeOffsetNumber(entry, name, program, coordinator))
 
     return entities
 
@@ -220,4 +228,114 @@ class ProgramStartingInDaysNumber(
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
         await self._program.set_days0(round(value))
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramStartTimeOffsetNumber(
+    OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
+):
+    """Represent a number for Start Time Offset from sunset/sunrise in minutes of a program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program number for Start Time Offset."""
+        self._program = program
+        self._entity_type = "number"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this number."""
+        return f"{self._program.name} Start Time Offset"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_start_time_offset_{self._program.index}"
+        )
+
+    @property
+    def native_unit_of_measurement(self) -> str:
+        """The unit of measurement that the sensor's value is expressed in."""
+        return "min"
+
+    @property
+    def mode(self) -> str:
+        """Defines how the number should be displayed in the UI."""
+        return "auto"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:clock-start"
+
+    @property
+    def native_max_value(self) -> float:
+        """The maximum accepted value in the number's native_unit_of_measurement."""
+        start_index = 0
+        start0 = self._program.program_start_times[start_index]
+
+        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
+            start0, START_TIME_SUNRISE_BIT
+        ):
+            max_value = 240.0
+        else:
+            max_value = 1439.0
+
+        return max_value
+
+    @property
+    def native_min_value(self) -> float:
+        """The minimum accepted value in the number's native_unit_of_measurement."""
+        start_index = 0
+        start0 = self._program.program_start_times[start_index]
+
+        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
+            start0, START_TIME_SUNRISE_BIT
+        ):
+            min_value = -240.0
+        else:
+            min_value = 0.0
+
+        return min_value
+
+    @property
+    def native_value(self) -> float:
+        """The value of the number in the number's native_unit_of_measurement."""
+        # Only start0 supported at this time.
+        start_index = 0
+        start0 = self._program.program_start_times[start_index]
+        sign = -1 if is_set(start0, START_TIME_SIGN_BIT) else 1
+
+        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
+            start0, START_TIME_SUNRISE_BIT
+        ):
+            minutes = (start0 & START_TIME_MINUTES_MASK) * sign
+        else:
+            minutes = start0
+
+        return minutes
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        sign_bit = 1 if value < 0 else 0
+        start_index = 0
+        start0 = self._program.program_start_times[start_index]
+
+        if is_set(start0, START_TIME_SUNSET_BIT):
+            new_start0 = (
+                abs(int(value))
+                | (sign_bit << START_TIME_SIGN_BIT)
+                | (1 << START_TIME_SUNSET_BIT)
+            )
+        elif is_set(start0, START_TIME_SUNRISE_BIT):
+            new_start0 = (
+                abs(int(value))
+                | (sign_bit << START_TIME_SIGN_BIT)
+                | (1 << START_TIME_SUNRISE_BIT)
+            )
+        else:
+            new_start0 = value
+
+        await self._program.set_program_start_time(start_index, new_start0)
         await self._coordinator.async_request_refresh()
