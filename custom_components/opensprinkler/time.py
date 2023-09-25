@@ -2,6 +2,7 @@
 import datetime
 import logging
 from datetime import time
+from math import trunc
 from typing import Callable
 
 from homeassistant.components.time import TimeEntity
@@ -10,7 +11,14 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerProgramEntity, OpenSprinklerTime
-from .const import DOMAIN
+from .const import (
+    DOMAIN,
+    START_TIME_MINUTES_MASK,
+    START_TIME_SIGN_BIT,
+    START_TIME_SUNRISE_BIT,
+    START_TIME_SUNSET_BIT,
+)
+from .utilities import is_set
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -33,7 +41,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     name = entry.data[CONF_NAME]
 
     for _, program in controller.programs.items():
-        entities.append(ProgramStartTime(entry, name, program, coordinator))
+        entities.append(ProgramStartTime(entry, name, controller, program, coordinator))
 
     return entities
 
@@ -41,8 +49,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity):
     """Represent time for the start time of a program."""
 
-    def __init__(self, entry, name, program, coordinator):
+    def __init__(self, entry, name, controller, program, coordinator):
         """Set up a new OpenSprinkler program time for program start time."""
+        self._controller = controller
         self._program = program
         self._entity_type = "time"
         super().__init__(entry, name, coordinator)
@@ -67,10 +76,24 @@ class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity
     @property
     def native_value(self) -> time:
         """The value of the time."""
+        # Only start0 supported at this time.
         start_index = 0
-        minutes = self._program.program_start_times[start_index]
-        the_time = datetime.time(round(minutes / 60), minutes % 60, 0)
-        return the_time
+        start0 = self._program.program_start_times[start_index]
+        sign = -1 if is_set(start0, START_TIME_SIGN_BIT) else 1
+
+        if is_set(start0, START_TIME_SUNSET_BIT):
+            minutes = self._controller.sunset + (
+                (start0 & START_TIME_MINUTES_MASK) * sign
+            )
+        elif is_set(start0, START_TIME_SUNRISE_BIT):
+            minutes = self._controller.sunrise + (
+                (start0 & START_TIME_MINUTES_MASK) * sign
+            )
+        else:
+            minutes = start0
+
+        start_time = datetime.time(trunc(minutes / 60), minutes % 60, 0)
+        return start_time
 
     async def async_set_value(self, value: time) -> None:
         """Update the current value."""
