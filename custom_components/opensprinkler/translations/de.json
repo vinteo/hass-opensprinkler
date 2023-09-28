@@ -1,0 +1,80 @@
+{
+  "title": "OpenSprinkler",
+  "config": {
+    "abort": {
+      "already_configured": "Gerät ist bereits konfiguriert"
+    },
+    "error": {
+      "invalid_url": "URL ist ungültig (Beispiel: http://192.168.0.1)",
+      "cannot_connect": "Verbindungsaufbau fehlgeschlagen",
+      "invalid_auth": "Ungültige Authentifizierung",
+      "mac_address_required": "MAC-Adresse erforderlich für Firmware unter 2.1.9 (4)",
+      "unknown": "Unerwarteter Fehler"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "url": "URL",
+          "password": "Passwort",
+          "mac": "MAC Addresse",
+          "name": "Controller Name"
+        },
+        "title": "Stellen Sie eine Verbindung zum OpenSprinkler-Controller her"
+      }
+    }
+  },
+  "services": {
+    "run": {
+      "name": "Starten",
+      "description": "Startet ein Controller Programm oder eine Station.",
+      "fields": {
+        "entity_id": {
+          "name": "Einheit",
+          "description": "Sensor- oder Schaltereinheits-ID für Programme oder Stationen."
+        },
+        "run_seconds": {
+          "name": "Sekunden laufen lassen",
+          "description": "Anzahl der auszuführenden Sekunden (optional für Stationen, standardmäßig 60 Sekunden; erforderlich für Controller, Liste der Sekunden für jede Station oder Index- und Sekundenpaare)."
+        },
+        "continue_running_stations": {
+          "name": "Stationen weiterlaufen lassen",
+          "description": "Lässt laufende Stationen laufen, die nicht angegeben sind (wird nur für Controller mit Index/Sekunden-Paaren verwendet, optional, Standardwert ist False)."
+        }
+      }
+    },
+    "stop": {
+      "name": "Stoppen",
+      "description": "Stoppt eine Station oder alle Stationen (für Controller).",
+      "fields": {
+        "entity_id": {
+          "name": "Einheit",
+          "description": "Sensor- oder Schaltereinheits-ID für Programme oder Stationen."
+        }
+      }
+    },
+    "set_water_level": {
+      "name": "Bewässerungsniveau setzen",
+      "description": "Setze Bewässerungsniveau in Prozent.",
+      "fields": {
+        "entity_id": {
+          "name": "Einheit",
+          "description": "Die zu ändernde Wasserstandseinheit."
+        },
+        "water_level": {
+          "name": "Bewässerungsniveau",
+          "description": "Prozent des Bewässerungsniveau."
+        }
+      }
+    },
+    "reboot": {
+      "name": "Neustarten",
+      "description": "Controller neustarten.",
+      "fields": {
+        "entity_id": {
+          "name": "Einheit",
+          "description": "Entitäts-ID für Controller wechseln."
+        }
+      }
+    }
+  }
+}
