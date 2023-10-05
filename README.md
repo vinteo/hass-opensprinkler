@@ -5,6 +5,7 @@
 ![HASS Build](https://github.com/vinteo/hass-opensprinkler/workflows/hassfest/badge.svg)
 ![Linting](https://github.com/vinteo/hass-opensprinkler/workflows/Linting/badge.svg)
 [![CodeQL](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vinteo_hass-opensprinkler&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vinteo_hass-opensprinkler)
 
 Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
