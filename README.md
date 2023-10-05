@@ -4,6 +4,7 @@
 ![HACS Build](https://github.com/vinteo/hass-opensprinkler/workflows/HACS/badge.svg)
 ![HASS Build](https://github.com/vinteo/hass-opensprinkler/workflows/hassfest/badge.svg)
 ![Linting](https://github.com/vinteo/hass-opensprinkler/workflows/Linting/badge.svg)
+[![CodeQL](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml)
 
 Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 
