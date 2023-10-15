@@ -8,14 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerNumber, OpenSprinklerProgramEntity
-from .const import (
-    DOMAIN,
-    START_TIME_MINUTES_MASK,
-    START_TIME_SIGN_BIT,
-    START_TIME_SUNRISE_BIT,
-    START_TIME_SUNSET_BIT,
-)
-from .utilities import is_set
+from .const import DOMAIN, START_TIME_SUNRISE, START_TIME_SUNSET
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -46,7 +39,12 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     for _, program in controller.programs.items():
         entities.append(ProgramIntervalDaysNumber(entry, name, program, coordinator))
         entities.append(ProgramStartingInDaysNumber(entry, name, program, coordinator))
-        entities.append(ProgramStartTimeOffsetNumber(entry, name, program, coordinator))
+        for start_index in range(4):
+            entities.append(
+                ProgramStartTimeOffsetNumber(
+                    entry, name, program, start_index, coordinator
+                )
+            )
 
     return entities
 
@@ -236,23 +234,31 @@ class ProgramStartTimeOffsetNumber(
 ):
     """Represent a number for Start Time Offset from sunset/sunrise in minutes of a program."""
 
-    def __init__(self, entry, name, program, coordinator):
+    def __init__(self, entry, name, program, start_index, coordinator):
         """Set up a new OpenSprinkler program number for Start Time Offset."""
         self._program = program
+        self._start_index = start_index
         self._entity_type = "number"
         super().__init__(entry, name, coordinator)
 
     @property
     def name(self) -> str:
         """Return the name of this number."""
-        return f"{self._program.name} Start Time Offset"
+        start = str(self._start_index) if self._start_index > 0 else ""
+        return f"{self._program.name} Start{start} Time Offset"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
+        start = str(self._start_index) if self._start_index > 0 else ""
         return slugify(
-            f"{self._entry.unique_id}_{self._entity_type}_start_time_offset_{self._program.index}"
+            f"{self._entry.unique_id}_{self._entity_type}_start{start}_time_offset_{self._program.index}"
         )
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set all but start0 entity disabled by default."""
+        return False if self._start_index > 0 else True
 
     @property
     def native_unit_of_measurement(self) -> str:
@@ -272,27 +278,25 @@ class ProgramStartTimeOffsetNumber(
     @property
     def native_max_value(self) -> float:
         """The maximum accepted value in the number's native_unit_of_measurement."""
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
+        offset_type = self._program.get_program_start_time_offset_type(
+            self._start_index
+        )
 
-        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
-            start0, START_TIME_SUNRISE_BIT
-        ):
+        if offset_type in [START_TIME_SUNRISE, START_TIME_SUNSET]:
             max_value = 240.0
         else:
-            max_value = 1439.0
+            max_value = 1440.0
 
         return max_value
 
     @property
     def native_min_value(self) -> float:
         """The minimum accepted value in the number's native_unit_of_measurement."""
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
+        offset_type = self._program.get_program_start_time_offset_type(
+            self._start_index
+        )
 
-        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
-            start0, START_TIME_SUNRISE_BIT
-        ):
+        if offset_type in [START_TIME_SUNRISE, START_TIME_SUNSET]:
             min_value = -240.0
         else:
             min_value = 0.0
@@ -302,40 +306,9 @@ class ProgramStartTimeOffsetNumber(
     @property
     def native_value(self) -> float:
         """The value of the number in the number's native_unit_of_measurement."""
-        # Only start0 supported at this time.
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
-        sign = -1 if is_set(start0, START_TIME_SIGN_BIT) else 1
-
-        if is_set(start0, START_TIME_SUNSET_BIT) or is_set(
-            start0, START_TIME_SUNRISE_BIT
-        ):
-            minutes = (start0 & START_TIME_MINUTES_MASK) * sign
-        else:
-            minutes = start0
-
-        return minutes
+        return self._program.get_program_start_time_offset(self._start_index)
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        sign_bit = 1 if value < 0 else 0
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
-
-        if is_set(start0, START_TIME_SUNSET_BIT):
-            new_start0 = (
-                abs(int(value))
-                | (sign_bit << START_TIME_SIGN_BIT)
-                | (1 << START_TIME_SUNSET_BIT)
-            )
-        elif is_set(start0, START_TIME_SUNRISE_BIT):
-            new_start0 = (
-                abs(int(value))
-                | (sign_bit << START_TIME_SIGN_BIT)
-                | (1 << START_TIME_SUNRISE_BIT)
-            )
-        else:
-            new_start0 = value
-
-        await self._program.set_program_start_time(start_index, new_start0)
+        await self._program.set_program_start_time_offset(self._start_index, int(value))
         await self._coordinator.async_request_refresh()
