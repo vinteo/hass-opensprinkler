@@ -8,8 +8,13 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerProgramEntity, OpenSprinklerSelect
-from .const import DOMAIN, START_TIME_SUNRISE_BIT, START_TIME_SUNSET_BIT
-from .utilities import is_set
+from .const import (
+    DOMAIN,
+    START_TIME_DISABLED,
+    START_TIME_MIDNIGHT,
+    START_TIME_SUNRISE,
+    START_TIME_SUNSET,
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,10 +39,15 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     for _, program in controller.programs.items():
         entities.append(ProgramRestrictionsSelect(entry, name, program, coordinator))
         entities.append(ProgramTypeSelect(entry, name, program, coordinator))
-        entities.append(ProgramStartTimesSelect(entry, name, program, coordinator))
         entities.append(
-            ProgramStartTimeOffsetTypeSelect(entry, name, program, coordinator)
+            ProgramAdditionalStartTimeTypeSelect(entry, name, program, coordinator)
         )
+        for start_index in range(4):
+            entities.append(
+                ProgramStartTimeOffsetTypeSelect(
+                    entry, name, program, start_index, coordinator
+                )
+            )
 
     return entities
 
@@ -150,13 +160,13 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
         await self._coordinator.async_request_refresh()
 
 
-class ProgramStartTimesSelect(
+class ProgramAdditionalStartTimeTypeSelect(
     OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectEntity
 ):
-    """Represent select for additional start times of a program."""
+    """Represent select for additional start time type of a program."""
 
     def __init__(self, entry, name, program, coordinator):
-        """Set up a new OpenSprinkler program select for start times."""
+        """Set up a new OpenSprinkler program select for start time type."""
         self._program = program
         self._entity_type = "select"
         super().__init__(entry, name, coordinator)
@@ -164,13 +174,13 @@ class ProgramStartTimesSelect(
     @property
     def name(self) -> str:
         """Return the name of this select."""
-        return f"{self._program.name} Additional Start Times"
+        return f"{self._program.name} Additional Start Time Type"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
         return slugify(
-            f"{self._entry.unique_id}_{self._entity_type}_start_times_{self._program.index}"
+            f"{self._entry.unique_id}_{self._entity_type}_start_time_type_{self._program.index}"
         )
 
     @property
@@ -208,23 +218,31 @@ class ProgramStartTimeOffsetTypeSelect(
 ):
     """Represent select for the start time offset type of a program."""
 
-    def __init__(self, entry, name, program, coordinator):
+    def __init__(self, entry, name, program, start_index, coordinator):
         """Set up a new OpenSprinkler program select for start time offset type."""
         self._program = program
+        self._start_index = start_index
         self._entity_type = "select"
         super().__init__(entry, name, coordinator)
 
     @property
     def name(self) -> str:
         """Return the name of this select."""
-        return f"{self._program.name} Start Time Offset Type"
+        start = str(self._start_index) if self._start_index > 0 else ""
+        return f"{self._program.name} Start{start} Time Offset Type"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
+        start = str(self._start_index) if self._start_index > 0 else ""
         return slugify(
-            f"{self._entry.unique_id}_{self._entity_type}_start_time_offset_type_{self._program.index}"
+            f"{self._entry.unique_id}_{self._entity_type}_start{start}_time_offset_type_{self._program.index}"
         )
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set all but start0 entity disabled by default."""
+        return False if self._start_index > 0 else True
 
     @property
     def icon(self) -> str:
@@ -234,33 +252,39 @@ class ProgramStartTimeOffsetTypeSelect(
     @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
-        return ["From Midnight", "From Sunset", "From Sunrise"]
+        # start0 is never disabled directly
+        if self._start_index == 0:
+            return ["Midnight", "Sunset", "Sunrise"]
+        else:
+            return ["Disabled", "Midnight", "Sunset", "Sunrise"]
 
     @property
     def current_option(self) -> str:
         """The current select option"""
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
+        offset_type = self._program.get_program_start_time_offset_type(
+            self._start_index
+        )
 
-        if is_set(start0, START_TIME_SUNSET_BIT):
-            return "From Sunset"
-        elif is_set(start0, START_TIME_SUNRISE_BIT):
-            return "From Sunrise"
-        else:
-            return "From Midnight"
+        if offset_type == START_TIME_DISABLED:
+            return "Disabled"
+        if offset_type == START_TIME_MIDNIGHT:
+            return "Midnight"
+        if offset_type == START_TIME_SUNRISE:
+            return "Sunrise"
+        if offset_type == START_TIME_SUNSET:
+            return "Sunset"
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         match option:
-            case "From Midnight":
-                value = 0
-            case "From Sunset":
-                value = 1
-            case "From Sunrise":
-                value = 2
+            case "Disabled":
+                value = START_TIME_DISABLED
+            case "Midnight":
+                value = START_TIME_MIDNIGHT
+            case "Sunrise":
+                value = START_TIME_SUNRISE
+            case "Sunset":
+                value = START_TIME_SUNSET
 
-        start_index = 0
-        await self._program.set_program_start_time(
-            start_index, value << START_TIME_SUNSET_BIT
-        )
+        await self._program.set_program_start_time_offset_type(self._start_index, value)
         await self._coordinator.async_request_refresh()

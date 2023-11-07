@@ -11,14 +11,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
 from . import OpenSprinklerProgramEntity, OpenSprinklerTime
-from .const import (
-    DOMAIN,
-    START_TIME_MINUTES_MASK,
-    START_TIME_SIGN_BIT,
-    START_TIME_SUNRISE_BIT,
-    START_TIME_SUNSET_BIT,
-)
-from .utilities import is_set
+from .const import DOMAIN, START_TIME_MIDNIGHT, START_TIME_SUNRISE, START_TIME_SUNSET
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,7 +34,12 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     name = entry.data[CONF_NAME]
 
     for _, program in controller.programs.items():
-        entities.append(ProgramStartTime(entry, name, controller, program, coordinator))
+        for start_index in range(4):
+            entities.append(
+                ProgramStartTime(
+                    entry, name, controller, program, start_index, coordinator
+                )
+            )
 
     return entities
 
@@ -49,24 +47,32 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity):
     """Represent time for the start time of a program."""
 
-    def __init__(self, entry, name, controller, program, coordinator):
+    def __init__(self, entry, name, controller, program, start_index, coordinator):
         """Set up a new OpenSprinkler program time for program start time."""
         self._controller = controller
         self._program = program
+        self._start_index = start_index
         self._entity_type = "time"
         super().__init__(entry, name, coordinator)
 
     @property
     def name(self) -> str:
         """Return the name of this time."""
-        return f"{self._program.name} Start Time"
+        start = str(self._start_index) if self._start_index > 0 else ""
+        return f"{self._program.name} Start{start} Time"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
+        start = str(self._start_index) if self._start_index > 0 else ""
         return slugify(
-            f"{self._entry.unique_id}_{self._entity_type}_start_time_{self._program.index}"
+            f"{self._entry.unique_id}_{self._entity_type}_start{start}_time_{self._program.index}"
         )
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set all but start0 entity disabled by default."""
+        return False if self._start_index > 0 else True
 
     @property
     def icon(self) -> str:
@@ -76,28 +82,23 @@ class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity
     @property
     def native_value(self) -> time:
         """The value of the time."""
-        # Only start0 supported at this time.
-        start_index = 0
-        start0 = self._program.program_start_times[start_index]
-        sign = -1 if is_set(start0, START_TIME_SIGN_BIT) else 1
+        minutes = self._program.get_program_start_time_offset(self._start_index)
+        offset_type = self._program.get_program_start_time_offset_type(
+            self._start_index
+        )
 
-        if is_set(start0, START_TIME_SUNSET_BIT):
-            minutes = self._controller.sunset + (
-                (start0 & START_TIME_MINUTES_MASK) * sign
-            )
-        elif is_set(start0, START_TIME_SUNRISE_BIT):
-            minutes = self._controller.sunrise + (
-                (start0 & START_TIME_MINUTES_MASK) * sign
-            )
-        else:
-            minutes = start0
+        if offset_type == START_TIME_SUNRISE:
+            minutes += self._controller.sunrise
+        elif offset_type == START_TIME_SUNSET:
+            minutes += self._controller.sunset
 
-        start_time = datetime.time(trunc(minutes / 60), minutes % 60, 0)
-        return start_time
+        return datetime.time(trunc(minutes / 60), minutes % 60, 0)
 
     async def async_set_value(self, value: time) -> None:
         """Update the current value."""
         minutes = value.hour * 60 + value.minute
-        start_index = 0
-        await self._program.set_program_start_time(start_index, minutes)
+        await self._program.set_program_start_time_offset_type(
+            self._start_index, START_TIME_MIDNIGHT
+        )
+        await self._program.set_program_start_time_offset(self._start_index, minutes)
         await self._coordinator.async_request_refresh()
