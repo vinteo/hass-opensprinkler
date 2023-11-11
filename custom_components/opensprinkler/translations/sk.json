@@ -1,0 +1,80 @@
+{
+  "title": "OpenSprinkler",
+  "config": {
+    "abort": {
+      "already_configured": "Zariadenie je už nakonfigurované"
+    },
+    "error": {
+      "invalid_url": "Adresa URL má nesprávny tvar (príklad: http://192.168.0.1)",
+      "cannot_connect": "Nepodarilo sa pripojiť",
+      "invalid_auth": "Neplatné overenie",
+      "mac_address_required": "MAC adresa požadovaná pre firmvér pod 2.1.9 (4)",
+      "unknown": "Neočakávaná chyba"
+    },
+    "step": {
+      "user": {
+        "data": {
+          "url": "URL",
+          "password": "Heslo",
+          "mac": "MAC adresa",
+          "name": "Názov ovládača"
+        },
+        "title": "Pripojte sa k ovládaču OpenSprinkler"
+      }
+    }
+  },
+  "services": {
+    "run": {
+      "name": "Spustiť",
+      "description": "Spustí program alebo stanicu ovládača.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "ID entity snímača alebo prepínača pre programy alebo stanice."
+        },
+        "run_seconds": {
+          "name": "Beh sekúnd",
+          "description": "Počet sekúnd na spustenie (voliteľné pre stanice, predvolená hodnota je 60 sekúnd; vyžaduje sa pre ovládače, zoznam sekúnd pre každú stanicu alebo páry indexov a sekúnd)."
+        },
+        "continue_running_stations": {
+          "name": "Pokračujte v prevádzke staníc",
+          "description": "Udržuje spustené stanice, ktoré nie sú špecifikované (používa sa len pre ovládače s párom index/sekunda, voliteľné, predvolená hodnota je False)."
+        }
+      }
+    },
+    "stop": {
+      "name": "Stop",
+      "description": "Zastaví stanicu alebo všetky stanice (pre ovládač).",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "ID entity senzora alebo spínača pre stanice alebo ovládač."
+        }
+      }
+    },
+    "set_water_level": {
+      "name": "Nastavte hladinu vody",
+      "description": "Nastavte percento hladiny vody.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "Entita vodnej hladiny sa má zmeniť."
+        },
+        "water_level": {
+          "name": "Vodná hladina",
+          "description": "Percento vodnej hladiny."
+        }
+      }
+    },
+    "reboot": {
+      "name": "Reštartovať",
+      "description": "Reštartujte ovládač.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "Prepnúť ID entity pre ovládač."
+        }
+      }
+    }
+  }
+}
