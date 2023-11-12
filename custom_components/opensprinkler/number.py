@@ -163,16 +163,16 @@ class ProgramIntervalDaysNumber(
     @property
     def native_min_value(self) -> float:
         """The minimum accepted value in the number's native_unit_of_measurement."""
-        return max(1.0, self._program.days0 + 1.0)
+        return max(1.0, self._program.starting_in_days + 1.0)
 
     @property
     def native_value(self) -> float:
         """The value of the number in the number's native_unit_of_measurement."""
-        return self._program.days1
+        return self._program.interval_days
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self._program.set_days1(round(value))
+        await self._program.set_interval_days(round(value))
         await self._coordinator.async_request_refresh()
 
 
@@ -217,7 +217,7 @@ class ProgramStartingInDaysNumber(
     @property
     def native_max_value(self) -> float:
         """The maximum accepted value in the number's native_unit_of_measurement."""
-        return self._program.days1 - 1.0
+        return self._program.interval_days - 1.0
 
     @property
     def native_min_value(self) -> float:
@@ -227,11 +227,11 @@ class ProgramStartingInDaysNumber(
     @property
     def native_value(self) -> float:
         """The value of the number in the number's native_unit_of_measurement."""
-        return self._program.days0
+        return self._program.starting_in_days
 
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
-        await self._program.set_days0(round(value))
+        await self._program.set_starting_in_days(round(value))
         await self._coordinator.async_request_refresh()
 
 

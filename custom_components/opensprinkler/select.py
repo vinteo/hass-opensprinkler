@@ -138,21 +138,21 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
     @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
-        return ["Weekday", "Interval"]
+        return ["Weekly", "Interval"]
 
     @property
     def current_option(self) -> str:
         """The current select option"""
         match self._program.program_schedule_type:
             case 0:
-                return "Weekday"
+                return "Weekly"
             case 3:
                 return "Interval"
 
     async def async_select_option(self, option: str) -> None:
         """Change the selected option."""
         match option:
-            case "Weekday":
+            case "Weekly":
                 value = 0
             case "Interval":
                 value = 3
