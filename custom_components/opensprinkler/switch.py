@@ -38,6 +38,20 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         entities.append(ProgramEnabledSwitch(entry, name, program, coordinator))
 
     for _, program in controller.programs.items():
+        for weekday in [
+            "Monday",
+            "Tuesday",
+            "Wednesday",
+            "Thursday",
+            "Friday",
+            "Saturday",
+            "Sunday",
+        ]:
+            entities.append(
+                ProgramWeekdaySwitch(entry, name, program, weekday, coordinator)
+            )
+
+    for _, program in controller.programs.items():
         entities.append(ProgramUseWeatherSwitch(entry, name, program, coordinator))
 
     for _, station in controller.stations.items():
@@ -157,6 +171,53 @@ class ProgramEnabledSwitch(
     async def async_turn_off(self, **kwargs):
         """Disable the program."""
         await self._program.disable()
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramWeekdaySwitch(
+    OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
+    def __init__(self, entry, name, program, weekday, coordinator):
+        """Set up a new OpenSprinkler program weekday switch."""
+        self._program = program
+        self._weekday = weekday
+        self._entity_type = "switch"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self):
+        """Return the name of the switch."""
+        return self._program.name + f" {self._weekday} Enabled"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_{self._weekday}_enabled_{self._program.index}"
+        )
+
+    @property
+    def entity_registry_enabled_default(self) -> bool:
+        """Set disabled by default."""
+        return False
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:calendar-week"
+
+    def _get_state(self) -> bool:
+        """Retrieve latest state."""
+        return self._program.get_weekday_enabled(self._weekday)
+
+    async def async_turn_on(self, **kwargs):
+        """Enable the program."""
+        await self._program.set_weekday_enabled(self._weekday, True)
+        await self._coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs):
+        """Disable the program."""
+        await self._program.set_weekday_enabled(self._weekday, False)
         await self._coordinator.async_request_refresh()
 
 
