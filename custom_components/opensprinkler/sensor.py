@@ -206,6 +206,7 @@ class RainDelayStopTimeSensor(
 
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler rain delay stop time sensor."""
+        self._name = name
         self._controller = controller
         self._entity_type = "sensor"
         super().__init__(entry, name, coordinator)

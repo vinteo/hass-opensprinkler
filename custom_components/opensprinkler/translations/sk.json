@@ -66,6 +66,20 @@
         }
       }
     },
+    "set_rain_delay": {
+      "name": "Nastavte oneskorenie dažďa",
+      "description": "Nastavte oneskorenie dažďa postrekovača.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "Entita oneskorenia dažďa sa zmení."
+        },
+        "water_level": {
+          "name": "Oneskorenie dažďa",
+          "description": "Oneskorenie dažďa v hodinách."
+        }
+      }
+    },
     "reboot": {
       "name": "Reštartovať",
       "description": "Reštartujte ovládač.",

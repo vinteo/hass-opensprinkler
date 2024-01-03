@@ -66,6 +66,20 @@
         }
       }
     },
+    "set_rain_delay": {
+      "name": "Set rain delay",
+      "description": "Set rain delay of the sprinkler.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "The rain delay entity to change."
+        },
+        "water_level": {
+          "name": "Rain delay",
+          "description": "Rain delay in hours."
+        }
+      }
+    },
     "reboot": {
       "name": "Reboot",
       "description": "Reboot the controller.",
