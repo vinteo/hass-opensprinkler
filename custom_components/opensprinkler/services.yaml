@@ -45,7 +45,7 @@ set_rain_delay:
           min: 0
           max: 32767
           mode: slider
-          unit_of_measurement: "hours"
+          unit_of_measurement: "h"
 reboot:
   fields:
     entity_id:
