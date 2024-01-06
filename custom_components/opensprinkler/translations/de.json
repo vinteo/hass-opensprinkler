@@ -66,20 +66,6 @@
         }
       }
     },
-    "set_rain_delay": {
-      "name": "Regenverzögerung einstellen",
-      "description": "Regenverzögerung des Sprinklers einstellen.",
-      "fields": {
-        "entity_id": {
-          "name": "Einheit",
-          "description": "Die zu ändernde Regenverzögerungsentität."
-        },
-        "water_level": {
-          "name": "Regenverzögerung",
-          "description": "Regenverzögerung in Stunden."
-        }
-      }
-    },
     "reboot": {
       "name": "Neustarten",
       "description": "Controller neustarten.",
