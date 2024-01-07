@@ -74,7 +74,7 @@
           "name": "Entity",
           "description": "The rain delay entity to change."
         },
-        "water_level": {
+        "rain_delay": {
           "name": "Rain delay",
           "description": "Rain delay in hours."
         }
