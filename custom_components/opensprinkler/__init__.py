@@ -139,13 +139,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_set_rain_delay_command(call: ServiceCall):
-        for platform in async_get_platforms(hass, DOMAIN):
-            if platform.domain == "sensor":
-                sensor_platform = platform
-                break
-
         await hass.helpers.service.entity_service_call(
-            sensor_platform.entities, SERVICE_SET_RAIN_DELAY, call
+            async_get_platforms(hass, DOMAIN), SERVICE_SET_RAIN_DELAY, call
         )
 
     hass.services.async_register(
