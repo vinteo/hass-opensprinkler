@@ -28,6 +28,24 @@ set_water_level:
           max: 250
           mode: slider
           unit_of_measurement: "%"
+set_rain_delay:
+  fields:
+    entity_id:
+      example: "sensor.opensprinkler_rain_delay_stop_time"
+      required: true
+      selector:
+        entity:
+          integration: opensprinkler
+          domain: sensor
+    rain_delay:
+      example: 24
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 32767
+          mode: slider
+          unit_of_measurement: "h"
 reboot:
   fields:
     entity_id:

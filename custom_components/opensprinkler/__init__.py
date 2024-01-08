@@ -26,10 +26,12 @@ from .const import (
     DOMAIN,
     SCHEMA_SERVICE_REBOOT,
     SCHEMA_SERVICE_RUN,
+    SCHEMA_SERVICE_SET_RAIN_DELAY,
     SCHEMA_SERVICE_SET_WATER_LEVEL,
     SCHEMA_SERVICE_STOP,
     SERVICE_REBOOT,
     SERVICE_RUN,
+    SERVICE_SET_RAIN_DELAY,
     SERVICE_SET_WATER_LEVEL,
     SERVICE_STOP,
 )
@@ -134,6 +136,18 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         service=SERVICE_SET_WATER_LEVEL,
         schema=cv.make_entity_service_schema(SCHEMA_SERVICE_SET_WATER_LEVEL),
         service_func=_async_send_set_water_level_command,
+    )
+
+    async def _async_send_set_rain_delay_command(call: ServiceCall):
+        await hass.helpers.service.entity_service_call(
+            async_get_platforms(hass, DOMAIN), SERVICE_SET_RAIN_DELAY, call
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_SET_RAIN_DELAY,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_SET_RAIN_DELAY),
+        service_func=_async_send_set_rain_delay_command,
     )
 
     async def _async_send_reboot_command(call: ServiceCall):
@@ -314,6 +328,11 @@ class OpenSprinklerControllerEntity:
     async def set_water_level(self, water_level: int):
         """Set water level percentage"""
         await self._controller.set_water_level(water_level)
+        await self._coordinator.async_request_refresh()
+
+    async def set_rain_delay(self, rain_delay: int):
+        """Set rain delay hours"""
+        await self._controller.set_rain_delay(rain_delay)
         await self._coordinator.async_request_refresh()
 
     async def reboot(self):
