@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
+from homeassistant.util.dt import now
 
 from . import (
     OpenSprinklerControllerEntity,
@@ -42,6 +43,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(FlowRateSensor(entry, name, controller, coordinator))
     entities.append(CurrentDrawSensor(entry, name, controller, coordinator))
     entities.append(ControllerCurrentTimeSensor(entry, name, controller, coordinator))
+    entities.append(PauseEndTimeSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
         entities.append(StationStatusSensor(entry, name, station, coordinator))
@@ -238,6 +240,48 @@ class RainDelayStopTimeSensor(
             return None
 
         return utc_from_timestamp(rdst).isoformat()
+
+
+class PauseEndTimeSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
+    """Represent a sensor for the remaining pause time."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler pause time remaining sensor."""
+        self._name = name
+        self._controller = controller
+        self._entity_type = "sensor"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return SensorDeviceClass.TIMESTAMP
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:timeline-clock"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Pause End Time"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_pt")
+
+    def _get_state(self):
+        """Retrieve latest state."""
+        pt = self._controller.pause_time_remaining
+        if pt == 0:
+            # Not paused
+            return None
+
+        # Since the controller provides the remaining time as a duration, add it to the
+        # current time to determine when the pause will end.
+        return now() + pt
 
 
 class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entity):

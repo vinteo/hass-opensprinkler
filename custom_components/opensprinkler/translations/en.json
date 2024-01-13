@@ -80,6 +80,20 @@
         }
       }
     },
+    "pause_stations": {
+      "name": "Pause Stations",
+      "description": "Pause all stations for the given duration.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "The pause time entity to change."
+        },
+        "pause_duration": {
+          "name": "Pause duration",
+          "description": "Pause duration in seconds."
+        }
+      }
+    },
     "reboot": {
       "name": "Reboot",
       "description": "Reboot the controller.",

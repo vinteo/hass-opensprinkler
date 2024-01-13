@@ -7,6 +7,7 @@ CONF_RUN_SECONDS = "run_seconds"
 CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
 CONF_WATER_LEVEL = "water_level"
 CONF_RAIN_DELAY = "rain_delay"
+CONF_PAUSE_SECONDS = "pause_seconds"
 
 DOMAIN = "opensprinkler"
 
@@ -39,6 +40,12 @@ SCHEMA_SERVICE_SET_WATER_LEVEL = {
     vol.Required(CONF_WATER_LEVEL): vol.All(vol.Coerce(int), vol.Range(min=0, max=250)),
 }
 
+SCHEMA_SERVICE_PAUSE_STATIONS = {
+    vol.Required(CONF_PAUSE_SECONDS): vol.All(
+        vol.Coerce(int), vol.Range(min=0, max=86400)
+    ),
+}
+
 SCHEMA_SERVICE_REBOOT = {}
 
 SERVICE_RUN = "run"
@@ -46,6 +53,7 @@ SERVICE_STOP = "stop"
 SERVICE_SET_WATER_LEVEL = "set_water_level"
 SERVICE_REBOOT = "reboot"
 SERVICE_SET_RAIN_DELAY = "set_rain_delay"
+SERVICE_PAUSE_STATIONS = "pause_stations"
 
 START_TIME_DISABLED = "disabled"
 START_TIME_MIDNIGHT = "midnight"
