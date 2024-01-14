@@ -8,7 +8,6 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import Entity
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
-from homeassistant.util.dt import now
 
 from . import (
     OpenSprinklerControllerEntity,
@@ -280,8 +279,8 @@ class PauseEndTimeSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Ent
             return None
 
         # Since the controller provides the remaining time as a duration, add it to the
-        # current time to determine when the pause will end.
-        return now() + pt
+        # current device time to determine when the pause will end.
+        return utc_from_timestamp(self._controller.device_time + pt).isoformat()
 
 
 class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entity):
