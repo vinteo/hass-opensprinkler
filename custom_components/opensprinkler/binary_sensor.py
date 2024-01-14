@@ -45,6 +45,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         ControllerSensorActive(entry, name, "rain_delay", controller, coordinator)
     )
 
+    entities.append(PauseActiveBinarySensor(entry, name, controller, coordinator))
+
     for _, program in controller.programs.items():
         entities.append(ProgramIsRunningBinarySensor(entry, name, program, coordinator))
 
@@ -172,3 +174,37 @@ class StationIsRunningBinarySensor(
     def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._station.is_running)
+
+
+class PauseActiveBinarySensor(
+    OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, BinarySensorEntity
+):
+    """Represent a binary_sensor for whether pause is active."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new OpenSprinkler pause active sensor."""
+        self._entity_type = "binary_sensor"
+        self._controller = controller
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor."""
+        return f"{self._name} Pause Active"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_pause_active")
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        if self._controller.pause_active:
+            return "mdi:water-pump-off"
+        else:
+            return "mdi:water-pump"
+
+    def _get_state(self) -> bool:
+        """Retrieve latest state."""
+        return bool(self._controller.pause_active)
