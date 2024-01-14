@@ -349,9 +349,9 @@ class OpenSprinklerControllerEntity:
         await self._controller.set_rain_delay(rain_delay)
         await self._coordinator.async_request_refresh()
 
-    async def pause_stations(self, pause_seconds: int):
+    async def pause_stations(self, pause_duration: int):
         """Pause all stations for duration"""
-        await self._controller.set_pause(pause_seconds)
+        await self._controller.set_pause(pause_duration)
         await self._coordinator.async_request_refresh()
 
     async def reboot(self):

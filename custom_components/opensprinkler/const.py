@@ -7,7 +7,7 @@ CONF_RUN_SECONDS = "run_seconds"
 CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
 CONF_WATER_LEVEL = "water_level"
 CONF_RAIN_DELAY = "rain_delay"
-CONF_PAUSE_SECONDS = "pause_seconds"
+CONF_PAUSE_SECONDS = "pause_duration"
 
 DOMAIN = "opensprinkler"
 
