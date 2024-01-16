@@ -242,23 +242,21 @@ class RainDelayStopTimeSensor(
 
 
 class PauseEndTimeSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
-    """Represent a sensor for the remaining pause time."""
+    """Represent a sensor for the time the pause will end."""
 
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler pause time remaining sensor."""
         self._name = name
-        self._controller = controller
         self._entity_type = "sensor"
+        self._controller = controller
         super().__init__(entry, name, coordinator)
 
     @property
     def device_class(self):
-        """Return the device class."""
         return SensorDeviceClass.TIMESTAMP
 
     @property
     def icon(self) -> str:
-        """Return icon."""
         return "mdi:timeline-clock"
 
     @property
