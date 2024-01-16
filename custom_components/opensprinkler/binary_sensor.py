@@ -190,20 +190,20 @@ class PauseActiveBinarySensor(
     @property
     def name(self) -> str:
         """Return the name of this sensor."""
-        return f"{self._name} Pause Active"
+        return f"{self._name} Paused"
 
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(f"{self._entry.unique_id}_{self._entity_type}_pause_active")
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_paused")
 
     @property
     def icon(self) -> str:
         """Return icon."""
         if self._controller.pause_active:
-            return "mdi:water-pump-off"
+            return "mdi:pause"
         else:
-            return "mdi:water-pump"
+            return "mdi:play"
 
     def _get_state(self) -> bool:
         """Retrieve latest state."""
