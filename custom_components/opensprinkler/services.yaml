@@ -46,6 +46,24 @@ set_rain_delay:
           max: 32767
           mode: slider
           unit_of_measurement: "h"
+pause_stations:
+  fields:
+    entity_id:
+      example: "sensor.opensprinkler_pause_end_time"
+      required: true
+      selector:
+        entity:
+          integration: opensprinkler
+          domain: sensor
+    pause_duration:
+      example: 600
+      required: true
+      selector:
+        number:
+          min: 0
+          max: 86400
+          mode: slider
+          unit_of_measurement: "s"
 reboot:
   fields:
     entity_id:

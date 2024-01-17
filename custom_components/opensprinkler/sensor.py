@@ -42,6 +42,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     entities.append(FlowRateSensor(entry, name, controller, coordinator))
     entities.append(CurrentDrawSensor(entry, name, controller, coordinator))
     entities.append(ControllerCurrentTimeSensor(entry, name, controller, coordinator))
+    entities.append(PauseEndTimeSensor(entry, name, controller, coordinator))
 
     for _, station in controller.stations.items():
         entities.append(StationStatusSensor(entry, name, station, coordinator))
@@ -238,6 +239,46 @@ class RainDelayStopTimeSensor(
             return None
 
         return utc_from_timestamp(rdst).isoformat()
+
+
+class PauseEndTimeSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
+    """Represent a sensor for the time the pause will end."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler pause time remaining sensor."""
+        self._name = name
+        self._entity_type = "sensor"
+        self._controller = controller
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def device_class(self):
+        return SensorDeviceClass.TIMESTAMP
+
+    @property
+    def icon(self) -> str:
+        return "mdi:timeline-clock"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Pause End Time"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_pt")
+
+    def _get_state(self):
+        """Retrieve latest state."""
+        pt = self._controller.pause_time_remaining
+        if pt == 0:
+            # Not paused
+            return None
+
+        # Since the controller provides the remaining time as a duration, add it to the
+        # current device time to determine when the pause will end.
+        return utc_from_timestamp(self._controller.device_time + pt).isoformat()
 
 
 class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entity):
