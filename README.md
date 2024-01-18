@@ -8,7 +8,7 @@
 [![CodeQL](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vinteo_hass-opensprinkler&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vinteo_hass-opensprinkler)
 
-Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
+Last tested on OS API `2.2.0` and Home Assistant `2024.1.2`
 
 ## Features
 
@@ -19,6 +19,7 @@ Last tested on OS API `2.1.9` and Home Assistant `0.110.0`
 - Switch to enable/disable OpenSprinkler controller operation
 - Services to run and stop stations
 - Service to run programs
+- Services to pause, set a rain delay, and set the water level.
 
 To have a Lovelace card for the UI, [opensprinkler-card](https://github.com/rianadon/opensprinkler-card) can be used.
 
@@ -161,6 +162,28 @@ data:
   water_level: 50
 ```
 
+### Set Rain Delay Example
+
+This sets the rain delay of the controller to 6 hours, i.e. all stations will stop and programs will not run until the rain delay time is over.
+
+```yaml
+service: opensprinkler.set_rain_delay
+data:
+  entity_id: sensor.opensprinkler_rain_delay_stop_time
+  rain_delay: 6
+```
+
+### Pause Example
+
+This pauses the station runs for 10 minutes (600 seconds), resuming afterwards.
+
+```yaml
+service: opensprinkler.pause_stations
+data:
+  entity_id: sensor.opensprinkler_pause_end_time
+  pause_duration: 600
+```
+
 ### Reboot Controller Example
 
 This reboots the controller.
@@ -170,6 +193,7 @@ service: opensprinkler.reboot
 data:
   entity_id: switch.opensprinkler_enabled
 ```
+
 ## Creating a Station Switch
 
 If you wish to have a switch for your stations, here is an example using the switch template and input number.
