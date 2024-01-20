@@ -272,8 +272,9 @@ class PauseEndTimeSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Ent
     def _get_state(self):
         """Retrieve latest state."""
         pt = self._controller.pause_time_remaining
-        if pt == 0:
-            # Not paused
+        # pt is None if the sprinkler firmware does not support pausing (<2.2.0)
+        # pt is 0 if the sprinkler firmware supports pausing, but is not currently paused.
+        if pt is None or pt == 0:
             return None
 
         # Since the controller provides the remaining time as a duration, add it to the
