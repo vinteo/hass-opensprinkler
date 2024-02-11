@@ -44,6 +44,14 @@ PLATFORMS = ["binary_sensor", "number", "select", "sensor", "switch", "text", "t
 TIMEOUT = 10
 
 
+def async_get_entities(hass: HomeAssistant):
+    """Get entities for a domain."""
+    entities = {}
+    for platform in async_get_platforms(hass, DOMAIN):
+        entities.update(platform.entities)
+    return entities
+
+
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     """Set up OpenSprinkler from a config entry."""
     hass.data.setdefault(DOMAIN, {})
@@ -106,7 +114,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     # Setup services
     async def _async_send_run_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_RUN, call
+            async_get_entities(hass), SERVICE_RUN, call
         )
 
     hass.services.async_register(
@@ -118,7 +126,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def _async_send_stop_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_STOP, call
+            async_get_entities(hass), SERVICE_STOP, call
         )
 
     hass.services.async_register(
@@ -130,7 +138,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def _async_send_set_water_level_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_SET_WATER_LEVEL, call
+            async_get_entities(hass), SERVICE_SET_WATER_LEVEL, call
         )
 
     hass.services.async_register(
@@ -142,7 +150,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def _async_send_set_rain_delay_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_SET_RAIN_DELAY, call
+            async_get_entities(hass), SERVICE_SET_RAIN_DELAY, call
         )
 
     hass.services.async_register(
@@ -154,7 +162,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def _async_send_pause_stations_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_PAUSE_STATIONS, call
+            async_get_entities(hass), SERVICE_PAUSE_STATIONS, call
         )
 
     hass.services.async_register(
@@ -166,7 +174,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     async def _async_send_reboot_command(call: ServiceCall):
         await hass.helpers.service.entity_service_call(
-            async_get_platforms(hass, DOMAIN), SERVICE_REBOOT, call
+            async_get_entities(hass), SERVICE_REBOOT, call
         )
 
     hass.services.async_register(
