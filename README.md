@@ -8,7 +8,7 @@
 [![CodeQL](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vinteo_hass-opensprinkler&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vinteo_hass-opensprinkler)
 
-Last tested on OS API `2.2.0` and Home Assistant `2024.1.2`
+Last tested on OS API `2.2.0` and Home Assistant `2024.2.0`
 
 ## Features
 
