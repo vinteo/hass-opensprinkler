@@ -1,24 +1,31 @@
 run:
+  target:
+    entity:
+      device_class: 
+        - controller
+        - program
+        - station
+    device:
   fields:
-    entity_id:
-      example: "sensor.station_name"
     run_seconds:
       example: 60
     continue_running_stations:
       example: False
+
 stop:
-  fields:
-    entity_id:
-      example: "sensor.station_name"
+  target:
+    entity:
+      device_class: 
+        - controller
+        - station
+    device:
+
 set_water_level:
+  target:
+    entity:
+      device_class: controller
+    device:
   fields:
-    entity_id:
-      example: "sensor.opensprinkler_water_level"
-      required: true
-      selector:
-        entity:
-          integration: opensprinkler
-          domain: sensor
     water_level:
       example: 100
       required: true
@@ -28,15 +35,13 @@ set_water_level:
           max: 250
           mode: slider
           unit_of_measurement: "%"
+
 set_rain_delay:
+  target:
+    entity:
+      device_class: controller
+    device:
   fields:
-    entity_id:
-      example: "sensor.opensprinkler_rain_delay_stop_time"
-      required: true
-      selector:
-        entity:
-          integration: opensprinkler
-          domain: sensor
     rain_delay:
       example: 24
       required: true
@@ -46,15 +51,13 @@ set_rain_delay:
           max: 32767
           mode: slider
           unit_of_measurement: "h"
+
 pause_stations:
+  target:
+    entity:
+      device_class: controller
+    device:
   fields:
-    entity_id:
-      example: "sensor.opensprinkler_pause_end_time"
-      required: true
-      selector:
-        entity:
-          integration: opensprinkler
-          domain: sensor
     pause_duration:
       example: 600
       required: true
@@ -64,7 +67,9 @@ pause_stations:
           max: 86400
           mode: slider
           unit_of_measurement: "s"
+
 reboot:
-  fields:
-    entity_id:
-      example: "switch.opensprinkler_enabled"
+  target:
+    entity:
+      device_class: controller
+    device:
