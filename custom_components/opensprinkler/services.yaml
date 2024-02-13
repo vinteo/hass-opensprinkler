@@ -9,8 +9,16 @@ run:
   fields:
     run_seconds:
       example: 60
+      selector:
+        number:
+          min: 0
+          max: 64800
+          mode: slider
+          unit_of_measurement: "s"
     continue_running_stations:
       example: False
+      selector:
+        boolean:
 
 stop:
   target:
