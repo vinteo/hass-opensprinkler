@@ -82,6 +82,11 @@ class ControllerOperationSwitch(
         )
 
     @property
+    def device_class(self) -> str:
+        """Return device_class."""
+        return "controller"
+
+    @property
     def icon(self) -> str:
         """Return icon."""
         if self._controller.enabled:
@@ -150,6 +155,11 @@ class ProgramEnabledSwitch(
         return slugify(
             f"{self._entry.unique_id}_{self._entity_type}_program_enabled_{self._program.index}"
         )
+
+    @property
+    def device_class(self) -> str:
+        """Return device_class."""
+        return "program"
 
     @property
     def icon(self) -> str:
@@ -285,6 +295,11 @@ class StationEnabledSwitch(
         return slugify(
             f"{self._entry.unique_id}_{self._entity_type}_station_enabled_{self._station.index}"
         )
+
+    @property
+    def device_class(self) -> str:
+        """Return device_class."""
+        return "station"
 
     @property
     def icon(self) -> str:
