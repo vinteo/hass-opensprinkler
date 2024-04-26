@@ -66,6 +66,34 @@
         }
       }
     },
+    "set_rain_delay": {
+      "name": "Nastavte oneskorenie dažďa",
+      "description": "Nastavte oneskorenie dažďa postrekovača.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "Entita oneskorenia dažďa sa zmení."
+        },
+        "rain_delay": {
+          "name": "Oneskorenie dažďa",
+          "description": "Oneskorenie dažďa v hodinách."
+        }
+      }
+    },
+    "pause_stations": {
+      "name": "Pozastaviť stanice",
+      "description": "Pozastaviť všetky stanice na danú dobu.",
+      "fields": {
+        "entity_id": {
+          "name": "Entita",
+          "description": "Entita času pauzy, ktorá sa má zmeniť."
+        },
+        "pause_duration": {
+          "name": "Trvanie pauzy",
+          "description": "Trvanie pauzy v sekundách."
+        }
+      }
+    },
     "reboot": {
       "name": "Reštartovať",
       "description": "Reštartujte ovládač.",
