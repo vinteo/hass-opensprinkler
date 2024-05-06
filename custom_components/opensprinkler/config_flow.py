@@ -10,7 +10,7 @@ from homeassistant.util import slugify
 from pyopensprinkler import Controller as OpenSprinkler
 from pyopensprinkler import OpenSprinklerAuthError, OpenSprinklerConnectionError
 
-from .const import DEFAULT_NAME, DOMAIN
+from .const import DEFAULT_NAME, DOMAIN, DEFAULT_CONF_VERIFY_SSL
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +18,7 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_URL): str,
         vol.Required(CONF_PASSWORD): str,
-        vol.Required(CONF_VERIFY_SSL): bool,
+        vol.Required(CONF_VERIFY_SSL, default=DEFAULT_CONF_VERIFY_SSL): bool,
         vol.Optional(CONF_MAC): str,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
     }
