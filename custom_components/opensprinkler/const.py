@@ -12,7 +12,7 @@ CONF_PAUSE_SECONDS = "pause_duration"
 DOMAIN = "opensprinkler"
 
 DEFAULT_NAME = "OpenSprinkler"
-DEFAULT_CONF_VERIFY_SSL = True
+DEFAULT_VERIFY_SSL = True
 
 DEFAULT_SCAN_INTERVAL = 5
 
