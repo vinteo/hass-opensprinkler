@@ -59,7 +59,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     url = entry.data.get(CONF_URL)
     password = entry.data.get(CONF_PASSWORD)
     try:
-        opts = {"session": async_get_clientsession(hass)}
+        opts = {"session": async_get_clientsession(hass), "verify_ssl":False}
         controller = OpenSprinkler(url, password, opts)
         controller.refresh_on_update = False
 
