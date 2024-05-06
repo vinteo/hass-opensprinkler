@@ -4,7 +4,7 @@ import logging
 import voluptuous as vol
 from aiohttp.client_exceptions import InvalidURL
 from homeassistant import config_entries
-from homeassistant.const import CONF_MAC, CONF_NAME, CONF_PASSWORD, CONF_URL
+from homeassistant.const import CONF_MAC, CONF_NAME, CONF_PASSWORD, CONF_URL, CONF_VERIFY_SSL
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import slugify
 from pyopensprinkler import Controller as OpenSprinkler
@@ -18,6 +18,7 @@ DEVICE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_URL): str,
         vol.Required(CONF_PASSWORD): str,
+        vol.Required(CONF_VERIFY_SSL): bool,
         vol.Optional(CONF_MAC): str,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
     }
@@ -37,10 +38,11 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             try:
                 url = user_input[CONF_URL]
                 password = user_input[CONF_PASSWORD]
+                verify_ssl = user_input[CONF_VERIFY_SSL]
                 name = user_input.get(CONF_NAME, DEFAULT_NAME)
                 mac_address = user_input.get(CONF_MAC)
 
-                opts = {"session": async_get_clientsession(self.hass), "verify_ssl":False}
+                opts = {"session": async_get_clientsession(self.hass), "verify_ssl":verify_ssl}
                 controller = OpenSprinkler(url, password, opts)
                 await controller.refresh()
 
@@ -54,7 +56,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
                 return self.async_create_entry(
                     title=name,
-                    data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name},
+                    data={CONF_URL: url, CONF_PASSWORD: password, CONF_NAME: name, CONF_VERIFY_SSL: verify_ssl},
                 )
             except InvalidURL:
                 errors["base"] = "invalid_url"
