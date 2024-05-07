@@ -16,7 +16,6 @@
         "data": {
           "url": "URL",
           "password": "Heslo",
-          "verify_ssl": "Overte SSL",
           "mac": "MAC adresa",
           "name": "Názov ovládača"
         },

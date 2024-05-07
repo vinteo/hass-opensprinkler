@@ -16,7 +16,6 @@
         "data": {
           "url": "URL",
           "password": "Passwort",
-          "verify_ssl": "SSL überprüfen",
           "mac": "MAC Addresse",
           "name": "Controller Name"
         },
