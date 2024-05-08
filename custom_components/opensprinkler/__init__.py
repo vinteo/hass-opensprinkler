@@ -6,7 +6,12 @@ from datetime import timedelta
 import async_timeout
 from aiohttp.client_exceptions import InvalidURL
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_PASSWORD, CONF_SCAN_INTERVAL, CONF_URL
+from homeassistant.const import (
+    CONF_PASSWORD,
+    CONF_SCAN_INTERVAL,
+    CONF_URL,
+    CONF_VERIFY_SSL,
+)
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import config_validation as cv
@@ -58,8 +63,9 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     url = entry.data.get(CONF_URL)
     password = entry.data.get(CONF_PASSWORD)
+    verify_ssl = entry.data.get(CONF_VERIFY_SSL)
     try:
-        opts = {"session": async_get_clientsession(hass)}
+        opts = {"session": async_get_clientsession(hass), "verify_ssl": verify_ssl}
         controller = OpenSprinkler(url, password, opts)
         controller.refresh_on_update = False
 
