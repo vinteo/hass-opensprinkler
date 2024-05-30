@@ -316,9 +316,12 @@ class OpenSprinklerControllerEntity:
         if isinstance(run_seconds, dict):
             run_seconds_list = []
             for _, station in self._controller.stations.items():
+                seconds = run_seconds.get(
+                    station.index, run_seconds.get(str(station.index))
+                )
                 run_seconds_list.append(
-                    run_seconds.get(str(station.index))
-                    if run_seconds.get(str(station.index)) is not None
+                    seconds
+                    if seconds is not None
                     else (0 if continue_running_stations else station.seconds_remaining)
                 )
             await self._controller.run_once_program(run_seconds_list)
