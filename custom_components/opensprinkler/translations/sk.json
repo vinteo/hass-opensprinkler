@@ -16,6 +16,7 @@
         "data": {
           "url": "URL",
           "password": "Heslo",
+          "verify_ssl": "Overiť SSL certifikát (Bezpečnejšie keď je skontrolované)",
           "mac": "MAC adresa",
           "name": "Názov ovládača"
         },
