@@ -112,10 +112,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         _LOGGER.error("Unable to connect to OpenSprinkler controller: %s", str(exc))
         raise ConfigEntryNotReady
 
-    for component in PLATFORMS:
-        hass.async_create_task(
-            hass.config_entries.async_forward_entry_setup(entry, component)
-        )
+    await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     # Setup services
     async def _async_send_run_command(call: ServiceCall):
