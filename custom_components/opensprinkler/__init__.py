@@ -19,7 +19,11 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import async_get_platforms
 from homeassistant.helpers.restore_state import RestoreEntity
-from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
+from homeassistant.helpers.update_coordinator import (
+    ConfigEntryAuthFailed,
+    DataUpdateCoordinator,
+    UpdateFailed,
+)
 from homeassistant.util import slugify
 from homeassistant.util.dt import utc_from_timestamp
 from pyopensprinkler import Controller as OpenSprinkler
@@ -76,14 +80,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
             async with async_timeout.timeout(TIMEOUT):
                 try:
                     await controller.refresh()
+                except OpenSprinklerAuthError as e:
+                    # wrong password, tell user to re-enter the password
+                    raise ConfigEntryAuthFailed from e
                 except (
                     InvalidURL,
                     OpenSprinklerConnectionError,
-                    OpenSprinklerAuthError,
                 ) as e:
-                    _LOGGER.error(e)
-                except Exception as e:
-                    _LOGGER.exception(e)
+                    raise UpdateFailed from e
 
                 if not controller._state:
                     raise UpdateFailed("Error fetching OpenSprinkler state")
