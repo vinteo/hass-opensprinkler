@@ -1,4 +1,5 @@
 """Component providing support for OpenSprinkler select entities."""
+
 import logging
 from typing import Callable
 

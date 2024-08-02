@@ -1,4 +1,5 @@
 """Component providing support for OpenSprinkler time entities."""
+
 import datetime
 import logging
 from datetime import time

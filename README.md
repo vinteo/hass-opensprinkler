@@ -38,7 +38,7 @@ To have a Lovelace card for the UI, [opensprinkler-card](https://github.com/rian
 
 Note: _1.0.0 has major breaking changes, you will need to update any automations, scripts, etc_
 
-1. Remove yaml configuration.
+1. Remove YAML configuration.
 2. Uninstall using HACS or delete the `hass_opensprinkler` folder in `<config_dir>/custom_components`
 3. Restart Home Assistant
 4. Follow installation instructions above
