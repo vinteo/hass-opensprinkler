@@ -21,6 +21,13 @@
           "name": "Názov ovládača"
         },
         "title": "Pripojte sa k ovládaču OpenSprinkler"
+      },
+      "reauth": {
+        "data": {
+          "url": "URL",
+          "password": "Heslo"
+        },
+        "title": "Zadajte nové heslo"
       }
     }
   },

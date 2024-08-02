@@ -21,6 +21,13 @@
           "name": "Controller Name"
         },
         "title": "Connect to the OpenSprinkler controller"
+      },
+      "reauth": {
+        "data": {
+          "url": "URL",
+          "password": "Password"
+        },
+        "title": "Enter new password"
       }
     }
   },
@@ -91,7 +98,7 @@
         },
         "pause_duration": {
           "name": "Pause duration",
-          "description": "Pause duration in seconds."
+          "description": "Duration to pause in seconds."
         }
       }
     },

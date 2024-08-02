@@ -1,6 +1,7 @@
 """Config flow for OpenSprinkler integration."""
 
 import logging
+from typing import Any
 
 import voluptuous as vol
 from aiohttp.client_exceptions import InvalidURL
@@ -12,6 +13,7 @@ from homeassistant.const import (
     CONF_URL,
     CONF_VERIFY_SSL,
 )
+from homeassistant.data_entry_flow import FlowResult
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.util import slugify
 from pyopensprinkler import Controller as OpenSprinkler
@@ -28,6 +30,11 @@ DEVICE_SCHEMA = vol.Schema(
         vol.Required(CONF_VERIFY_SSL, default=DEFAULT_VERIFY_SSL): bool,
         vol.Optional(CONF_MAC): str,
         vol.Optional(CONF_NAME, default=DEFAULT_NAME): str,
+    }
+)
+REAUTH_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_PASSWORD): str,
     }
 )
 
@@ -92,6 +99,47 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     async def async_step_import(self, user_input):
         """Handle import."""
         return await self.async_step_user(user_input)
+
+    async def async_step_reauth(self, user_input: dict[str, Any]) -> FlowResult:
+        """Handle reauthorization."""
+
+        existing_entry = self.hass.config_entries.async_get_entry(
+            self.context["entry_id"]
+        )
+        errors = {}
+        if user_input is not None:
+            password = user_input[CONF_PASSWORD]
+
+            url = existing_entry.data[CONF_URL]
+            verify_ssl = existing_entry.data[CONF_VERIFY_SSL]
+            opts = {
+                "session": async_get_clientsession(self.hass),
+                "verify_ssl": verify_ssl,
+            }
+
+            try:
+                controller = OpenSprinkler(url, password, opts)
+                await controller.refresh()
+            except InvalidURL:
+                errors["base"] = "invalid_url"
+            except OpenSprinklerConnectionError:
+                errors["base"] = "cannot_connect"
+            except OpenSprinklerAuthError:
+                errors["base"] = "invalid_auth"
+            else:
+                self.hass.config_entries.async_update_entry(
+                    existing_entry,
+                    data={
+                        **existing_entry.data,
+                        CONF_PASSWORD: password,
+                    },
+                )
+                await self.hass.config_entries.async_reload(existing_entry.entry_id)
+                return self.async_abort(reason="reauth_successful")
+
+        return self.async_show_form(
+            step_id="reauth", data_schema=REAUTH_SCHEMA, errors=errors
+        )
 
 
 class MacAddressRequiredError(Exception):

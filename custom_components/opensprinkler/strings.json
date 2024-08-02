@@ -21,6 +21,13 @@
           "name": "Controller Name"
         },
         "title": "Connect to the OpenSprinkler controller"
+      },
+      "reauth": {
+        "data": {
+          "url": "URL",
+          "password": "Password"
+        },
+        "title": "Enter new password"
       }
     }
   },
