@@ -1,4 +1,5 @@
 """OpenSprinkler integration."""
+
 import asyncio
 import logging
 from datetime import timedelta
@@ -230,7 +231,7 @@ class OpenSprinklerEntity(RestoreEntity):
             model += f" - ({controller.hardware_type_name})"
 
         firmware = controller.firmware_version_name or "Unknown"
-        firmware += f" ({ controller.firmware_minor_version })"
+        firmware += f" ({controller.firmware_minor_version})"
 
         return {
             "identifiers": {(DOMAIN, slugify(self._entry.unique_id))},
@@ -328,9 +329,9 @@ class OpenSprinklerControllerEntity:
         if not isinstance(run_seconds[0], int):
             run_seconds_by_index = {}
             for run_seconds_config in run_seconds:
-                run_seconds_by_index[
-                    run_seconds_config[CONF_INDEX]
-                ] = run_seconds_config[CONF_RUN_SECONDS]
+                run_seconds_by_index[run_seconds_config[CONF_INDEX]] = (
+                    run_seconds_config[CONF_RUN_SECONDS]
+                )
 
             run_seconds_list = []
             for _, station in self._controller.stations.items():

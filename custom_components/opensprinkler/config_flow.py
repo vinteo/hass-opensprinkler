@@ -1,4 +1,5 @@
 """Config flow for OpenSprinkler integration."""
+
 import logging
 
 import voluptuous as vol

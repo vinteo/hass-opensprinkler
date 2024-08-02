@@ -6,10 +6,18 @@ on:
   schedule:
     - cron: 0 0 * * *
 
+permissions: {}
+
 jobs:
   validate:
     runs-on: ubuntu-latest
     name: HACS
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
     steps:
       - uses: actions/checkout@v3
       - name: HACS validation

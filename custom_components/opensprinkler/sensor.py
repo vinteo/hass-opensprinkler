@@ -1,4 +1,5 @@
 """OpenSprinkler integration."""
+
 import logging
 from typing import Callable
 
