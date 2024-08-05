@@ -2,7 +2,8 @@
   "title": "OpenSprinkler",
   "config": {
     "abort": {
-      "already_configured": "Gerät ist bereits konfiguriert"
+      "already_configured": "Gerät ist bereits konfiguriert",
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich"
     },
     "error": {
       "invalid_url": "URL ist ungültig (Beispiel: http://192.168.0.1)",
@@ -20,6 +21,13 @@
           "name": "Controller Name"
         },
         "title": "Stellen Sie eine Verbindung zum OpenSprinkler-Controller her"
+      },
+      "reauth": {
+        "data": {
+          "url": "URL",
+          "password": "Passwort"
+        },
+        "title": "Neues Passwort eingeben"
       }
     }
   },

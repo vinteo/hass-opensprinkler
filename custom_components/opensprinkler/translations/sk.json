@@ -2,7 +2,8 @@
   "title": "OpenSprinkler",
   "config": {
     "abort": {
-      "already_configured": "Zariadenie je už nakonfigurované"
+      "already_configured": "Zariadenie je už nakonfigurované",
+      "reauth_successful": "Opätovné overenie bolo úspešné"
     },
     "error": {
       "invalid_url": "Adresa URL má nesprávny tvar (príklad: http://192.168.0.1)",
@@ -21,6 +22,13 @@
           "name": "Názov ovládača"
         },
         "title": "Pripojte sa k ovládaču OpenSprinkler"
+      },
+      "reauth": {
+        "data": {
+          "url": "URL",
+          "password": "Heslo"
+        },
+        "title": "Zadajte nové heslo"
       }
     }
   },
