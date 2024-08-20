@@ -19,6 +19,7 @@ from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.helpers.entity_platform import async_get_platforms
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.service import entity_service_call
 from homeassistant.helpers.update_coordinator import (
     ConfigEntryAuthFailed,
     DataUpdateCoordinator,
@@ -117,7 +118,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     # Setup services
     async def _async_send_run_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_RUN, call
         )
 
@@ -129,7 +131,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_stop_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_STOP, call
         )
 
@@ -141,7 +144,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_set_water_level_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_SET_WATER_LEVEL, call
         )
 
@@ -153,7 +157,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_set_rain_delay_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_SET_RAIN_DELAY, call
         )
 
@@ -165,7 +170,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_pause_stations_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_PAUSE_STATIONS, call
         )
 
@@ -177,7 +183,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
     )
 
     async def _async_send_reboot_command(call: ServiceCall):
-        await hass.helpers.service.entity_service_call(
+        await entity_service_call(
+            hass,
             async_get_entities(hass), SERVICE_REBOOT, call
         )
 
