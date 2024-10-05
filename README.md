@@ -52,10 +52,10 @@ Note: _1.0.0 has major breaking changes, you will need to update any automations
 
 ## Using Actions
 
-Available actions are `opensprinkler.run_program`, `opensprinkler.run_station`, and `opensprinkler.run_once` 
+Available actions are `opensprinkler.run_program`, `opensprinkler.run_station`, and `opensprinkler.run_once`
 to start a program, station, or controller (multiple stations) respectively, and `opensprinkler.stop` to stop one or all stations.
 
-Note: The action `opensprinkler.run` is deprecated and will be removed in a future release. Please migrate to one of the above actions, 
+Note: The action `opensprinkler.run` is deprecated and will be removed in a future release. Please migrate to one of the above actions,
 which use the same parameters.
 
 ### Run Examples
@@ -83,7 +83,7 @@ target:
 
 #### Run Once Program Example
 
-To run a number of stations at once, use `opensprinkler.run_once`. The run seconds can either be a list of seconds per station 
+To run a number of stations at once, use `opensprinkler.run_once`. The run seconds can either be a list of seconds per station
 or a list or dict of index and seconds pairs.
 The following examples are all equivalent.
 
@@ -120,8 +120,8 @@ data:
     "2": 30
 ```
 
-Calling `opensprinkler.run_once` or `opensprinkler.run_program` will stop all other stations that are running. 
-When using `opensprinkler.run_once`, you can set `continue_running_stations` to true to allow the stations to 
+Calling `opensprinkler.run_once` or `opensprinkler.run_program` will stop all other stations that are running.
+When using `opensprinkler.run_once`, you can set `continue_running_stations` to true to allow the stations to
 continue running. This only works when specifying the run seconds in index/seconds pairs.
 
 ```yaml
