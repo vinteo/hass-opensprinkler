@@ -21,6 +21,7 @@ SCHEMA_SERVICE_RUN_SECONDS = {
     vol.Required(CONF_INDEX): cv.positive_int,
     vol.Required(CONF_RUN_SECONDS): cv.positive_int,
 }
+
 SCHEMA_SERVICE_RUN = {
     vol.Optional(CONF_RUN_SECONDS): vol.Or(
         cv.ensure_list(cv.positive_int),
@@ -30,6 +31,20 @@ SCHEMA_SERVICE_RUN = {
     ),
     vol.Optional(CONF_CONTINUE_RUNNING_STATIONS): cv.boolean,
 }
+
+SCHEMA_SERVICE_RUN_ONCE = {
+    vol.Required(CONF_RUN_SECONDS): vol.Or(
+        cv.ensure_list(cv.positive_int),
+        cv.ensure_list(SCHEMA_SERVICE_RUN_SECONDS),
+        vol.Schema({}, extra=vol.ALLOW_EXTRA),
+    ),
+    vol.Optional(CONF_CONTINUE_RUNNING_STATIONS): cv.boolean,
+}
+
+SCHEMA_SERVICE_RUN_PROGRAM = {}
+
+SCHEMA_SERVICE_RUN_STATION = {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}
+
 SCHEMA_SERVICE_STOP = {}
 
 SCHEMA_SERVICE_SET_RAIN_DELAY = {
@@ -51,6 +66,9 @@ SCHEMA_SERVICE_PAUSE_STATIONS = {
 SCHEMA_SERVICE_REBOOT = {}
 
 SERVICE_RUN = "run"
+SERVICE_RUN_ONCE = "run_once"
+SERVICE_RUN_PROGRAM = "run_program"
+SERVICE_RUN_STATION = "run_station"
 SERVICE_STOP = "stop"
 SERVICE_SET_WATER_LEVEL = "set_water_level"
 SERVICE_REBOOT = "reboot"

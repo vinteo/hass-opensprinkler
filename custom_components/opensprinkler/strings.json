@@ -51,6 +51,48 @@
         }
       }
     },
+    "run_once": {
+      "name": "Run Once",
+      "description": "Runs a controller.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Switch entity id for controller."
+        },
+        "run_seconds": {
+          "name": "Run seconds",
+          "description": "List of seconds for each station (e.g. '- 60'), or key/value pairs (e.g. '0: 60'). One per line. See documentation for details."
+        },
+        "continue_running_stations": {
+          "name": "Continue running stations",
+          "description": "Keeps running stations that are not specified (only used for controllers with index/seconds pairs, optional, defaults to False)."
+        }
+      }
+    },
+    "run_program": {
+      "name": "Run Program",
+      "description": "Runs a Program.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Switch entity id of a program."
+        }
+      }
+    },
+    "run_station": {
+      "name": "Run Station",
+      "description": "Runs a Station for the specified number of seconds.",
+      "fields": {
+        "entity_id": {
+          "name": "Entity",
+          "description": "Switch entity id of a station."
+        },
+        "run_seconds": {
+          "name": "Run seconds",
+          "description": "Number of seconds to run the station. Optional, defaults to 60 seconds."
+        }
+      }
+    },
     "stop": {
       "name": "Stop",
       "description": "Stops a station or all station (for controller).",

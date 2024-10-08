@@ -39,12 +39,18 @@ from .const import (
     SCHEMA_SERVICE_PAUSE_STATIONS,
     SCHEMA_SERVICE_REBOOT,
     SCHEMA_SERVICE_RUN,
+    SCHEMA_SERVICE_RUN_ONCE,
+    SCHEMA_SERVICE_RUN_PROGRAM,
+    SCHEMA_SERVICE_RUN_STATION,
     SCHEMA_SERVICE_SET_RAIN_DELAY,
     SCHEMA_SERVICE_SET_WATER_LEVEL,
     SCHEMA_SERVICE_STOP,
     SERVICE_PAUSE_STATIONS,
     SERVICE_REBOOT,
     SERVICE_RUN,
+    SERVICE_RUN_ONCE,
+    SERVICE_RUN_PROGRAM,
+    SERVICE_RUN_STATION,
     SERVICE_SET_RAIN_DELAY,
     SERVICE_SET_WATER_LEVEL,
     SERVICE_STOP,
@@ -127,6 +133,42 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
         service=SERVICE_RUN,
         schema=cv.make_entity_service_schema(SCHEMA_SERVICE_RUN),
         service_func=_async_send_run_command,
+    )
+
+    async def _async_send_run_once_command(call: ServiceCall) -> None:
+        await entity_service_call(
+            hass, async_get_entities(hass), SERVICE_RUN_ONCE, call, None
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_RUN_ONCE,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_RUN_ONCE),
+        service_func=_async_send_run_once_command,
+    )
+
+    async def _async_send_run_program_command(call: ServiceCall) -> None:
+        await entity_service_call(
+            hass, async_get_entities(hass), SERVICE_RUN_PROGRAM, call, None
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_RUN_PROGRAM,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_RUN_PROGRAM),
+        service_func=_async_send_run_program_command,
+    )
+
+    async def _async_send_run_station_command(call: ServiceCall) -> None:
+        await entity_service_call(
+            hass, async_get_entities(hass), SERVICE_RUN_STATION, call, None
+        )
+
+    hass.services.async_register(
+        domain=DOMAIN,
+        service=SERVICE_RUN_STATION,
+        schema=cv.make_entity_service_schema(SCHEMA_SERVICE_RUN_STATION),
+        service_func=_async_send_run_station_command,
     )
 
     async def _async_send_stop_command(call: ServiceCall) -> None:
@@ -294,8 +336,13 @@ class OpenSprinklerTime(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
-    async def run(self, run_seconds=None, continue_running_stations=None):
+    async def run_once(self, run_seconds=None, continue_running_stations=None):
         """Run once program."""
+        await self.run(run_seconds, continue_running_stations)
+        return
+
+    async def run(self, run_seconds=None, continue_running_stations=None):
+        """Run controller program."""
         if run_seconds is None or (
             not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
         ):
@@ -317,7 +364,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     seconds
                     if seconds is not None
-                    else (0 if continue_running_stations else station.seconds_remaining)
+                    else (station.seconds_remaining if continue_running_stations else 0)
                 )
             await self._controller.run_once_program(run_seconds_list)
             await self._coordinator.async_request_refresh()
@@ -335,7 +382,7 @@ class OpenSprinklerControllerEntity:
                 run_seconds_list.append(
                     run_seconds_by_index.get(station.index)
                     if run_seconds_by_index.get(station.index) is not None
-                    else (0 if continue_running_stations else station.seconds_remaining)
+                    else (station.seconds_remaining if continue_running_stations else 0)
                 )
 
             await self._controller.run_once_program(run_seconds_list)
@@ -387,6 +434,11 @@ class OpenSprinklerProgramEntity:
 
         return attributes
 
+    async def run_program(self):
+        """Run program."""
+        await self.run()
+        return
+
     async def run(self):
         """Runs the program."""
         await self._program.run()
@@ -416,6 +468,11 @@ class OpenSprinklerStationEntity:
                 attributes[attr] = utc_from_timestamp(timestamp).isoformat()
 
         return attributes
+
+    async def run_station(self, run_seconds=None):
+        """Run station."""
+        await self.run(run_seconds)
+        return
 
     async def run(self, run_seconds=None):
         """Run station."""

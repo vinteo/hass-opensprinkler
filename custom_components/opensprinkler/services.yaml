@@ -20,6 +20,45 @@ run:
       selector:
         boolean:
 
+run_once:
+  target:
+    entity:
+      device_class:
+        - controller
+    device:
+  fields:
+    run_seconds:
+      example: "0: 60"
+      selector:
+        object:
+    continue_running_stations:
+      example: False
+      selector:
+        boolean:
+
+run_program:
+  target:
+    entity:
+      device_class:
+        - program
+    device:
+
+run_station:
+  target:
+    entity:
+      device_class:
+        - station
+    device:
+  fields:
+    run_seconds:
+      example: 60
+      selector:
+        number:
+          min: 0
+          max: 64800
+          mode: slider
+          unit_of_measurement: "s"
+
 stop:
   target:
     entity:
