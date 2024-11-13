@@ -1,0 +1,159 @@
+{
+    "title": "OpenSprinkler",
+    "config": {
+        "abort": {
+            "already_configured": "O dispositivo já está configurado",
+            "reauth_successful": "A re-autenticação foi bem-sucedida"
+        },
+        "error": {
+            "invalid_url": "O URL é inválido (exemplo: http://192.168.0.1)",
+            "cannot_connect": "Falha ao ligar",
+            "invalid_auth": "Autenticação inválida",
+            "mac_address_required": "Endereço MAC necessário para firmware abaixo de 2.1.9 (4)",
+            "unknown": "Erro inesperado"
+        },
+        "step": {
+            "user": {
+                "data": {
+                    "url": "URL",
+                    "password": "Palavra-passe",
+                    "verify_ssl": "Verificar Certificado SSL (Mais seguro quando marcado)",
+                    "mac": "Endereço MAC",
+                    "name": "Nome do Controlador"
+                },
+                "title": "Ligar ao controlador OpenSprinkler"
+            },
+            "reauth": {
+                "data": {
+                    "url": "URL",
+                    "password": "Palavra-passe"
+                },
+                "title": "Introduza a nova palavra-passe"
+            }
+        }
+    },
+    "services": {
+        "run": {
+            "name": "Executar",
+            "description": "Executa um programa ou estação do controlador.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do sensor ou interruptor para programas ou estações."
+                },
+                "run_seconds": {
+                    "name": "Segundos de execução",
+                    "description": "Número de segundos para executar (opcional para estações, padrão de 60 segundos; obrigatório para controladores, lista de segundos para cada estação ou pares de índice e segundos)."
+                },
+                "continue_running_stations": {
+                    "name": "Continuar a executar estações",
+                    "description": "Mantém a execução das estações que não foram especificadas (usado apenas para controladores com pares de índice/segundos, opcional, padrão: Falso)."
+                }
+            }
+        },
+        "run_once": {
+            "name": "Executar uma vez",
+            "description": "Executa um controlador.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do interruptor para o controlador."
+                },
+                "run_seconds": {
+                    "name": "Segundos de execução",
+                    "description": "Lista de segundos para cada estação (ex.: '- 60') ou pares chave/valor (ex.: '0: 60'). Um por linha. Ver documentação para detalhes."
+                },
+                "continue_running_stations": {
+                    "name": "Continuar a executar estações",
+                    "description": "Mantém a execução das estações que não foram especificadas (usado apenas para controladores com pares de índice/segundos, opcional, padrão: Falso)."
+                }
+            }
+        },
+        "run_program": {
+            "name": "Executar Programa",
+            "description": "Executa um Programa.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do interruptor de um programa."
+                }
+            }
+        },
+        "run_station": {
+            "name": "Executar Estação",
+            "description": "Executa uma estação pelo número de segundos especificado.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do interruptor de uma estação."
+                },
+                "run_seconds": {
+                    "name": "Segundos de execução",
+                    "description": "Número de segundos para executar a estação. Opcional, padrão de 60 segundos."
+                }
+            }
+        },
+        "stop": {
+            "name": "Parar",
+            "description": "Pára uma estação ou todas as estações (para controlador).",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do sensor ou interruptor para estações ou controlador."
+                }
+            }
+        },
+        "set_water_level": {
+            "name": "Definir nível de água",
+            "description": "Define a percentagem de nível de água.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "A entidade de nível de água a alterar."
+                },
+                "water_level": {
+                    "name": "Nível de água",
+                    "description": "Percentagem do nível de água."
+                }
+            }
+        },
+        "set_rain_delay": {
+            "name": "Definir atraso de chuva",
+            "description": "Define o atraso de chuva do aspersor.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "A entidade de atraso de chuva a alterar."
+                },
+                "rain_delay": {
+                    "name": "Atraso de chuva",
+                    "description": "Atraso de chuva em horas."
+                }
+            }
+        },
+        "pause_stations": {
+            "name": "Pausar Estações",
+            "description": "Pausa todas as estações pela duração indicada.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "A entidade de tempo de pausa a alterar."
+                },
+                "pause_duration": {
+                    "name": "Duração da pausa",
+                    "description": "Duração para pausar em segundos."
+                }
+            }
+        },
+        "reboot": {
+            "name": "Reiniciar",
+            "description": "Reinicia o controlador.",
+            "fields": {
+                "entity_id": {
+                    "name": "Entidade",
+                    "description": "ID da entidade do interruptor para o controlador."
+                }
+            }
+        }
+    }
+}
