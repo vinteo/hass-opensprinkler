@@ -3,7 +3,7 @@
 import logging
 from typing import Callable
 
-from homeassistant.components.number import NumberEntity
+from homeassistant.components.number import NumberDeviceClass, NumberEntity
 from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
@@ -74,6 +74,11 @@ class ProgramDurationNumber(
         return EntityCategory.CONFIG
 
     @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
+
+    @property
     def name(self) -> str:
         """Return the name of this sensor."""
         return f"{self._program.name} {self._station.name} Station Duration"
@@ -140,6 +145,11 @@ class ProgramIntervalDaysNumber(
         return EntityCategory.CONFIG
 
     @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
+
+    @property
     def name(self) -> str:
         """Return the name of this number."""
         return f"{self._program.name} Interval Days"
@@ -202,6 +212,11 @@ class ProgramStartingInDaysNumber(
     def entity_category(self):
         """Return the entity category."""
         return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:
@@ -267,6 +282,11 @@ class ProgramStartTimeOffsetNumber(
     def entity_category(self):
         """Return the entity category."""
         return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:
@@ -420,6 +440,11 @@ class ProgramStartTimeRepeatIntervalNumber(
     def entity_category(self):
         """Return the entity category."""
         return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:

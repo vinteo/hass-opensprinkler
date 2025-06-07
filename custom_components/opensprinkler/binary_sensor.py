@@ -3,7 +3,10 @@
 import logging
 from typing import Callable
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
 from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
@@ -116,6 +119,11 @@ class ProgramIsRunningBinarySensor(
         super().__init__(entry, name, coordinator)
 
     @property
+    def device_class(self):
+        """Return the device class."""
+        return BinarySensorDeviceClass.RUNNING
+
+    @property
     def name(self) -> str:
         """Return the name of this sensor."""
         return self._program.name + " Program Running"
@@ -150,6 +158,11 @@ class StationIsRunningBinarySensor(
         self._station = station
         self._entity_type = "binary_sensor"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return BinarySensorDeviceClass.RUNNING
 
     @property
     def name(self) -> str:

@@ -132,6 +132,11 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
         return EntityCategory.DIAGNOSTIC
 
     @property
+    def device_class(self):
+        """Return the device class."""
+        return SensorDeviceClass.VOLUME_FLOW_RATE
+
+    @property
     def icon(self) -> str:
         """Return icon."""
         return "mdi:speedometer"
@@ -323,6 +328,22 @@ class StationStatusSensor(OpenSprinklerStationEntity, OpenSprinklerSensor, Entit
         return EntityCategory.DIAGNOSTIC
 
     @property
+    def device_class(self):
+        return SensorDeviceClass.ENUM
+
+    @property
+    def options(self) -> list[str]:
+        """A list of available options as strings"""
+        return [
+            "idle",
+            "manual",
+            "master_engaged",
+            "once_program",
+            "program",
+            "waiting",
+        ]
+
+    @property
     def name(self) -> str:
         """Return the name of this sensor."""
         return self._station.name + " Station Status"
@@ -367,6 +388,10 @@ class CurrentDrawSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Enti
     def entity_category(self):
         """Return the entity category."""
         return EntityCategory.DIAGNOSTIC
+
+    @property
+    def device_class(self):
+        return SensorDeviceClass.CURRENT
 
     @property
     def icon(self) -> str:
