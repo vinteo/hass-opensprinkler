@@ -63,10 +63,10 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ControllerSensorActive(
     OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, BinarySensorEntity
 ):
-    """Represent a sensor that for water level."""
+    """Represent a sensor for status of a controller sensor input."""
 
     def __init__(self, entry, name, sensor, controller, coordinator):
-        """Set up a new opensprinkler water level sensor."""
+        """Set up a new opensprinkler sensor."""
         self._name = name
         self._controller = controller
         self._entity_type = "binary_sensor"
