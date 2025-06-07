@@ -4,7 +4,7 @@ import logging
 from typing import Callable
 
 from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
@@ -70,6 +70,11 @@ class ControllerSensorActive(
         self._sensor = sensor
         self._attr = sensor + "_active"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.DIAGNOSTIC
 
     @property
     def name(self) -> str:
@@ -187,6 +192,11 @@ class PauseActiveBinarySensor(
         self._entity_type = "binary_sensor"
         self._controller = controller
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.DIAGNOSTIC
 
     @property
     def name(self) -> str:

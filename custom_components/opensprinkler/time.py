@@ -7,7 +7,7 @@ from math import trunc
 from typing import Callable
 
 from homeassistant.components.time import TimeEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
@@ -55,6 +55,11 @@ class ProgramStartTime(OpenSprinklerProgramEntity, OpenSprinklerTime, TimeEntity
         self._start_index = start_index
         self._entity_type = "time"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
 
     @property
     def name(self) -> str:
