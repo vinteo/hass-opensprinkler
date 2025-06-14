@@ -3,8 +3,11 @@
 import logging
 from typing import Callable
 
-from homeassistant.components.binary_sensor import BinarySensorEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.components.binary_sensor import (
+    BinarySensorDeviceClass,
+    BinarySensorEntity,
+)
+from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
@@ -60,16 +63,21 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ControllerSensorActive(
     OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, BinarySensorEntity
 ):
-    """Represent a sensor that for water level."""
+    """Represent a sensor for status of a controller sensor input."""
 
     def __init__(self, entry, name, sensor, controller, coordinator):
-        """Set up a new opensprinkler water level sensor."""
+        """Set up a new opensprinkler sensor."""
         self._name = name
         self._controller = controller
         self._entity_type = "binary_sensor"
         self._sensor = sensor
         self._attr = sensor + "_active"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.DIAGNOSTIC
 
     @property
     def name(self) -> str:
@@ -111,6 +119,11 @@ class ProgramIsRunningBinarySensor(
         super().__init__(entry, name, coordinator)
 
     @property
+    def device_class(self):
+        """Return the device class."""
+        return BinarySensorDeviceClass.RUNNING
+
+    @property
     def name(self) -> str:
         """Return the name of this sensor."""
         return self._program.name + " Program Running"
@@ -145,6 +158,11 @@ class StationIsRunningBinarySensor(
         self._station = station
         self._entity_type = "binary_sensor"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return BinarySensorDeviceClass.RUNNING
 
     @property
     def name(self) -> str:
@@ -187,6 +205,11 @@ class PauseActiveBinarySensor(
         self._entity_type = "binary_sensor"
         self._controller = controller
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.DIAGNOSTIC
 
     @property
     def name(self) -> str:

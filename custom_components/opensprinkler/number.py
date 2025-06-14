@@ -3,8 +3,8 @@
 import logging
 from typing import Callable
 
-from homeassistant.components.number import NumberEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.components.number import NumberDeviceClass, NumberEntity
+from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
@@ -69,6 +69,16 @@ class ProgramDurationNumber(
         super().__init__(entry, name, coordinator)
 
     @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
+
+    @property
     def name(self) -> str:
         """Return the name of this sensor."""
         return f"{self._program.name} {self._station.name} Station Duration"
@@ -130,6 +140,16 @@ class ProgramIntervalDaysNumber(
         super().__init__(entry, name, coordinator)
 
     @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
+
+    @property
     def name(self) -> str:
         """Return the name of this number."""
         return f"{self._program.name} Interval Days"
@@ -187,6 +207,16 @@ class ProgramStartingInDaysNumber(
         self._program = program
         self._entity_type = "number"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:
@@ -247,6 +277,16 @@ class ProgramStartTimeOffsetNumber(
         self._start_index = start_index
         self._entity_type = "number"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:
@@ -333,6 +373,11 @@ class ProgramStartTimeRepeatCountNumber(
         super().__init__(entry, name, coordinator)
 
     @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
     def name(self) -> str:
         """Return the name of this number."""
         return f"{self._program.name} Start Time Repeat Count"
@@ -390,6 +435,16 @@ class ProgramStartTimeRepeatIntervalNumber(
         self._program = program
         self._entity_type = "number"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
 
     @property
     def name(self) -> str:

@@ -4,7 +4,7 @@ import logging
 from typing import Callable
 
 from homeassistant.components.select import SelectEntity
-from homeassistant.const import CONF_NAME
+from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
@@ -65,6 +65,11 @@ class ProgramRestrictionsSelect(
         super().__init__(entry, name, coordinator)
 
     @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
     def name(self) -> str:
         """Return the name of this select."""
         return f"{self._program.name} Restrictions"
@@ -120,6 +125,11 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
         super().__init__(entry, name, coordinator)
 
     @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
     def name(self) -> str:
         """Return the name of this select."""
         return f"{self._program.name} Type"
@@ -171,6 +181,11 @@ class ProgramAdditionalStartTimeTypeSelect(
         self._program = program
         self._entity_type = "select"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
 
     @property
     def name(self) -> str:
@@ -225,6 +240,11 @@ class ProgramStartTimeOffsetTypeSelect(
         self._start_index = start_index
         self._entity_type = "select"
         super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
 
     @property
     def name(self) -> str:
