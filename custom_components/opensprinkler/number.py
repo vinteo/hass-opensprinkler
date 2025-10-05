@@ -187,6 +187,11 @@ class ProgramIntervalDaysNumber(
         return max(1.0, self._program.starting_in_days + 1.0)
 
     @property
+    def native_step(self) -> float:
+        """Defines the resolution of the values, i.e. the smallest increment or decrement in the number's"""
+        return 1.0
+
+    @property
     def native_value(self) -> float:
         """The value of the number in the number's native_unit_of_measurement."""
         return self._program.interval_days
@@ -248,12 +253,17 @@ class ProgramStartingInDaysNumber(
     @property
     def native_max_value(self) -> float:
         """The maximum accepted value in the number's native_unit_of_measurement."""
-        return self._program.interval_days - 1.0
+        return max(0.0, float(self._program.interval_days) - 1.0)
 
     @property
     def native_min_value(self) -> float:
         """The minimum accepted value in the number's native_unit_of_measurement."""
         return 0.0
+
+    @property
+    def native_step(self) -> float:
+        """Defines the resolution of the values, i.e. the smallest increment or decrement in the number's"""
+        return 1.0
 
     @property
     def native_value(self) -> float:
