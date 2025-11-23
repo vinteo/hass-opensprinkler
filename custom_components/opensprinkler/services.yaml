@@ -1,12 +1,12 @@
 run:
-  target:
-    entity:
-      device_class: 
-        - controller
-        - program
-        - station
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class:
+            - controller
+            - program
+            - station
     run_seconds:
       example: 60
       selector:
@@ -21,12 +21,11 @@ run:
         boolean:
 
 run_once:
-  target:
-    entity:
-      device_class:
-        - controller
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: controller
     run_seconds:
       example: "0: 60"
       selector:
@@ -37,19 +36,18 @@ run_once:
         boolean:
 
 run_program:
-  target:
-    entity:
-      device_class:
-        - program
-    device:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: program
 
 run_station:
-  target:
-    entity:
-      device_class:
-        - station
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: station
     run_seconds:
       example: 60
       selector:
@@ -60,19 +58,20 @@ run_station:
           unit_of_measurement: "s"
 
 stop:
-  target:
-    entity:
-      device_class: 
-        - controller
-        - station
-    device:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          device_class:
+            - controller
+            - station
 
 set_water_level:
-  target:
-    entity:
-      device_class: controller
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: controller
     water_level:
       example: 100
       required: true
@@ -84,11 +83,11 @@ set_water_level:
           unit_of_measurement: "%"
 
 set_rain_delay:
-  target:
-    entity:
-      device_class: controller
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: controller
     rain_delay:
       example: 24
       required: true
@@ -100,11 +99,11 @@ set_rain_delay:
           unit_of_measurement: "h"
 
 pause_stations:
-  target:
-    entity:
-      device_class: controller
-    device:
   fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: controller
     pause_duration:
       example: 600
       required: true
@@ -116,7 +115,9 @@ pause_stations:
           unit_of_measurement: "s"
 
 reboot:
-  target:
-    entity:
-      device_class: controller
-    device:
+  fields:
+    entity_id:
+      selector:
+        entity:
+          device_class: controller
+
