@@ -9,16 +9,13 @@
 # the `language` matrix defined below to confirm you have the correct set of
 # supported CodeQL languages.
 #
-name: 'CodeQL'
+name: "CodeQL"
 
-on:
-  push:
-    branches: ['master']
-  pull_request:
-    # The branches below must be a subset of the branches above
-    branches: ['master']
+on: # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
   schedule:
-    - cron: '18 10 * * 1'
+    - cron: "18 10 * * 1"
 
 permissions: {}
 
@@ -35,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ['python']
+        language: ["python"]
         # CodeQL supports [ 'cpp', 'csharp', 'go', 'java', 'javascript', 'python', 'ruby' ]
         # Learn more about CodeQL language support at https://aka.ms/codeql-docs/language-support
 
