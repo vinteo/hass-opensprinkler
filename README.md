@@ -79,7 +79,7 @@ data:
   run_seconds: 600 # Number of seconds to run the station. Optional, defaults to 60 seconds.
 target:
   entity_id: switch.front_yard_station_enabled # Any station enabled switch
-  ```
+```
 
 #### Run Once Program Example
 
@@ -166,7 +166,7 @@ action: opensprinkler.stop
 data: {}
 target:
   entity_id: switch.opensprinkler_enabled # Controller enabled switch
-  ```
+```
 
 ### Set Water Level Example
 

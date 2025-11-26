@@ -1,8 +1,8 @@
 name: hassfest
 
-on:
-  push:
-  pull_request:
+on: # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
   schedule:
     - cron: 0 0 * * *
 

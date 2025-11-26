@@ -1,61 +1,37 @@
 ---
-###########################
-###########################
-## Linter GitHub Actions ##
-###########################
-###########################
 name: Linting
 
-#
-# Documentation:
-# https://help.github.com/en/articles/workflow-syntax-for-github-actions
-#
-
-#############################
-# Start the job on all push #
-#############################
-on:
-  push:
-  pull_request:
-    branches: [master]
+on: # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
 
 permissions: {}
 
-###############
-# Set the Job #
-###############
 jobs:
   build:
-    # Name the Job
     name: Lint Code Base
     runs-on: ubuntu-latest
 
     permissions:
+      actions: read
       contents: read
-      packages: read
       statuses: write
 
-    ##################
-    # Load all steps #
-    ##################
     steps:
-      ##########################
-      # Checkout the code base #
-      ##########################
       - name: Checkout Code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      ################################
-      # Run Linter against code base #
-      ################################
       - name: Lint Code Base
-        uses: super-linter/super-linter@v6.8.0
+        uses: super-linter/super-linter@v8.2.1
         env:
-          VALIDATE_ALL_CODEBASE: true
-          DEFAULT_BRANCH: master
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_BIOME_FORMAT: false
+          VALIDATE_BIOME_LINT: false
           VALIDATE_JSCPD: false
+          VALIDATE_GITHUB_ACTIONS_ZIZMOR: false
           VALIDATE_PYTHON_MYPY: false
           VALIDATE_PYTHON_PYLINT: false
+          VALIDATE_PYTHON_RUFF_FORMAT: false

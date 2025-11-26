@@ -1,8 +1,8 @@
 name: HACS
 
-on:
-  push:
-  pull_request:
+on: # yamllint disable-line rule:truthy
+  push: null
+  pull_request: null
   schedule:
     - cron: 0 0 * * *
 
@@ -20,6 +20,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+
       - name: HACS validation
         uses: hacs/action@main
         with:

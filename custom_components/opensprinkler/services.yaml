@@ -120,4 +120,3 @@ reboot:
       selector:
         entity:
           device_class: controller
-
