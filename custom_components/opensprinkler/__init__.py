@@ -362,7 +362,7 @@ class OpenSprinklerControllerEntity:
                     station.index, run_seconds.get(str(station.index))
                 )
                 run_seconds_list.append(
-                    seconds
+                    int(seconds)
                     if seconds is not None
                     else (station.seconds_remaining if continue_running_stations else 0)
                 )
@@ -379,9 +379,10 @@ class OpenSprinklerControllerEntity:
 
             run_seconds_list = []
             for _, station in self._controller.stations.items():
+                seconds = run_seconds_by_index.get(station.index)
                 run_seconds_list.append(
-                    run_seconds_by_index.get(station.index)
-                    if run_seconds_by_index.get(station.index) is not None
+                    int(seconds)
+                    if seconds is not None
                     else (station.seconds_remaining if continue_running_stations else 0)
                 )
 
@@ -389,7 +390,7 @@ class OpenSprinklerControllerEntity:
             await self._coordinator.async_request_refresh()
             return
 
-        await self._controller.run_once_program(run_seconds)
+        await self._controller.run_once_program([int(s) for s in run_seconds])
         await self._coordinator.async_request_refresh()
         return
 
@@ -476,10 +477,10 @@ class OpenSprinklerStationEntity:
 
     async def run(self, run_seconds=None):
         """Run station."""
-        if run_seconds is not None and not isinstance(run_seconds, int):
-            raise Exception("Run seconds should be an integer value for station")
+        if run_seconds is not None and not isinstance(run_seconds, (int, float)):
+            raise Exception("Run seconds should be a numeric value for station")
 
-        await self._station.run(run_seconds)
+        await self._station.run(int(run_seconds) if run_seconds is not None else None)
         await self._coordinator.async_request_refresh()
 
     async def stop(self):
