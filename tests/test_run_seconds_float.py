@@ -1,7 +1,8 @@
 """Tests for run_seconds float to int conversion (Issue #294)."""
 
-import pytest
 from unittest.mock import AsyncMock
+
+import pytest
 
 
 class MockStation:
