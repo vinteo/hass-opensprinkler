@@ -1,7 +1,7 @@
 """Tests for run_seconds float to int conversion (Issue #294)."""
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock
 
 
 class MockStation:
@@ -37,6 +37,7 @@ class TestControllerRunSecondsConversion:
         """Create a mock controller entity for testing."""
         # Import here to avoid import errors during collection
         import sys
+
         sys.path.insert(0, "custom_components")
 
         from opensprinkler import OpenSprinklerControllerEntity
@@ -107,7 +108,12 @@ class TestControllerRunSecondsConversion:
 
         controller.run_once_program.assert_called_once()
         call_args = controller.run_once_program.call_args[0][0]
-        assert call_args == [0, 480, 540, 600], f"Expected [0, 480, 540, 600], got {call_args}"
+        assert call_args == [
+            0,
+            480,
+            540,
+            600,
+        ], f"Expected [0, 480, 540, 600], got {call_args}"
         assert all(isinstance(x, int) for x in call_args), "All values should be int"
 
 
@@ -127,6 +133,7 @@ class TestStationRunSecondsConversion:
     def _create_station_entity(self, station, coordinator):
         """Create a mock station entity for testing."""
         import sys
+
         sys.path.insert(0, "custom_components")
 
         from opensprinkler import OpenSprinklerStationEntity
