@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
 
       - name: Lint Code Base
-        uses: super-linter/super-linter@v8.3.2
+        uses: super-linter/super-linter@v8.4.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           VALIDATE_BIOME_FORMAT: false
@@ -35,3 +35,4 @@ jobs:
           VALIDATE_PYTHON_MYPY: false
           VALIDATE_PYTHON_PYLINT: false
           VALIDATE_PYTHON_RUFF_FORMAT: false
+          VALIDATE_SPELL_CODESPELL: false
