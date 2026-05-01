@@ -123,7 +123,7 @@
         },
         "shift_sequential_stations": {
           "name": "Shift sequential stations",
-          "description": "When stopping a station, shift remaining stations in the same sequential group forward. Optional, defaults to firmware behavior if not set."
+          "description": "When stopping a station, shift remaining stations in the same sequential group forward. Only applies when targeting station entities; ignored for controllers. Optional, defaults to firmware behavior if not set."
         }
       }
     },
