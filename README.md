@@ -68,7 +68,9 @@ Note: If using a version of Home Assistant prior to 2024.8, substitute the keywo
 action: opensprinkler.run_program
 target:
   entity_id: switch.standard_schedule_program_enabled # Any program enabled switch
-data: {}
+data:
+  use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional.
+  queue_option: append # How to queue this run. Optional. Other options: preempt, replace.
 ```
 
 #### Run Station Example
@@ -77,6 +79,7 @@ data: {}
 action: opensprinkler.run_station
 data:
   run_seconds: 600 # Number of seconds to run the station. Optional, defaults to 60 seconds.
+  queue_option: append # How to queue this run. Optional. Other option: preempt.
 target:
   entity_id: switch.front_yard_station_enabled # Any station enabled switch
 ```
@@ -148,13 +151,29 @@ data:
     "2": 30
 ```
 
+You can also control weather adjustment and queuing behavior for `run_once` and `run_program`:
+
+```yaml
+action: opensprinkler.run_once
+target:
+  entity_id: switch.opensprinkler_enabled # Controller enabled switch
+data:
+  use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional.
+  queue_option: append # How to queue this run. Optional. Other options: preempt, replace.
+  run_seconds:
+    - 60
+    - 0
+    - 30
+```
+
 ### Stop Examples
 
 #### Stop Station Example
 
 ```yaml
 action: opensprinkler.stop
-data: {}
+data:
+  shift_sequential_stations: false # Shift remaining stations in the sequential group. Optional.
 target:
   entity_id: switch.drip_station_enabled # Any station enabled switch
 ```

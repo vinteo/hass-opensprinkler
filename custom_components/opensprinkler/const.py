@@ -6,9 +6,22 @@ from homeassistant.helpers import config_validation as cv
 CONF_INDEX = "index"
 CONF_RUN_SECONDS = "run_seconds"
 CONF_CONTINUE_RUNNING_STATIONS = "continue_running_stations"
+CONF_USE_WEATHER_ADJUSTMENT = "use_weather_adjustment"
+CONF_QUEUE_OPTION = "queue_option"
+CONF_SHIFT_SEQUENTIAL_STATIONS = "shift_sequential_stations"
 CONF_WATER_LEVEL = "water_level"
 CONF_RAIN_DELAY = "rain_delay"
 CONF_PAUSE_SECONDS = "pause_duration"
+
+QUEUE_OPTION_APPEND = "append"
+QUEUE_OPTION_PREEMPT = "preempt"
+QUEUE_OPTION_REPLACE = "replace"
+
+QUEUE_OPTION_VALUES: dict[str, int] = {
+    QUEUE_OPTION_APPEND: 0,
+    QUEUE_OPTION_PREEMPT: 1,
+    QUEUE_OPTION_REPLACE: 2,
+}
 
 DOMAIN = "opensprinkler"
 
@@ -39,13 +52,27 @@ SCHEMA_SERVICE_RUN_ONCE = {
         vol.Schema({}, extra=vol.ALLOW_EXTRA),
     ),
     vol.Optional(CONF_CONTINUE_RUNNING_STATIONS): cv.boolean,
+    vol.Optional(CONF_USE_WEATHER_ADJUSTMENT): cv.boolean,
+    vol.Optional(CONF_QUEUE_OPTION): vol.In(
+        [QUEUE_OPTION_APPEND, QUEUE_OPTION_PREEMPT, QUEUE_OPTION_REPLACE]
+    ),
 }
 
-SCHEMA_SERVICE_RUN_PROGRAM = {}
+SCHEMA_SERVICE_RUN_PROGRAM = {
+    vol.Optional(CONF_USE_WEATHER_ADJUSTMENT): cv.boolean,
+    vol.Optional(CONF_QUEUE_OPTION): vol.In(
+        [QUEUE_OPTION_APPEND, QUEUE_OPTION_PREEMPT, QUEUE_OPTION_REPLACE]
+    ),
+}
 
-SCHEMA_SERVICE_RUN_STATION = {vol.Optional(CONF_RUN_SECONDS): cv.positive_int}
+SCHEMA_SERVICE_RUN_STATION = {
+    vol.Optional(CONF_RUN_SECONDS): cv.positive_int,
+    vol.Optional(CONF_QUEUE_OPTION): vol.In([QUEUE_OPTION_APPEND, QUEUE_OPTION_PREEMPT]),
+}
 
-SCHEMA_SERVICE_STOP = {}
+SCHEMA_SERVICE_STOP = {
+    vol.Optional(CONF_SHIFT_SEQUENTIAL_STATIONS): cv.boolean,
+}
 
 SCHEMA_SERVICE_SET_RAIN_DELAY = {
     vol.Required(CONF_RAIN_DELAY): vol.All(

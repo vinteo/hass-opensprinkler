@@ -32,10 +32,14 @@ from pyopensprinkler import OpenSprinklerAuthError, OpenSprinklerConnectionError
 
 from .const import (
     CONF_INDEX,
+    CONF_QUEUE_OPTION,
     CONF_RUN_SECONDS,
+    CONF_SHIFT_SEQUENTIAL_STATIONS,
+    CONF_USE_WEATHER_ADJUSTMENT,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
+    QUEUE_OPTION_VALUES,
     SCHEMA_SERVICE_PAUSE_STATIONS,
     SCHEMA_SERVICE_REBOOT,
     SCHEMA_SERVICE_RUN,
@@ -336,12 +340,26 @@ class OpenSprinklerTime(OpenSprinklerEntity):
 
 
 class OpenSprinklerControllerEntity:
-    async def run_once(self, run_seconds=None, continue_running_stations=None):
+    async def run_once(
+        self,
+        run_seconds=None,
+        continue_running_stations=None,
+        use_weather_adjustment=None,
+        queue_option=None,
+    ):
         """Run once program."""
-        await self.run(run_seconds, continue_running_stations)
+        await self.run(
+            run_seconds, continue_running_stations, use_weather_adjustment, queue_option
+        )
         return
 
-    async def run(self, run_seconds=None, continue_running_stations=None):
+    async def run(
+        self,
+        run_seconds=None,
+        continue_running_stations=None,
+        use_weather_adjustment=None,
+        queue_option=None,
+    ):
         """Run controller program."""
         if run_seconds is None or (
             not isinstance(run_seconds, list) and not isinstance(run_seconds, dict)
@@ -352,6 +370,12 @@ class OpenSprinklerControllerEntity:
 
         if continue_running_stations is None:
             continue_running_stations = False
+
+        kwargs: dict = {}
+        if use_weather_adjustment is not None:
+            kwargs["uwt"] = int(use_weather_adjustment)
+        if queue_option is not None:
+            kwargs["qo"] = QUEUE_OPTION_VALUES[queue_option]
 
         await self._controller.refresh()
 
@@ -366,7 +390,7 @@ class OpenSprinklerControllerEntity:
                     if seconds is not None
                     else (station.seconds_remaining if continue_running_stations else 0)
                 )
-            await self._controller.run_once_program(run_seconds_list)
+            await self._controller.run_once_program(run_seconds_list, **kwargs)
             await self._coordinator.async_request_refresh()
             return
 
@@ -386,15 +410,15 @@ class OpenSprinklerControllerEntity:
                     else (station.seconds_remaining if continue_running_stations else 0)
                 )
 
-            await self._controller.run_once_program(run_seconds_list)
+            await self._controller.run_once_program(run_seconds_list, **kwargs)
             await self._coordinator.async_request_refresh()
             return
 
-        await self._controller.run_once_program([int(s) for s in run_seconds])
+        await self._controller.run_once_program([int(s) for s in run_seconds], **kwargs)
         await self._coordinator.async_request_refresh()
         return
 
-    async def stop(self):
+    async def stop(self, shift_sequential_stations=None):
         """Stops all stations."""
         await self._controller.stop_all_stations()
         await self._coordinator.async_request_refresh()
@@ -435,14 +459,19 @@ class OpenSprinklerProgramEntity:
 
         return attributes
 
-    async def run_program(self):
+    async def run_program(self, use_weather_adjustment=None, queue_option=None):
         """Run program."""
-        await self.run()
+        await self.run(use_weather_adjustment, queue_option)
         return
 
-    async def run(self):
+    async def run(self, use_weather_adjustment=None, queue_option=None):
         """Runs the program."""
-        await self._program.run()
+        kwargs: dict = {}
+        if use_weather_adjustment is not None:
+            kwargs["uwt"] = int(use_weather_adjustment)
+        if queue_option is not None:
+            kwargs["qo"] = QUEUE_OPTION_VALUES[queue_option]
+        await self._program.run(**kwargs)
         await self._coordinator.async_request_refresh()
 
 
@@ -470,20 +499,29 @@ class OpenSprinklerStationEntity:
 
         return attributes
 
-    async def run_station(self, run_seconds=None):
+    async def run_station(self, run_seconds=None, queue_option=None):
         """Run station."""
-        await self.run(run_seconds)
+        await self.run(run_seconds, queue_option)
         return
 
-    async def run(self, run_seconds=None):
+    async def run(self, run_seconds=None, queue_option=None):
         """Run station."""
         if run_seconds is not None and not isinstance(run_seconds, (int, float)):
             raise Exception("Run seconds should be a numeric value for station")
 
-        await self._station.run(int(run_seconds) if run_seconds is not None else None)
+        kwargs: dict = {}
+        if queue_option is not None:
+            kwargs["qo"] = QUEUE_OPTION_VALUES[queue_option]
+
+        await self._station.run(
+            int(run_seconds) if run_seconds is not None else None, **kwargs
+        )
         await self._coordinator.async_request_refresh()
 
-    async def stop(self):
+    async def stop(self, shift_sequential_stations=None):
         """Stop station."""
-        await self._station.stop()
+        kwargs: dict = {}
+        if shift_sequential_stations is not None:
+            kwargs["ssta"] = int(shift_sequential_stations)
+        await self._station.stop(**kwargs)
         await self._coordinator.async_request_refresh()
