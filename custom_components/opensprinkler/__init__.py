@@ -417,6 +417,9 @@ class OpenSprinklerControllerEntity:
 
     async def stop(self, shift_sequential_stations=None):
         """Stops all stations."""
+        # shift_sequential_stations is not supported by the stop-all API, but the
+        # single stop service is shared between controller and station entities, so
+        # this parameter must appear in both signatures. It is intentionally ignored.
         await self._controller.stop_all_stations()
         await self._coordinator.async_request_refresh()
 

@@ -70,7 +70,7 @@ target:
   entity_id: switch.standard_schedule_program_enabled # Any program enabled switch
 data:
   use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional.
-  queue_option: append # How to queue this run. Optional. Other options: preempt, replace.
+  queue_option: replace # How to queue this run. Optional. Other options: append, preempt.
 ```
 
 #### Run Station Example
@@ -159,7 +159,7 @@ target:
   entity_id: switch.opensprinkler_enabled # Controller enabled switch
 data:
   use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional.
-  queue_option: append # How to queue this run. Optional. Other options: preempt, replace.
+  queue_option: replace # How to queue this run. Optional. Other options: append, preempt.
   run_seconds:
     - 60
     - 0
