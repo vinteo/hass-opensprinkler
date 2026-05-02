@@ -72,8 +72,8 @@
           "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to false."
         },
         "queue_option": {
-          "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others), preempt (run now and pause others), or replace (run now and cancel others). Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -87,11 +87,11 @@
         },
         "use_weather_adjustment": {
           "name": "Use weather adjustment",
-          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to false."
+          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to the program's configured setting."
         },
         "queue_option": {
-          "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others), preempt (run now and pause others), or replace (run now and cancel others). Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -108,8 +108,8 @@
           "description": "Number of seconds to run the station. Optional, defaults to 60 seconds."
         },
         "queue_option": {
-          "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front. Optional, defaults to append. Requires firmware 2.2.1(4) or later."
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others) or preempt (run now and pause others). Optional, defaults to append. Requires firmware 2.2.1(4) or later."
         }
       }
     },

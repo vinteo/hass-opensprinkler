@@ -20,7 +20,7 @@
           "mac": "MAC Addresse",
           "name": "Controller Name"
         },
-        "title": "Stellen Sie eine Verbindung zum OpenSprinkler-Controller her"
+        "title": "Stelle eine Verbindung zum OpenSprinkler-Controller her"
       },
       "reauth": {
         "data": {
@@ -34,19 +34,81 @@
   "services": {
     "run": {
       "name": "Starten",
-      "description": "Startet ein Controller Programm oder eine Station.",
+      "description": "Startet ein Programm oder eine Station.",
       "fields": {
         "entity_id": {
-          "name": "Einheit",
-          "description": "Sensor- oder Schaltereinheits-ID für Programme oder Stationen."
+          "name": "Entität",
+          "description": "Sensor- oder Schalter-Entitäts-ID für Programme oder Stationen."
         },
         "run_seconds": {
-          "name": "Sekunden laufen lassen",
+          "name": "Dauer in Sekunden",
           "description": "Anzahl der auszuführenden Sekunden (optional für Stationen, standardmäßig 60 Sekunden; erforderlich für Controller, Liste der Sekunden für jede Station oder Index- und Sekundenpaare)."
         },
         "continue_running_stations": {
           "name": "Stationen weiterlaufen lassen",
-          "description": "Lässt laufende Stationen laufen, die nicht angegeben sind (wird nur für Controller mit Index/Sekunden-Paaren verwendet, optional, Standardwert ist False)."
+          "description": "Lässt laufende Stationen laufen, die nicht aufgeführt sind (wird nur für Controller mit Index/Sekunden-Paaren verwendet, optional, Standardwert ist False)."
+        }
+      }
+    },
+    "run_once": {
+      "name": "Einmalig starten",
+      "description": "Startet einen Controller einmalig.",
+      "fields": {
+        "entity_id": {
+          "name": "Entität",
+          "description": "Schalter-Entitäts-ID des Controllers."
+        },
+        "run_seconds": {
+          "name": "Dauer in Sekunden",
+          "description": "Liste der Sekunden für jede Station (z.B. '- 60') oder Schlüssel/Wert-Paare (z.B. '0: 60'). Ein Eintrag pro Zeile. Siehe Dokumentation für Details."
+        },
+        "continue_running_stations": {
+          "name": "Stationen weiterlaufen lassen",
+          "description": "Lässt laufende Stationen laufen, die nicht aufgeführt sind (wird nur für Controller mit Index/Sekunden-Paaren verwendet, optional, Standardwert ist False)."
+        },
+        "use_weather_adjustment": {
+          "name": "Wetterdienst benutzen",
+          "description": "Wendet die aktuelle wetterbasierte Wassermengenanpassung des Controllers auf die Laufzeiten an. Optional, Standard ist false."
+        },
+        "queue_option": {
+          "name": "Startreihenfolge",
+          "description": "Legt fest, wie dieser Lauf eingeplant wird: append (Nach anderen ausführen), preempt (Jetzt ausführen und andere pausieren) oder replace (Jetzt ausführen und andere abbrechen). Optional, Standard ist replace. Erfordert Firmware 2.2.1(4) oder höher."
+        }
+      }
+    },
+    "run_program": {
+      "name": "Programm starten",
+      "description": "Startet ein Programm.",
+      "fields": {
+        "entity_id": {
+          "name": "Entität",
+          "description": "Schalter-Entitäts-ID eines Programms."
+        },
+        "use_weather_adjustment": {
+          "name": "Wetterdienst benutzen",
+          "description": "Wendet die aktuelle wetterbasierte Wassermengenanpassung des Controllers auf die Laufzeiten an. Optional, verwendet die gespeicherte Einstellung des Programms."
+        },
+        "queue_option": {
+          "name": "Startreihenfolge",
+          "description": "Legt fest, wie dieser Lauf eingeplant wird: append (Nach anderen ausführen), preempt (Jetzt ausführen und andere pausieren) oder replace (Jetzt ausführen und andere abbrechen). Optional, Standard ist replace. Erfordert Firmware 2.2.1(4) oder höher."
+        }
+      }
+    },
+    "run_station": {
+      "name": "Station starten",
+      "description": "Startet eine Station für die angegebene Anzahl von Sekunden.",
+      "fields": {
+        "entity_id": {
+          "name": "Entität",
+          "description": "Schalter-Entitäts-ID einer Station."
+        },
+        "run_seconds": {
+          "name": "Dauer in Sekunden",
+          "description": "Anzahl der Sekunden für den Betrieb der Station. Optional, Standard ist 60 Sekunden."
+        },
+        "queue_option": {
+          "name": "Startreihenfolge",
+          "description": "Legt fest, wie dieser Lauf eingeplant wird: append (Nach anderen ausführen) oder preempt (Jetzt ausführen und andere pausieren). Optional, Standard ist append. Erfordert Firmware 2.2.1(4) oder höher."
         }
       }
     },
@@ -55,8 +117,12 @@
       "description": "Stoppt eine Station oder alle Stationen (für Controller).",
       "fields": {
         "entity_id": {
-          "name": "Einheit",
-          "description": "Sensor- oder Schaltereinheits-ID für Programme oder Stationen."
+          "name": "Entität",
+          "description": "Sensor- oder Schalter-Entitäts-ID für Programme oder Stationen."
+        },
+        "shift_sequential_stations": {
+          "name": "Sequentielle Stationen verschieben",
+          "description": "Beim Stoppen einer Station werden die verbleibenden Stationen in derselben sequentiellen Gruppe nach vorne verschoben. Gilt nur für Stationsentitäten; wird für Controller ignoriert. Optional, Standard ist false."
         }
       }
     },
@@ -65,8 +131,8 @@
       "description": "Setze Bewässerungsniveau in Prozent.",
       "fields": {
         "entity_id": {
-          "name": "Einheit",
-          "description": "Die zu ändernde Wasserstandseinheit."
+          "name": "Entität",
+          "description": "Die zu ändernde Wasserstand-Entität."
         },
         "water_level": {
           "name": "Bewässerungsniveau",
@@ -79,8 +145,8 @@
       "description": "Controller neustarten.",
       "fields": {
         "entity_id": {
-          "name": "Einheit",
-          "description": "Entitäts-ID für Controller wechseln."
+          "name": "Entität",
+          "description": "Schalter-Entitäts-ID des Controllers."
         }
       }
     }

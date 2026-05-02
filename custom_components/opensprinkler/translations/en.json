@@ -66,6 +66,14 @@
         "continue_running_stations": {
           "name": "Continue running stations",
           "description": "Keeps running stations that are not specified (only used for controllers with index/seconds pairs, optional, defaults to False)."
+        },
+        "use_weather_adjustment": {
+          "name": "Use weather adjustment",
+          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to false."
+        },
+        "queue_option": {
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others), preempt (run now and pause others), or replace (run now and cancel others). Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -76,6 +84,14 @@
         "entity_id": {
           "name": "Entity",
           "description": "Switch entity id of a program."
+        },
+        "use_weather_adjustment": {
+          "name": "Use weather adjustment",
+          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to the program's configured setting."
+        },
+        "queue_option": {
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others), preempt (run now and pause others), or replace (run now and cancel others). Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -90,6 +106,10 @@
         "run_seconds": {
           "name": "Run seconds",
           "description": "Number of seconds to run the station. Optional, defaults to 60 seconds."
+        },
+        "queue_option": {
+          "name": "Scheduling option",
+          "description": "How to schedule this run: append (run after others) or preempt (run now and pause others). Optional, defaults to append. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -100,6 +120,10 @@
         "entity_id": {
           "name": "Entity",
           "description": "Sensor or switch entity id for stations or controller."
+        },
+        "shift_sequential_stations": {
+          "name": "Shift sequential stations",
+          "description": "When stopping a station, shift remaining stations in the same sequential group forward. Only applies when targeting station entities; ignored for controllers. Optional, defaults to false."
         }
       }
     },

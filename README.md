@@ -69,7 +69,7 @@ action: opensprinkler.run_program
 target:
   entity_id: switch.standard_schedule_program_enabled # Any program enabled switch
 data:
-  use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional.
+  use_weather_adjustment: false # Apply weather-based adjustment to run durations. Optional, defaults to the program's configured setting.
   queue_option: replace # How to queue this run. Optional. Other options: append, preempt.
 ```
 
