@@ -1,6 +1,6 @@
 """Tests for uwt, qo, and ssta parameter support."""
 
-from unittest.mock import AsyncMock, call
+from unittest.mock import AsyncMock
 
 import pytest
 
@@ -140,9 +140,7 @@ class TestRunOnceQueueOption:
             use_weather_adjustment=True,
             queue_option="preempt",
         )
-        controller.run_once_program.assert_called_once_with(
-            [60, 0, 30], uwt=1, qo=1
-        )
+        controller.run_once_program.assert_called_once_with([60, 0, 30], uwt=1, qo=1)
 
 
 class TestRunProgramParams:

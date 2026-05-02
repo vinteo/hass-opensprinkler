@@ -69,11 +69,11 @@
         },
         "use_weather_adjustment": {
           "name": "Use weather adjustment",
-          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to firmware behavior if not set."
+          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to false."
         },
         "queue_option": {
           "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to firmware behavior if not set. Requires firmware 2.2.1(4) or later."
+          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -87,11 +87,11 @@
         },
         "use_weather_adjustment": {
           "name": "Use weather adjustment",
-          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to firmware behavior if not set."
+          "description": "Apply the controller's current weather-based water level adjustment to run durations. Optional, defaults to false."
         },
         "queue_option": {
           "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to firmware behavior if not set. Requires firmware 2.2.1(4) or later."
+          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front, replace clears the queue first. Optional, defaults to replace. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -109,7 +109,7 @@
         },
         "queue_option": {
           "name": "Queue option",
-          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front. Optional, defaults to firmware behavior if not set. Requires firmware 2.2.1(4) or later."
+          "description": "How to place this run in the queue: append adds to the end, preempt inserts at the front. Optional, defaults to append. Requires firmware 2.2.1(4) or later."
         }
       }
     },
@@ -123,7 +123,7 @@
         },
         "shift_sequential_stations": {
           "name": "Shift sequential stations",
-          "description": "When stopping a station, shift remaining stations in the same sequential group forward. Only applies when targeting station entities; ignored for controllers. Optional, defaults to firmware behavior if not set."
+          "description": "When stopping a station, shift remaining stations in the same sequential group forward. Only applies when targeting station entities; ignored for controllers. Optional, defaults to false."
         }
       }
     },

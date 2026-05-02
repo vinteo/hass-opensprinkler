@@ -32,10 +32,7 @@ from pyopensprinkler import OpenSprinklerAuthError, OpenSprinklerConnectionError
 
 from .const import (
     CONF_INDEX,
-    CONF_QUEUE_OPTION,
     CONF_RUN_SECONDS,
-    CONF_SHIFT_SEQUENTIAL_STATIONS,
-    CONF_USE_WEATHER_ADJUSTMENT,
     DEFAULT_NAME,
     DEFAULT_SCAN_INTERVAL,
     DOMAIN,
