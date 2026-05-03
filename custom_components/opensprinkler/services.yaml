@@ -34,6 +34,18 @@ run_once:
       example: False
       selector:
         boolean:
+    use_weather_adjustment:
+      example: False
+      selector:
+        boolean:
+    queue_option:
+      example: append
+      selector:
+        select:
+          options:
+            - append
+            - preempt
+            - replace
 
 run_program:
   fields:
@@ -41,6 +53,18 @@ run_program:
       selector:
         entity:
           device_class: program
+    use_weather_adjustment:
+      example: False
+      selector:
+        boolean:
+    queue_option:
+      example: append
+      selector:
+        select:
+          options:
+            - append
+            - preempt
+            - replace
 
 run_station:
   fields:
@@ -56,6 +80,13 @@ run_station:
           max: 64800
           mode: slider
           unit_of_measurement: "s"
+    queue_option:
+      example: append
+      selector:
+        select:
+          options:
+            - append
+            - preempt
 
 stop:
   fields:
@@ -65,6 +96,10 @@ stop:
           device_class:
             - controller
             - station
+    shift_sequential_stations:
+      example: False
+      selector:
+        boolean:
 
 set_water_level:
   fields:

@@ -66,6 +66,14 @@
         "continue_running_stations": {
           "name": "Continuar a executar estações",
           "description": "Mantém a execução das estações que não foram especificadas (usado apenas para controladores com pares de índice/segundos, opcional, padrão: Falso)."
+        },
+        "use_weather_adjustment": {
+          "name": "Utilizar ajuste à meteorologia",
+          "description": "Aplica o ajuste de nível de água baseado no clima do controlador às durações de execução. Opcional, padrão: falso."
+        },
+        "queue_option": {
+          "name": "Ordem de execução",
+          "description": "Como agendar esta execução: append (Executar após os outros), preempt (Executar agora e pausar os outros) ou replace (Executar agora e cancelar os outros). Opcional, padrão: replace. Requer firmware 2.2.1(4) ou posterior."
         }
       }
     },
@@ -76,6 +84,14 @@
         "entity_id": {
           "name": "Entidade",
           "description": "ID da entidade do interruptor de um programa."
+        },
+        "use_weather_adjustment": {
+          "name": "Utilizar ajuste à meteorologia",
+          "description": "Aplica o ajuste de nível de água baseado no clima do controlador às durações de execução. Opcional, utiliza a configuração guardada do programa."
+        },
+        "queue_option": {
+          "name": "Ordem de execução",
+          "description": "Como agendar esta execução: append (Executar após os outros), preempt (Executar agora e pausar os outros) ou replace (Executar agora e cancelar os outros). Opcional, padrão: replace. Requer firmware 2.2.1(4) ou posterior."
         }
       }
     },
@@ -90,6 +106,10 @@
         "run_seconds": {
           "name": "Segundos de execução",
           "description": "Número de segundos para executar a estação. Opcional, padrão de 60 segundos."
+        },
+        "queue_option": {
+          "name": "Ordem de execução",
+          "description": "Como agendar esta execução: append (Executar após os outros) ou preempt (Executar agora e pausar os outros). Opcional, padrão: append. Requer firmware 2.2.1(4) ou posterior."
         }
       }
     },
@@ -100,6 +120,10 @@
         "entity_id": {
           "name": "Entidade",
           "description": "ID da entidade do sensor ou interruptor para estações ou controlador."
+        },
+        "shift_sequential_stations": {
+          "name": "Avançar estações sequenciais",
+          "description": "Ao parar uma estação, avança as estações restantes no mesmo grupo sequencial. Aplica-se apenas a entidades de estação; ignorado para controladores. Opcional, padrão: falso."
         }
       }
     },
