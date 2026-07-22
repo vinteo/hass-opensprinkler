@@ -61,6 +61,70 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = ["binary_sensor", "number", "select", "sensor", "switch", "text", "time"]
 TIMEOUT = 10
+MAX_CONSECUTIVE_UPDATE_FAILURES = 3
+
+
+class OpenSprinklerDataUpdater:
+    """Fetch OpenSprinkler data while tolerating brief communication failures."""
+
+    def __init__(self, controller: OpenSprinkler) -> None:
+        """Initialize the data updater."""
+        self._controller = controller
+        self._consecutive_update_failures = 0
+
+    def _can_reuse_previous_state(self, error: Exception) -> bool:
+        """Return whether cached state can be used after a transient failure."""
+        if not self._controller._state:
+            return False
+
+        self._consecutive_update_failures += 1
+
+        if self._consecutive_update_failures >= MAX_CONSECUTIVE_UPDATE_FAILURES:
+            return False
+
+        reason = str(error) or type(error).__name__
+        _LOGGER.debug(
+            "Using previous OpenSprinkler state after transient update failure "
+            "(%d/%d): %s",
+            self._consecutive_update_failures,
+            MAX_CONSECUTIVE_UPDATE_FAILURES,
+            reason,
+        )
+        return True
+
+    async def async_update_data(self):
+        """Fetch data from OpenSprinkler."""
+        _LOGGER.debug("refreshing data")
+
+        try:
+            async with async_timeout.timeout(TIMEOUT):
+                await self._controller.refresh()
+        except OpenSprinklerAuthError as e:
+            # Wrong password, tell the user to re-enter it immediately.
+            _LOGGER.debug(f"auth failure: {e}")
+            raise ConfigEntryAuthFailed from e
+        except InvalidURL as e:
+            raise UpdateFailed from e
+        except OpenSprinklerConnectionError as e:
+            if self._can_reuse_previous_state(e):
+                return self._controller._state
+            raise UpdateFailed from e
+        except asyncio.TimeoutError as e:
+            if self._can_reuse_previous_state(e):
+                return self._controller._state
+            raise
+
+        if not self._controller._state:
+            raise UpdateFailed("Error fetching OpenSprinkler state")
+
+        if self._consecutive_update_failures:
+            _LOGGER.debug(
+                "OpenSprinkler update recovered after %d transient failure(s)",
+                self._consecutive_update_failures,
+            )
+            self._consecutive_update_failures = 0
+
+        return self._controller._state
 
 
 def async_get_entities(hass: HomeAssistant):
@@ -82,34 +146,14 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry):
 
     controller = OpenSprinkler(url, password, opts)
     controller.refresh_on_update = False
-
-    async def async_update_data():
-        """Fetch data from OpenSprinkler."""
-        _LOGGER.debug("refreshing data")
-        async with async_timeout.timeout(TIMEOUT):
-            try:
-                await controller.refresh()
-            except OpenSprinklerAuthError as e:
-                # wrong password, tell user to re-enter the password
-                _LOGGER.debug(f"auth failure: {e}")
-                raise ConfigEntryAuthFailed from e
-            except (
-                InvalidURL,
-                OpenSprinklerConnectionError,
-            ) as e:
-                raise UpdateFailed from e
-
-            if not controller._state:
-                raise UpdateFailed("Error fetching OpenSprinkler state")
-
-            return controller._state
+    updater = OpenSprinklerDataUpdater(controller)
 
     scan_interval = entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
         name=f"{entry.data.get(CONF_NAME, DEFAULT_NAME)} resource status",
-        update_method=async_update_data,
+        update_method=updater.async_update_data,
         update_interval=timedelta(seconds=scan_interval),
     )
 
