@@ -67,7 +67,7 @@ PLATFORMS = [
     "sensor",
     "switch",
     "text",
-    "time"
+    "time",
 ]
 TIMEOUT = 10
 MAX_CONSECUTIVE_UPDATE_FAILURES = 3
