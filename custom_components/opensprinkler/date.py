@@ -9,7 +9,7 @@ from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.util import slugify
 
-from . import OpenSprinklerProgramEntity, OpenSprinklerDate
+from . import OpenSprinklerDate, OpenSprinklerProgramEntity
 from .const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)

@@ -119,7 +119,7 @@ class ControllerOperationSwitch(
 
         return attributes
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._controller.enabled)
 
@@ -170,7 +170,7 @@ class ProgramEnabledSwitch(
 
         return "mdi:calendar-remove"
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._program.enabled)
 
@@ -323,7 +323,7 @@ class ProgramEnableDateRange(
         """Return icon."""
         return "mdi:calendar-range"
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._program.date_range_enabled)
 
