@@ -149,7 +149,7 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
     @property
     def options(self) -> list[str]:
         """A list of available options as strings"""
-        return ["Weekly", "Interval"]
+        return ["Weekly", "Single-run", "Monthly", "Interval"]
 
     @property
     def current_option(self) -> str:
@@ -157,6 +157,10 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
         match self._program.program_schedule_type:
             case 0:
                 return "Weekly"
+            case 1:
+                return "Single-run"
+            case 2:
+                return "Monthly"
             case 3:
                 return "Interval"
 
@@ -165,6 +169,10 @@ class ProgramTypeSelect(OpenSprinklerProgramEntity, OpenSprinklerSelect, SelectE
         match option:
             case "Weekly":
                 value = 0
+            case "Single-run":
+                value = 1
+            case "Monthly":
+                value = 2
             case "Interval":
                 value = 3
         await self._program.set_program_schedule_type(value)
