@@ -1,9 +1,7 @@
 """Component providing support for OpenSprinkler date entities."""
 
-import datetime
 import logging
 from datetime import date, timedelta
-from math import trunc
 from typing import Callable
 
 from homeassistant.components.date import DateEntity
@@ -42,7 +40,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     return entities
 
 
-class ProgramSingleRunStartDate(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEntity):
+class ProgramSingleRunStartDate(
+    OpenSprinklerProgramEntity, OpenSprinklerDate, DateEntity
+):
     """Represent date for the start date of a Single-run program."""
 
     def __init__(self, entry, name, program, coordinator):
@@ -64,7 +64,9 @@ class ProgramSingleRunStartDate(OpenSprinklerProgramEntity, OpenSprinklerDate, D
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(f"{self._entry.unique_id}_{self._entity_type}_single_run_start_date_{self._program.index}")
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_single_run_start_date_{self._program.index}"
+        )
 
     @property
     def icon(self) -> str:
@@ -75,10 +77,10 @@ class ProgramSingleRunStartDate(OpenSprinklerProgramEntity, OpenSprinklerDate, D
     def native_value(self) -> date:
         """The value of the date."""
         epoch_start = date(1970, 1, 1)
-        if self._program.program_schedule_type == 1: # Single-run program
-          return epoch_start + timedelta(days=self._program.single_run_day)
+        if self._program.program_schedule_type == 1:  # Single-run program
+            return epoch_start + timedelta(days=self._program.single_run_day)
         else:
-          return epoch_start
+            return epoch_start
 
     async def async_set_value(self, value: date) -> None:
         """Update the current value."""
@@ -86,6 +88,7 @@ class ProgramSingleRunStartDate(OpenSprinklerProgramEntity, OpenSprinklerDate, D
         days_since_epoch = (value - epoch_start).days
         await self._program.set_single_run_day(days_since_epoch)
         await self._coordinator.async_request_refresh()
+
 
 class ProgramDateRangeFrom(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEntity):
     """Represent date for the date range start date of a program."""
@@ -109,7 +112,9 @@ class ProgramDateRangeFrom(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEn
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(f"{self._entry.unique_id}_{self._entity_type}_date_range_from_date_{self._program.index}")
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_date_range_from_date_{self._program.index}"
+        )
 
     @property
     def icon(self) -> str:
@@ -126,6 +131,7 @@ class ProgramDateRangeFrom(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEn
         """Update the current value."""
         await self._program.set_date_range_from(value.month, value.day)
         await self._coordinator.async_request_refresh()
+
 
 class ProgramDateRangeTo(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEntity):
     """Represent date for the date range end date of a program."""
@@ -149,7 +155,9 @@ class ProgramDateRangeTo(OpenSprinklerProgramEntity, OpenSprinklerDate, DateEnti
     @property
     def unique_id(self) -> str:
         """Return a unique, Home Assistant friendly identifier for this entity."""
-        return slugify(f"{self._entry.unique_id}_{self._entity_type}_date_range_to_date_{self._program.index}")
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_date_range_to_date_{self._program.index}"
+        )
 
     @property
     def icon(self) -> str:

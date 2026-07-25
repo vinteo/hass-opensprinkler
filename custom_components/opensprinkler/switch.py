@@ -289,6 +289,7 @@ class ProgramUseWeatherSwitch(
         await self._program.set_use_weather_adjustments(0)
         await self._coordinator.async_request_refresh()
 
+
 class ProgramEnableDateRange(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
