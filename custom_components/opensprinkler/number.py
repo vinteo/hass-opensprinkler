@@ -40,6 +40,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     for _, program in controller.programs.items():
         entities.append(ProgramIntervalDaysNumber(entry, name, program, coordinator))
         entities.append(ProgramStartingInDaysNumber(entry, name, program, coordinator))
+        entities.append(ProgramDayofMonthNumber(entry, name, program, coordinator))
         entities.append(
             ProgramStartTimeRepeatCountNumber(entry, name, program, coordinator)
         )
@@ -131,7 +132,7 @@ class ProgramDurationNumber(
 class ProgramIntervalDaysNumber(
     OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
 ):
-    """Represent a number for Interval Days of a program."""
+    """Represent a number for Interval Days of an Interval-day program."""
 
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program number for Interval Days."""
@@ -205,7 +206,7 @@ class ProgramIntervalDaysNumber(
 class ProgramStartingInDaysNumber(
     OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
 ):
-    """Represent a number for Starting In Days of a program."""
+    """Represent a number for Starting In Days of an Interval-day program."""
 
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program number for Starting In Days."""
@@ -273,6 +274,80 @@ class ProgramStartingInDaysNumber(
     async def async_set_native_value(self, value: float) -> None:
         """Update the current value."""
         await self._program.set_starting_in_days(round(value))
+        await self._coordinator.async_request_refresh()
+
+
+class ProgramDayofMonthNumber(
+    OpenSprinklerProgramEntity, OpenSprinklerNumber, NumberEntity
+):
+    """Represent a number for Day of Month of a Monthly program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program number for Day of Month."""
+        self._program = program
+        self._entity_type = "number"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return NumberDeviceClass.DURATION
+
+    @property
+    def name(self) -> str:
+        """Return the name of this number."""
+        return f"{self._program.name} Day of Month"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_day_of_month_{self._program.index}"
+        )
+
+    @property
+    def native_unit_of_measurement(self) -> str:
+        """The unit of measurement that the sensor's value is expressed in."""
+        return "d"
+
+    @property
+    def mode(self) -> str:
+        """Defines how the number should be displayed in the UI."""
+        return "auto"
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:calendar-start"
+
+    @property
+    def native_max_value(self) -> float:
+        """The maximum accepted value in the number's native_unit_of_measurement."""
+        return 31.0
+
+    @property
+    def native_min_value(self) -> float:
+        """The minimum accepted value in the number's native_unit_of_measurement."""
+        return 0.0
+
+    @property
+    def native_step(self) -> float:
+        """Defines the resolution of the values, i.e. the smallest increment or decrement in the number's"""
+        return 1.0
+
+    @property
+    def native_value(self) -> float:
+        """The value of the number in the number's native_unit_of_measurement."""
+        return self._program.monthly_day
+
+    async def async_set_native_value(self, value: float) -> None:
+        """Update the current value."""
+        await self._program.set_monthly_day(round(value))
         await self._coordinator.async_request_refresh()
 
 

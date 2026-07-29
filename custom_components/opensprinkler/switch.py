@@ -36,8 +36,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
     for _, program in controller.programs.items():
         entities.append(ProgramEnabledSwitch(entry, name, program, coordinator))
-
-    for _, program in controller.programs.items():
+        entities.append(ProgramUseWeatherSwitch(entry, name, program, coordinator))
+        entities.append(ProgramEnableDateRange(entry, name, program, coordinator))
         for weekday in [
             "Monday",
             "Tuesday",
@@ -51,9 +51,6 @@ def _create_entities(hass: HomeAssistant, entry: dict):
                 ProgramWeekdaySwitch(entry, name, program, weekday, coordinator)
             )
 
-    for _, program in controller.programs.items():
-        entities.append(ProgramUseWeatherSwitch(entry, name, program, coordinator))
-
     for _, station in controller.stations.items():
         entities.append(StationEnabledSwitch(entry, name, station, coordinator))
 
@@ -63,6 +60,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class ControllerOperationSwitch(
     OpenSprinklerControllerEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
+    """Represent a switch for enabling the controller."""
+
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new OpenSprinkler controller switch."""
         self._controller = controller
@@ -120,7 +119,7 @@ class ControllerOperationSwitch(
 
         return attributes
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._controller.enabled)
 
@@ -138,6 +137,8 @@ class ControllerOperationSwitch(
 class ProgramEnabledSwitch(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
+    """Represent a switch for enabling a program."""
+
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program switch."""
         self._program = program
@@ -169,7 +170,7 @@ class ProgramEnabledSwitch(
 
         return "mdi:calendar-remove"
 
-    def _get_state(self) -> str:
+    def _get_state(self) -> bool:
         """Retrieve latest state."""
         return bool(self._program.enabled)
 
@@ -187,6 +188,8 @@ class ProgramEnabledSwitch(
 class ProgramWeekdaySwitch(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
+    """Represent a switch for days of the week of a Weekly program."""
+
     def __init__(self, entry, name, program, weekday, coordinator):
         """Set up a new OpenSprinkler program weekday switch."""
         self._program = program
@@ -239,6 +242,8 @@ class ProgramWeekdaySwitch(
 class ProgramUseWeatherSwitch(
     OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
+    """Represent a switch for using weather data for a program."""
+
     def __init__(self, entry, name, program, coordinator):
         """Set up a new OpenSprinkler program use weather switch."""
         self._program = program
@@ -285,9 +290,59 @@ class ProgramUseWeatherSwitch(
         await self._coordinator.async_request_refresh()
 
 
+class ProgramEnableDateRange(
+    OpenSprinklerProgramEntity, OpenSprinklerBinarySensor, SwitchEntity
+):
+    """Represent a switch for restricting to a date range for a program."""
+
+    def __init__(self, entry, name, program, coordinator):
+        """Set up a new OpenSprinkler program enable date range switch."""
+        self._program = program
+        self._entity_type = "switch"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.CONFIG
+
+    @property
+    def name(self):
+        """Return the name of the switch."""
+        return self._program.name + " Enable Date Range"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(
+            f"{self._entry.unique_id}_{self._entity_type}_enable_date_range_{self._program.index}"
+        )
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:calendar-range"
+
+    def _get_state(self) -> bool:
+        """Retrieve latest state."""
+        return bool(self._program.date_range_enabled)
+
+    async def async_turn_on(self, **kwargs):
+        """Enable the program."""
+        await self._program.set_date_range_flag(1)
+        await self._coordinator.async_request_refresh()
+
+    async def async_turn_off(self, **kwargs):
+        """Disable the program."""
+        await self._program.set_date_range_flag(0)
+        await self._coordinator.async_request_refresh()
+
+
 class StationEnabledSwitch(
     OpenSprinklerStationEntity, OpenSprinklerBinarySensor, SwitchEntity
 ):
+    """Represent a switch for enabling a station."""
+
     def __init__(self, entry, name, station, coordinator):
         """Set up a new OpenSprinkler station switch."""
         self._station = station

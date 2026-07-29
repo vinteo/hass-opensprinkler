@@ -59,7 +59,16 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-PLATFORMS = ["binary_sensor", "number", "select", "sensor", "switch", "text", "time"]
+PLATFORMS = [
+    "binary_sensor",
+    "date",
+    "number",
+    "select",
+    "sensor",
+    "switch",
+    "text",
+    "time",
+]
 TIMEOUT = 10
 MAX_CONSECUTIVE_UPDATE_FAILURES = 3
 
@@ -353,6 +362,10 @@ class OpenSprinklerBinarySensor(OpenSprinklerEntity):
     def is_on(self):
         """Return true if the binary sensor is on."""
         return self._get_state()
+
+
+class OpenSprinklerDate(OpenSprinklerEntity):
+    """Define a generic OpenSprinkler date."""
 
 
 class OpenSprinklerSensor(OpenSprinklerEntity):
