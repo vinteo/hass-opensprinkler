@@ -1,8 +1,10 @@
 """OpenSprinkler integration."""
 
 import logging
+from datetime import datetime
 from typing import Callable
 
+import homeassistant.util.dt as dt_util
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import CONF_NAME, EntityCategory
 from homeassistant.core import HomeAssistant
@@ -38,6 +40,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     name = entry.data[CONF_NAME]
 
     entities.append(LastRunSensor(entry, name, controller, coordinator))
+    entities.append(NextRunSensor(entry, name, controller, coordinator))
     entities.append(RainDelayStopTimeSensor(entry, name, controller, coordinator))
     entities.append(WaterLevelSensor(entry, name, controller, coordinator))
     entities.append(FlowRateSensor(entry, name, controller, coordinator))
@@ -162,7 +165,7 @@ class FlowRateSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity)
 
 
 class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
-    """Represent a sensor that for last run time."""
+    """Represent a sensor for last run time."""
 
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler last run sensor."""
@@ -221,10 +224,75 @@ class LastRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
         return utc_from_timestamp(last_run).isoformat()
 
 
+class NextRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
+    """Represent a sensor for next run time."""
+
+    def __init__(self, entry, name, controller, coordinator):
+        """Set up a new opensprinkler last run sensor."""
+        self._controller = controller
+        self._entity_type = "sensor"
+        super().__init__(entry, name, coordinator)
+
+    @property
+    def entity_category(self):
+        """Return the entity category."""
+        return EntityCategory.DIAGNOSTIC
+
+    @property
+    def device_class(self):
+        """Return the device class."""
+        return SensorDeviceClass.TIMESTAMP
+
+    @property
+    def icon(self) -> str:
+        """Return icon."""
+        return "mdi:update"
+
+    @property
+    def name(self) -> str:
+        """Return the name of this sensor including the controller name."""
+        return f"{self._name} Next Run"
+
+    @property
+    def unique_id(self) -> str:
+        """Return a unique, Home Assistant friendly identifier for this entity."""
+        return slugify(f"{self._entry.unique_id}_{self._entity_type}_next_run")
+
+    @property
+    def extra_state_attributes(self):
+        """Return next run details from Calendar entity attributes."""
+        try:
+            state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
+            attributes = {
+                "next_run_station_name": state_obj.attributes.get("message"),
+                "next_run_program_name": state_obj.attributes.get("description"),
+                "next_run_duration_min": state_obj.attributes.get("location"),
+            }
+        except Exception as e:
+            print(f"An application error occurred: {e}")
+            attributes = {}
+
+        return attributes
+
+    def _get_state(self):
+        """Retrieve latest state from Calendar entity attribute."""
+        try:
+            state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
+            date_str = state_obj.attributes.get("start_time")
+            fmt = "%Y-%m-%d %H:%M:%S"
+            naive_dt = datetime.strptime(date_str, fmt)
+            next_run = dt_util.as_local(naive_dt)
+        except Exception as e:
+            print(f"An application error occurred: {e}")
+            next_run = None
+
+        return next_run
+
+
 class RainDelayStopTimeSensor(
     OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity
 ):
-    """Represent a sensor that for rain delay stop time."""
+    """Represent a sensor for rain delay stop time."""
 
     def __init__(self, entry, name, controller, coordinator):
         """Set up a new opensprinkler rain delay stop time sensor."""

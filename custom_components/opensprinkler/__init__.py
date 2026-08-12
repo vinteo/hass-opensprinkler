@@ -61,6 +61,7 @@ _LOGGER = logging.getLogger(__name__)
 
 PLATFORMS = [
     "binary_sensor",
+    "calendar",
     "date",
     "number",
     "select",

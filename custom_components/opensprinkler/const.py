@@ -108,3 +108,6 @@ START_TIME_DISABLED = "disabled"
 START_TIME_MIDNIGHT = "midnight"
 START_TIME_SUNRISE = "sunrise"
 START_TIME_SUNSET = "sunset"
+
+START_TIME_TYPE_FIXED = "fixed_time"
+START_TIME_TYPE_REPEATING = "repeating"
