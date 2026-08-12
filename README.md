@@ -8,20 +8,25 @@
 [![CodeQL](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/vinteo/hass-opensprinkler/actions/workflows/codeql-analysis.yml)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=vinteo_hass-opensprinkler&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=vinteo_hass-opensprinkler)
 
-Last tested on OS API `2.2.0` and Home Assistant `2024.2.0`
+Last tested on OS API `2.2.1 (4)` and Home Assistant `2026.7.4`
 
 ## Features
 
 - Binary sensors for station and programs to show running state
 - Sensors for each station to show status
-- Sensors for water level, last runtime and rain delay stop time
+- Sensors for water level, next runtime, last runtime and rain delay stop time
+- Entities to edit programs and adjust station run times
 - Switches for each program and station to enable/disable program or station
 - Switch to enable/disable OpenSprinkler controller operation
 - Actions to run and stop stations
 - Action to run programs
-- Actions to pause, set a rain delay, and set the water level.
+- Actions to pause, set a rain delay, and set the water level
+- Calendar entity to preview upcoming runs of programs and stations
 
 To have a Lovelace card for the UI, [opensprinkler-card](https://github.com/rianadon/opensprinkler-card) can be used.
+
+To view upcoming programs much like the `Program Preview` feature of OpenSprinkler,
+see the [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card).
 
 ## Installation
 
@@ -264,3 +269,23 @@ input_number:
     max: 10
     step: 1
 ```
+
+## Using the Calendar Entity
+
+The Calendar entity will be automatically recognized by Home Assistant and will be added to the native Calendar available
+in the sidebar. Various calendar cards are available and can be added to any dashboard.
+
+Each calendar entry contains:
+
+- Program name
+- Station name
+- Predicted start and end times
+- Duration
+
+Today's view will use the Weather Adjustment, if enabled.
+
+An alternate view of the data similar to OpenSprinkler's Program Preview is available via the
+[OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card). It shows
+upcoming runs in a bar-chart format.
+
+![OpenSprinkler Preview Card](/img/LightPreview.png)
