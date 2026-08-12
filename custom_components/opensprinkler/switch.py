@@ -102,6 +102,7 @@ class ControllerOperationSwitch(
             "firmware_minor_version",
             "last_reboot_cause",
             "last_reboot_cause_name",
+            "station_delay",
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)
