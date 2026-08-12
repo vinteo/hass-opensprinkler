@@ -542,6 +542,7 @@ class OpenSprinklerStationEntity:
             "index",
             "is_master",
             "running_program_id",
+            "group",
         ]:
             try:
                 attributes[attr] = getattr(self._station, attr)
