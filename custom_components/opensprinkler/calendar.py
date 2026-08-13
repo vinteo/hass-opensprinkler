@@ -228,7 +228,9 @@ class OpenSprinklerCalendar(CalendarEntity):
 
                         # Adjust for weather factor only on current day.
                         duration = station["duration"]
-                        if current_day == dt_util.start_of_local_day(dt_util.now()):
+                        if program[
+                            "use_weather"
+                        ] and current_day == dt_util.start_of_local_day(dt_util.now()):
                             duration *= self._controller.water_level / 100
                         end_time = start_time + timedelta(minutes=duration)
 
