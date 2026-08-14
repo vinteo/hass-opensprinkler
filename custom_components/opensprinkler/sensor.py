@@ -261,32 +261,33 @@ class NextRunSensor(OpenSprinklerControllerEntity, OpenSprinklerSensor, Entity):
     @property
     def extra_state_attributes(self):
         """Return next run details from Calendar entity attributes."""
-        try:
-            state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
-            attributes = {
-                "next_run_station_name": state_obj.attributes.get("message"),
-                "next_run_program_name": state_obj.attributes.get("description"),
-                "next_run_duration_min": state_obj.attributes.get("location"),
-            }
-        except Exception as e:
-            print(f"An application error occurred: {e}")
-            attributes = {}
+        state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
 
-        return attributes
+        if state_obj is None:
+            return {}
+
+        return {
+            "next_run_station_name": state_obj.attributes.get("message"),
+            "next_run_program_name": state_obj.attributes.get("description"),
+            "next_run_duration_min": state_obj.attributes.get("location"),
+        }
 
     def _get_state(self):
         """Retrieve latest state from Calendar entity attribute."""
-        try:
-            state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
-            date_str = state_obj.attributes.get("start_time")
-            fmt = "%Y-%m-%d %H:%M:%S"
-            naive_dt = datetime.strptime(date_str, fmt)
-            next_run = dt_util.as_local(naive_dt)
-        except Exception as e:
-            print(f"An application error occurred: {e}")
-            next_run = None
+        state_obj = self.hass.states.get("calendar.opensprinkler_schedule")
 
-        return next_run
+        if state_obj is None:
+            return None
+
+        date_str = state_obj.attributes.get("start_time")
+
+        if not date_str:
+            return None
+
+        fmt = "%Y-%m-%d %H:%M:%S"
+        naive_dt = datetime.strptime(date_str, fmt)
+
+        return dt_util.as_local(naive_dt)
 
 
 class RainDelayStopTimeSensor(
