@@ -144,9 +144,9 @@ class OpenSprinklerCalendar(CalendarEntity):
                                         # Most recent firmware
                                         group = _station.group
                                     except FirmwareNotSupportedError:
-                                        # Older firmware, 255->P, 0->A
+                                        # Older firmware, 0->A, 255->P
                                         group = (
-                                            255 if _station.sequential_operation else 0
+                                            0 if _station.sequential_operation else 255
                                         )
 
                                     stations.append(
