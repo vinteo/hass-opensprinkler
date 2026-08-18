@@ -8,6 +8,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.util import dt as dt_util
+from pyopensprinkler.exceptions import FirmwareNotSupportedError
 from suntime import Sun
 
 from .const import (
@@ -136,12 +137,24 @@ class OpenSprinklerCalendar(CalendarEntity):
                             if _station.enabled:
                                 duration = _program.station_durations[_station.index]
                                 if duration > 0:
+
+                                    # Get group for sequential operations, depending on firmware version
+                                    group = None
+                                    try:
+                                        # Most recent firmware
+                                        group = _station.group
+                                    except FirmwareNotSupportedError:
+                                        # Older firmware, 0->A, 255->P
+                                        group = (
+                                            0 if _station.sequential_operation else 255
+                                        )
+
                                     stations.append(
                                         {
                                             "station_name": _station.name,
                                             "duration": int(duration / 60),
                                             "rain_delay_ignored": _station.rain_delay_ignored,
-                                            "group": _station.group,
+                                            "group": group,
                                         }
                                     )
 
