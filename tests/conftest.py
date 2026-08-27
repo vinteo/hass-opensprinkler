@@ -6,21 +6,16 @@ from pathlib import Path
 
 import pytest
 
-_REPO_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(_REPO_ROOT))
-sys.path.insert(0, str(_REPO_ROOT / "custom_components"))
+# Add custom_components to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "custom_components"))
 
 if importlib.util.find_spec("pytest_homeassistant_custom_component"):
     pytest_plugins = ["pytest_homeassistant_custom_component"]
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _allow_pycares_shutdown_thread():
-    """Start pycares' daemon before HA teardown snapshots threads.
-
-    Closing an aiohttp session can create Thread(_run_safe_shutdown_loop).
-    If that happens mid-test, pytest-homeassistant treats it as a leak.
-    """
+def allow_pycares_thread():
+    """Avoid HA teardown failing on pycares' shutdown thread."""
     try:
         import pycares
 

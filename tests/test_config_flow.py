@@ -1,6 +1,5 @@
-"""Tests for the OpenSprinkler reconfigure config flow."""
+"""Tests for config flow reconfiguration."""
 
-from pathlib import Path
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
@@ -15,15 +14,12 @@ from homeassistant.const import (
 )
 from homeassistant.data_entry_flow import FlowResultType
 from homeassistant.util import slugify
+from opensprinkler.const import DOMAIN
 from pyopensprinkler import OpenSprinklerAuthError, OpenSprinklerConnectionError
 
 pytest.importorskip("pytest_homeassistant_custom_component")
 
-from pytest_homeassistant_custom_component.common import (  # noqa: E402
-    MockConfigEntry,
-)
-
-from custom_components.opensprinkler.const import DOMAIN  # noqa: E402
+from pytest_homeassistant_custom_component.common import MockConfigEntry
 
 OLD_URL = "http://192.168.1.10"
 NEW_URL = "http://192.168.1.50"
@@ -32,19 +28,17 @@ MAC = "AA:BB:CC:DD:EE:FF"
 UNIQUE_ID = slugify(MAC)
 
 
-@pytest.fixture(scope="module", autouse=True)
-def add_custom_component_path():
-    """Make HA discover this repo's custom component."""
-    import custom_components
+class MockController:
+    """Mock OpenSprinkler controller."""
 
-    custom_path = str(Path(__file__).resolve().parents[1] / "custom_components")
-    if custom_path not in list(custom_components.__path__):
-        custom_components.__path__.insert(0, custom_path)
+    def __init__(self, mac=MAC):
+        self.mac_address = mac
+        self.refresh = AsyncMock()
 
 
 @pytest.fixture(scope="module", autouse=True)
-def mock_setup_entry(add_custom_component_path):
-    """Keep setup/unload mocked for the whole module so hass teardown stays clean."""
+def mock_setup_entry():
+    """Skip a full integration setup during reconfigure."""
     import custom_components.opensprinkler as ospi
 
     with (
@@ -62,20 +56,7 @@ def mock_setup_entry(add_custom_component_path):
         yield
 
 
-@pytest.fixture(autouse=True)
-def enable_custom_integrations_fixture(enable_custom_integrations):
-    """Rescan custom integrations after the path is registered."""
-    yield
-
-
-def _mock_controller(mac=MAC):
-    controller = MagicMock()
-    controller.mac_address = mac
-    controller.refresh = AsyncMock()
-    return controller
-
-
-def _mock_entry(hass) -> MockConfigEntry:
+def mock_entry(hass):
     entry = MockConfigEntry(
         domain=DOMAIN,
         unique_id=UNIQUE_ID,
@@ -91,18 +72,18 @@ def _mock_entry(hass) -> MockConfigEntry:
     return entry
 
 
-async def _start_reconfigure(hass, entry):
+async def start_reconfigure(hass, entry):
     return await hass.config_entries.flow.async_init(
         DOMAIN,
         context={"source": SOURCE_RECONFIGURE, "entry_id": entry.entry_id},
     )
 
 
-async def test_reconfigure_form_shows_current_url(hass, mock_setup_entry):
-    """The first reconfigure form is URL + Verify SSL, prefilled."""
-    entry = _mock_entry(hass)
+async def test_reconfigure_form_shows_current_url(hass, enable_custom_integrations):
+    """The first form is URL and verify SSL, without password or MAC."""
+    entry = mock_entry(hass)
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
 
     assert result["type"] is FlowResultType.FORM
     assert result["step_id"] == "reconfigure"
@@ -112,12 +93,12 @@ async def test_reconfigure_form_shows_current_url(hass, mock_setup_entry):
     assert CONF_MAC not in result["data_schema"].schema
 
 
-async def test_reconfigure_updates_existing_entry(hass, mock_setup_entry):
-    """A matching controller updates the same entry in place."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller()
+async def test_reconfigure_updates_existing_entry(hass, enable_custom_integrations):
+    """A matching controller updates the existing entry."""
+    entry = mock_entry(hass)
+    controller = MockController()
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -140,13 +121,13 @@ async def test_reconfigure_updates_existing_entry(hass, mock_setup_entry):
     assert mock_api.call_args.args[1] == PASSWORD
 
 
-async def test_reconfigure_cannot_connect(hass, mock_setup_entry):
-    """Connection failures stay on the first form and do not update the entry."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller()
+async def test_reconfigure_cannot_connect(hass, enable_custom_integrations):
+    """A connection error stays on the form and does not update the entry."""
+    entry = mock_entry(hass)
+    controller = MockController()
     controller.refresh.side_effect = OpenSprinklerConnectionError
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -162,13 +143,13 @@ async def test_reconfigure_cannot_connect(hass, mock_setup_entry):
     assert entry.data[CONF_URL] == OLD_URL
 
 
-async def test_reconfigure_invalid_auth(hass, mock_setup_entry):
-    """Auth failures stay on the first form and do not update the entry."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller()
+async def test_reconfigure_invalid_auth(hass, enable_custom_integrations):
+    """An auth error stays on the form and does not update the entry."""
+    entry = mock_entry(hass)
+    controller = MockController()
     controller.refresh.side_effect = OpenSprinklerAuthError
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -183,13 +164,13 @@ async def test_reconfigure_invalid_auth(hass, mock_setup_entry):
     assert entry.data[CONF_URL] == OLD_URL
 
 
-async def test_reconfigure_invalid_url(hass, mock_setup_entry):
-    """Malformed URLs stay on the first form."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller()
+async def test_reconfigure_invalid_url(hass, enable_custom_integrations):
+    """A malformed URL stays on the form."""
+    entry = mock_entry(hass)
+    controller = MockController()
     controller.refresh.side_effect = InvalidURL("not-a-url")
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -204,12 +185,12 @@ async def test_reconfigure_invalid_url(hass, mock_setup_entry):
     assert entry.data[CONF_URL] == OLD_URL
 
 
-async def test_reconfigure_wrong_device(hass, mock_setup_entry):
+async def test_reconfigure_wrong_device(hass, enable_custom_integrations):
     """A different controller MAC is rejected and the entry is unchanged."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller(mac="11:22:33:44:55:66")
+    entry = mock_entry(hass)
+    controller = MockController(mac="11:22:33:44:55:66")
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -226,12 +207,12 @@ async def test_reconfigure_wrong_device(hass, mock_setup_entry):
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1
 
 
-async def test_reconfigure_without_api_mac_asks_for_mac(hass, mock_setup_entry):
-    """Legacy firmware with no API MAC goes to the second step."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller(mac=None)
+async def test_reconfigure_without_api_mac_asks_for_mac(hass, enable_custom_integrations):
+    """Firmware with no API MAC asks for the MAC on a second step."""
+    entry = mock_entry(hass)
+    controller = MockController(mac=None)
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -247,12 +228,12 @@ async def test_reconfigure_without_api_mac_asks_for_mac(hass, mock_setup_entry):
     assert entry.data[CONF_URL] == OLD_URL
 
 
-async def test_reconfigure_mac_matching_updates_entry(hass, mock_setup_entry):
-    """A matching manual MAC finishes reconfigure on the same entry."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller(mac=None)
+async def test_reconfigure_mac_matching_updates_entry(hass, enable_custom_integrations):
+    """A matching manual MAC updates the existing entry."""
+    entry = mock_entry(hass)
+    controller = MockController(mac=None)
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,
@@ -276,12 +257,12 @@ async def test_reconfigure_mac_matching_updates_entry(hass, mock_setup_entry):
     assert entry.unique_id == UNIQUE_ID
 
 
-async def test_reconfigure_mac_mismatch_aborts(hass, mock_setup_entry):
+async def test_reconfigure_mac_mismatch_aborts(hass, enable_custom_integrations):
     """A different manual MAC is rejected and the entry is unchanged."""
-    entry = _mock_entry(hass)
-    controller = _mock_controller(mac=None)
+    entry = mock_entry(hass)
+    controller = MockController(mac=None)
 
-    result = await _start_reconfigure(hass, entry)
+    result = await start_reconfigure(hass, entry)
     with patch(
         "custom_components.opensprinkler.config_flow.OpenSprinkler",
         return_value=controller,

@@ -38,7 +38,7 @@ jobs:
           pytest tests/ -v --tb=short
 
   test-ha-2024-11:
-    name: Home Assistant 2024.11 compatibility
+    name: Run Tests (HA 2024.11)
     runs-on: ubuntu-latest
 
     permissions:

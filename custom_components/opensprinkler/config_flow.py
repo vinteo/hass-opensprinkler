@@ -147,14 +147,14 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         )
 
     async def async_step_reconfigure(self, user_input=None):
-        """Handle reconfiguration of the controller URL."""
-        reconfigure_entry = self._get_reconfigure_entry()
-        errors = {}
+        """Handle reconfiguration."""
 
+        existing_entry = self._get_reconfigure_entry()
+        errors = {}
         if user_input is not None:
             url = user_input[CONF_URL]
             verify_ssl = user_input[CONF_VERIFY_SSL]
-            password = reconfigure_entry.data[CONF_PASSWORD]
+            password = existing_entry.data[CONF_PASSWORD]
             opts = {
                 "session": async_get_clientsession(self.hass),
                 "verify_ssl": verify_ssl,
@@ -173,8 +173,8 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _LOGGER.exception("Unexpected exception")
                 errors["base"] = "unknown"
             else:
-                self._reconfigure_url = url
-                self._reconfigure_verify_ssl = verify_ssl
+                self.url = url
+                self.verify_ssl = verify_ssl
 
                 if controller.mac_address is None:
                     return await self.async_step_reconfigure_mac()
@@ -182,49 +182,51 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await self.async_set_unique_id(slugify(controller.mac_address))
                 self._abort_if_unique_id_mismatch(reason="wrong_device")
                 return self.async_update_reload_and_abort(
-                    reconfigure_entry,
+                    existing_entry,
                     data_updates={
                         CONF_URL: url,
                         CONF_VERIFY_SSL: verify_ssl,
                     },
                 )
 
-        current_url = (user_input or {}).get(CONF_URL, reconfigure_entry.data[CONF_URL])
-        current_verify_ssl = (user_input or {}).get(
-            CONF_VERIFY_SSL,
-            reconfigure_entry.data.get(CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL),
-        )
-
         return self.async_show_form(
             step_id="reconfigure",
             data_schema=vol.Schema(
                 {
-                    vol.Required(CONF_URL, default=current_url): str,
-                    vol.Required(CONF_VERIFY_SSL, default=current_verify_ssl): bool,
+                    vol.Required(CONF_URL, default=existing_entry.data[CONF_URL]): str,
+                    vol.Required(
+                        CONF_VERIFY_SSL,
+                        default=existing_entry.data.get(
+                            CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL
+                        ),
+                    ): bool,
                 }
             ),
             errors=errors,
         )
 
     async def async_step_reconfigure_mac(self, user_input=None):
-        """Confirm the controller MAC when the API does not return one."""
-        reconfigure_entry = self._get_reconfigure_entry()
-        errors = {}
+        """Handle reconfigure MAC."""
 
+        existing_entry = self._get_reconfigure_entry()
+        errors = {}
         if user_input is not None:
-            mac_address = user_input.get(CONF_MAC)
-            if not mac_address:
-                errors[CONF_MAC] = "mac_address_required"
-            else:
+            try:
+                mac_address = user_input.get(CONF_MAC)
+                if not mac_address:
+                    raise MacAddressRequiredError
+
                 await self.async_set_unique_id(slugify(mac_address))
                 self._abort_if_unique_id_mismatch(reason="wrong_device")
                 return self.async_update_reload_and_abort(
-                    reconfigure_entry,
+                    existing_entry,
                     data_updates={
-                        CONF_URL: self._reconfigure_url,
-                        CONF_VERIFY_SSL: self._reconfigure_verify_ssl,
+                        CONF_URL: self.url,
+                        CONF_VERIFY_SSL: self.verify_ssl,
                     },
                 )
+            except MacAddressRequiredError:
+                errors[CONF_MAC] = "mac_address_required"
 
         return self.async_show_form(
             step_id="reconfigure_mac",

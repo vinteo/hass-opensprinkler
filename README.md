@@ -43,17 +43,11 @@ see the [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-
 
 If the OpenSprinkler IP address or hostname changes, do not remove the integration.
 
-1. Go to **Settings → Devices & services → OpenSprinkler**.
-2. Open the three-dot menu and choose **Reconfigure**.
-3. Enter the new controller URL, for example `http://192.168.1.50` or `http://opensprinkler.local`, and submit.
+1. In the Home Assistant UI, navigate to `Configuration` then `Integrations`.
+2. Select `OpenSprinkler` and choose `Reconfigure`.
+3. Enter the new URL (for example `http://192.168.0.1`) and save.
 
-The existing config entry, devices, and entities are kept.
-
-Simultaneous controller URL + password changes are unsupported in this PR; see Known Limitations.
-
-#### Known Limitations
-
-- Simultaneous controller URL + password changes are unsupported. Change the URL here only when the stored password still works at the new address.
+Existing devices and entities are kept. The stored password is used to connect to the new URL. Changing the URL and password at the same time is not supported.
 
 ### Upgrading from pre 1.0.0
 
