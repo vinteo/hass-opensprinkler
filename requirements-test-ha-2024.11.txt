@@ -1,0 +1,5 @@
+homeassistant==2024.11.0
+pytest-homeassistant-custom-component==0.13.181
+pyopensprinkler==0.7.20
+# HA 2024.11.0 imports fail with josepy 2.x (ComparableX509 was removed)
+josepy==1.14.0

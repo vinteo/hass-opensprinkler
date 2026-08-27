@@ -39,6 +39,22 @@ see the [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-
    - MAC Address - MAC address of the device. This is only required for firmware below 2.1.9 (4), otherwise it can be left blank.
    - Controller Name - The name of the device that appears in Home Assistant.
 
+### Changing the controller URL
+
+If the OpenSprinkler IP address or hostname changes, do not remove the integration.
+
+1. Go to **Settings → Devices & services → OpenSprinkler**.
+2. Open the three-dot menu and choose **Reconfigure**.
+3. Enter the new controller URL, for example `http://192.168.1.50` or `http://opensprinkler.local`, and submit.
+
+The existing config entry, devices, and entities are kept.
+
+Simultaneous controller URL + password changes are unsupported in this PR; see Known Limitations.
+
+#### Known Limitations
+
+- Simultaneous controller URL + password changes are unsupported. Change the URL here only when the stored password still works at the new address.
+
 ### Upgrading from pre 1.0.0
 
 Note: _1.0.0 has major breaking changes, you will need to update any automations, scripts, etc_
