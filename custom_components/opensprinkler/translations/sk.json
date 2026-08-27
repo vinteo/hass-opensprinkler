@@ -35,9 +35,10 @@
       "reconfigure": {
         "data": {
           "url": "URL",
-          "verify_ssl": "Overiť SSL certifikát (Bezpečnejšie keď je skontrolované)"
+          "verify_ssl": "Overiť SSL certifikát"
         },
-        "title": "Zmeniť URL adresu ovládača OpenSprinkler"
+        "description": "Zadajte novú URL adresu ovládača. Na pripojenie sa použije uložené heslo.",
+        "title": "Prekonfigurovať OpenSprinkler"
       },
       "reconfigure_mac": {
         "data": {

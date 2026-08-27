@@ -35,9 +35,10 @@
       "reconfigure": {
         "data": {
           "url": "URL",
-          "verify_ssl": "Verify SSL Certificate (Safer when checked)"
+          "verify_ssl": "Verify SSL certificate"
         },
-        "title": "Change the OpenSprinkler controller URL"
+        "description": "Enter the new controller URL. The stored password is used to connect.",
+        "title": "Reconfigure OpenSprinkler"
       },
       "reconfigure_mac": {
         "data": {

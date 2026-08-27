@@ -34,9 +34,10 @@
       "reconfigure": {
         "data": {
           "url": "URL",
-          "verify_ssl": "SSL-Zertifikat prüfen (sicherer wenn aktiviert)"
+          "verify_ssl": "SSL-Zertifikat prüfen"
         },
-        "title": "OpenSprinkler-URL ändern"
+        "description": "Neue Controller-URL eingeben. Das gespeicherte Passwort wird zum Verbinden verwendet.",
+        "title": "OpenSprinkler neu konfigurieren"
       },
       "reconfigure_mac": {
         "data": {
