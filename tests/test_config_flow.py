@@ -19,8 +19,6 @@ from pyopensprinkler import OpenSprinklerAuthError, OpenSprinklerConnectionError
 
 pytest.importorskip("pytest_homeassistant_custom_component")
 
-from pytest_homeassistant_custom_component.common import MockConfigEntry
-
 OLD_URL = "http://192.168.1.10"
 NEW_URL = "http://192.168.1.50"
 PASSWORD = "secret"
@@ -57,6 +55,8 @@ def mock_setup_entry():
 
 
 def mock_entry(hass):
+    from pytest_homeassistant_custom_component.common import MockConfigEntry
+
     entry = MockConfigEntry(
         domain=DOMAIN,
         unique_id=UNIQUE_ID,
@@ -207,7 +207,9 @@ async def test_reconfigure_wrong_device(hass, enable_custom_integrations):
     assert len(hass.config_entries.async_entries(DOMAIN)) == 1
 
 
-async def test_reconfigure_without_api_mac_asks_for_mac(hass, enable_custom_integrations):
+async def test_reconfigure_without_api_mac_asks_for_mac(
+    hass, enable_custom_integrations
+):
     """Firmware with no API MAC asks for the MAC on a second step."""
     entry = mock_entry(hass)
     controller = MockController(mac=None)
