@@ -22,4 +22,3 @@ def allow_pycares_thread():
         pycares._shutdown_manager.start()
     except Exception:
         pass
-    yield
