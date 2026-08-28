@@ -445,7 +445,8 @@ class OpenSprinklerCalendar(CalendarEntity):
         program: dict,
         station: dict,
         calendar_day: datetime,
-        today: datetime, controller
+        today: datetime,
+        controller
     ):
         duration = station["duration"]
 

@@ -308,7 +308,6 @@ The Calendar entity currently considers the following OpenSprinkler settings:
 - Station Ignore Rain Delay
 - Weather Adjustment, current day only, using multi-day averages if selected
 
-
 An alternate view of the data similar to OpenSprinkler's Program Preview is available via the
 [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card). It shows
 upcoming runs in a bar-chart format.
