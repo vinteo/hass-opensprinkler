@@ -14,9 +14,6 @@ from suntime import Sun
 from .const import (
     DOMAIN,
     SCHEDULE_TYPE_INTERVAL,
-    SCHEDULE_TYPE_MONTHLY,
-    SCHEDULE_TYPE_SINGLE_RUN,
-    SCHEDULE_TYPE_WEEKLY,
     START_TIME_DISABLED,
     START_TIME_SUNRISE,
     START_TIME_SUNSET,
@@ -247,7 +244,9 @@ class OpenSprinklerCalendar(CalendarEntity):
 
                     for station in program["stations"]:
                         start_time = group_start_times[station["group"]]["start_time"]
-                        duration = self.calculate_duration(program, station, current_day, today, self._controller)
+                        duration = self.calculate_duration(
+                            program, station, current_day, today, self._controller
+                        )
                         end_time = start_time + timedelta(minutes=duration)
 
                         station_qualifies = False
@@ -441,15 +440,22 @@ class OpenSprinklerCalendar(CalendarEntity):
             ZoneInfo(self.hass.config.time_zone)
         )
 
-    def calculate_duration(self, program: dict, station: dict, calendar_day: datetime, today: datetime, controller):
+    def calculate_duration(
+        self,
+        program: dict,
+        station: dict,
+        calendar_day: datetime,
+        today: datetime, controller
+    ):
         duration = station["duration"]
 
         # Adjust for weather factor only on current day.
         # Interval programs can use multi-day watering levels if set.
-        if program[
-            "use_weather"
-        ] and calendar_day == today:
-            if controller.use_multi_day_watering_levels and program["schedule_type"] == SCHEDULE_TYPE_INTERVAL:
+        if program["use_weather"] and calendar_day == today:
+            if (
+                controller.use_multi_day_watering_levels
+                and program["schedule_type"] == SCHEDULE_TYPE_INTERVAL
+            ):
                 idx = program["interval_days"] - 1
                 levels = controller.multi_day_watering_levels
                 level = levels[min(idx, len(levels) - 1)] / 100
@@ -458,4 +464,3 @@ class OpenSprinklerCalendar(CalendarEntity):
 
             duration *= level
         return duration
-
