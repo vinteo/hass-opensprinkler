@@ -37,6 +37,11 @@ REAUTH_SCHEMA = vol.Schema(
         vol.Required(CONF_PASSWORD): str,
     }
 )
+RECONFIGURE_MAC_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_MAC): str,
+    }
+)
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -139,6 +144,94 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         return self.async_show_form(
             step_id="reauth", data_schema=REAUTH_SCHEMA, errors=errors
+        )
+
+    async def async_step_reconfigure(self, user_input=None):
+        """Handle reconfiguration."""
+
+        existing_entry = self._get_reconfigure_entry()
+        errors = {}
+        if user_input is not None:
+            url = user_input[CONF_URL]
+            verify_ssl = user_input[CONF_VERIFY_SSL]
+            password = existing_entry.data[CONF_PASSWORD]
+            opts = {
+                "session": async_get_clientsession(self.hass),
+                "verify_ssl": verify_ssl,
+            }
+
+            try:
+                controller = OpenSprinkler(url, password, opts)
+                await controller.refresh()
+            except InvalidURL:
+                errors["base"] = "invalid_url"
+            except OpenSprinklerConnectionError:
+                errors["base"] = "cannot_connect"
+            except OpenSprinklerAuthError:
+                errors["base"] = "invalid_auth"
+            except Exception:  # pylint: disable=broad-except
+                _LOGGER.exception("Unexpected exception")
+                errors["base"] = "unknown"
+            else:
+                self.url = url
+                self.verify_ssl = verify_ssl
+
+                if controller.mac_address is None:
+                    return await self.async_step_reconfigure_mac()
+
+                await self.async_set_unique_id(slugify(controller.mac_address))
+                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                return self.async_update_reload_and_abort(
+                    existing_entry,
+                    data_updates={
+                        CONF_URL: url,
+                        CONF_VERIFY_SSL: verify_ssl,
+                    },
+                )
+
+        return self.async_show_form(
+            step_id="reconfigure",
+            data_schema=vol.Schema(
+                {
+                    vol.Required(CONF_URL, default=existing_entry.data[CONF_URL]): str,
+                    vol.Required(
+                        CONF_VERIFY_SSL,
+                        default=existing_entry.data.get(
+                            CONF_VERIFY_SSL, DEFAULT_VERIFY_SSL
+                        ),
+                    ): bool,
+                }
+            ),
+            errors=errors,
+        )
+
+    async def async_step_reconfigure_mac(self, user_input=None):
+        """Handle reconfigure MAC."""
+
+        existing_entry = self._get_reconfigure_entry()
+        errors = {}
+        if user_input is not None:
+            try:
+                mac_address = user_input.get(CONF_MAC)
+                if not mac_address:
+                    raise MacAddressRequiredError
+
+                await self.async_set_unique_id(slugify(mac_address))
+                self._abort_if_unique_id_mismatch(reason="wrong_device")
+                return self.async_update_reload_and_abort(
+                    existing_entry,
+                    data_updates={
+                        CONF_URL: self.url,
+                        CONF_VERIFY_SSL: self.verify_ssl,
+                    },
+                )
+            except MacAddressRequiredError:
+                errors[CONF_MAC] = "mac_address_required"
+
+        return self.async_show_form(
+            step_id="reconfigure_mac",
+            data_schema=RECONFIGURE_MAC_SCHEMA,
+            errors=errors,
         )
 
 

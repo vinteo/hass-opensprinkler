@@ -3,7 +3,9 @@
   "config": {
     "abort": {
       "already_configured": "Gerät ist bereits konfiguriert",
-      "reauth_successful": "Die erneute Authentifizierung war erfolgreich"
+      "reauth_successful": "Die erneute Authentifizierung war erfolgreich",
+      "reconfigure_successful": "Die Konfiguration wurde aktualisiert",
+      "wrong_device": "Diese URL gehört zu einem anderen OpenSprinkler-Controller"
     },
     "error": {
       "invalid_url": "URL ist ungültig (Beispiel: http://192.168.0.1)",
@@ -28,6 +30,20 @@
           "password": "Passwort"
         },
         "title": "Neues Passwort eingeben"
+      },
+      "reconfigure": {
+        "data": {
+          "url": "URL",
+          "verify_ssl": "SSL-Zertifikat prüfen"
+        },
+        "description": "Neue Controller-URL eingeben. Das gespeicherte Passwort wird zum Verbinden verwendet.",
+        "title": "OpenSprinkler neu konfigurieren"
+      },
+      "reconfigure_mac": {
+        "data": {
+          "mac": "MAC Addresse"
+        },
+        "title": "MAC-Adresse bestätigen"
       }
     }
   },

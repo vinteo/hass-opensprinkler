@@ -3,7 +3,9 @@
   "config": {
     "abort": {
       "already_configured": "Device is already configured",
-      "reauth_successful": "Re-authentication was successful"
+      "reauth_successful": "Re-authentication was successful",
+      "reconfigure_successful": "Reconfiguration was successful",
+      "wrong_device": "This URL belongs to a different OpenSprinkler controller"
     },
     "error": {
       "invalid_url": "URL is malformed (example: http://192.168.0.1)",
@@ -29,6 +31,20 @@
           "password": "Password"
         },
         "title": "Enter new password"
+      },
+      "reconfigure": {
+        "data": {
+          "url": "URL",
+          "verify_ssl": "Verify SSL certificate"
+        },
+        "description": "Enter the new controller URL. The stored password is used to connect.",
+        "title": "Reconfigure OpenSprinkler"
+      },
+      "reconfigure_mac": {
+        "data": {
+          "mac": "MAC Address"
+        },
+        "title": "Confirm the OpenSprinkler MAC address"
       }
     }
   },

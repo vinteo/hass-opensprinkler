@@ -3,7 +3,9 @@
   "config": {
     "abort": {
       "already_configured": "Zariadenie je už nakonfigurované",
-      "reauth_successful": "Opätovné overenie bolo úspešné"
+      "reauth_successful": "Opätovné overenie bolo úspešné",
+      "reconfigure_successful": "Rekonfigurácia bola úspešná",
+      "wrong_device": "Táto adresa URL patrí inému ovládaču OpenSprinkler"
     },
     "error": {
       "invalid_url": "Adresa URL má nesprávny tvar (príklad: http://192.168.0.1)",
@@ -29,6 +31,20 @@
           "password": "Heslo"
         },
         "title": "Zadajte nové heslo"
+      },
+      "reconfigure": {
+        "data": {
+          "url": "URL",
+          "verify_ssl": "Overiť SSL certifikát"
+        },
+        "description": "Zadajte novú URL adresu ovládača. Na pripojenie sa použije uložené heslo.",
+        "title": "Prekonfigurovať OpenSprinkler"
+      },
+      "reconfigure_mac": {
+        "data": {
+          "mac": "MAC adresa"
+        },
+        "title": "Potvrdiť MAC adresu OpenSprinkler"
       }
     }
   },

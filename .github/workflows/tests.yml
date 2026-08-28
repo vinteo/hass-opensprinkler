@@ -36,3 +36,28 @@ jobs:
       - name: Run tests
         run: |
           pytest tests/ -v --tb=short
+
+  test-ha-2024-11:
+    name: Run Tests (HA 2024.11)
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v7
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+
+      - name: Install pinned test dependencies
+        # pyopensprinkler and mock-open (via pytest-homeassistant-custom-component)
+        # ship sdists only, so --only-binary :all: cannot be used here.
+        run: python -m pip install homeassistant==2024.11.0 pytest-homeassistant-custom-component==0.13.181 pyopensprinkler==0.7.20 josepy==1.14.0 # NOSONAR
+
+      - name: Run tests
+        run: |
+          pytest tests/ -v --tb=short

@@ -32,12 +32,22 @@ see the [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-
 
 1. Install using [HACS](https://github.com/custom-components/hacs). Or install manually by copying `custom_components/opensprinkler` folder into `<config_dir>/custom_components`
 2. Restart Home Assistant.
-3. In the Home Assistant UI, navigate to `Configuration` then `Integrations`. Click on the add integration button at the bottom right and select `OpenSprinkler`. Fill out the options and save.
+3. In the Home Assistant UI, navigate to `Settings` then `Devices & services`. Click on the add integration button at the bottom right and select `OpenSprinkler`. Fill out the options and save.
    - URL - Should be in the form of `http://<ip or host>:<port>`. The port can be omitted unless you have changed it, as the default port for OpenSprinkler is `80`. SSL (HTTPS) is also supported.
    - Password - The OpenSprinkler controller password.
    - Verify SSL Certificate - If the integration should verify the certificate from an HTTPS server. Generally, this should be left checked.
    - MAC Address - MAC address of the device. This is only required for firmware below 2.1.9 (4), otherwise it can be left blank.
    - Controller Name - The name of the device that appears in Home Assistant.
+
+### Changing the controller URL
+
+If the OpenSprinkler IP address or hostname changes, do not remove the integration.
+
+1. In the Home Assistant UI, navigate to `Settings` then `Devices & services`.
+2. Select `OpenSprinkler` and choose `Reconfigure`.
+3. Enter the new URL (for example `http://192.168.0.1`) and save.
+
+Existing devices and entities are kept. The stored password is used to connect to the new URL. Changing the URL and password at the same time is not supported.
 
 ### Upgrading from pre 1.0.0
 
