@@ -402,7 +402,8 @@ class OpenSprinklerCalendar(CalendarEntity):
 
         return runs
 
-    # def _get_program_final_run_decision(self, today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations):
+    # def _get_program_final_run_decision(
+    # self, today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations):
     def _get_program_final_run_decision(
         self, today, original_program_start_time, has_rain_delay_ignored_stations
     ):
