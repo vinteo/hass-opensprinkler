@@ -195,9 +195,7 @@ class OpenSprinklerCalendar(CalendarEntity):
                         group = _station.group
                     except FirmwareNotSupportedError:
                         # Older firmware, 0->A, 255->P
-                        group = (
-                            0 if _station.sequential_operation else 255
-                        )
+                        group = 0 if _station.sequential_operation else 255
 
                     stations.append(
                         {
@@ -370,18 +368,16 @@ class OpenSprinklerCalendar(CalendarEntity):
         station_start_time = programs[0]["start_time"]
         for program in programs:
             original_program_start_time = program["start_time"]
-            has_rain_delay_ignored_stations = program[
-                "has_rain_delay_ignored_stations"
-            ]
+            has_rain_delay_ignored_stations = program["has_rain_delay_ignored_stations"]
 
             # Append stations to end of last program if schedules overlap.
             # Otherwise start with the program's originally scheduled start time.
-            station_start_time = max(
-                station_start_time, original_program_start_time
-            )
+            station_start_time = max(station_start_time, original_program_start_time)
 
-            program_qualifies, restrict_to_ignored = self._get_program_final_run_decision(
-                today, original_program_start_time, has_rain_delay_ignored_stations
+            program_qualifies, restrict_to_ignored = (
+                self._get_program_final_run_decision(
+                    today, original_program_start_time, has_rain_delay_ignored_stations
+                )
             )
 
             # We'll need to track multiple start times for each station group.
@@ -391,21 +387,25 @@ class OpenSprinklerCalendar(CalendarEntity):
 
             # If program qualifies to run, append its stations to the runs list.
             runs += self._append_stations_to_run_list(
-                program, group_start_times, calendar_day, today, program_qualifies, restrict_to_ignored
+                program,
+                group_start_times,
+                calendar_day,
+                today,
+                program_qualifies,
+                restrict_to_ignored,
             )
 
             # Update the station_start_time to the latest end time of all groups for the next program.
             station_start_time = max(
-                [
-                    group_start_times[group]["start_time"]
-                    for group in program["groups"]
-                ]
+                [group_start_times[group]["start_time"] for group in program["groups"]]
             )
 
         return runs
 
     # def _get_program_final_run_decision(self, today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations):
-    def _get_program_final_run_decision(self, today, original_program_start_time, has_rain_delay_ignored_stations):
+    def _get_program_final_run_decision(
+        self, today, original_program_start_time, has_rain_delay_ignored_stations
+    ):
         """Check for Weather Restriction, Rain Delay."""
         # Rain delay program selection:
         # Original program start time should be after rain delay stop time;
@@ -433,11 +433,7 @@ class OpenSprinklerCalendar(CalendarEntity):
             program_time = original_program_start_time
 
             # Check that start time not inside rain delay time.
-            if not (
-                today
-                < program_time
-                < rain_delay_end_time
-            ):
+            if not (today < program_time < rain_delay_end_time):
                 # Program fully qualifies to run.
                 program_qualifies = True
             else:
@@ -452,13 +448,21 @@ class OpenSprinklerCalendar(CalendarEntity):
         return program_qualifies, restrict_to_ignored
 
     def _append_stations_to_run_list(
-            self, program, group_start_times, calendar_day, today, program_qualifies, restrict_to_ignored
+        self,
+        program,
+        group_start_times,
+        calendar_day,
+        today,
+        program_qualifies,
+        restrict_to_ignored,
     ):
         """Append a program's qualifying stations to the run list."""
         runs = []
         for station in program["stations"]:
             start_time = group_start_times[station["group"]]["start_time"]
-            duration = self.calculate_duration(program, station, calendar_day, today, self._controller)
+            duration = self.calculate_duration(
+                program, station, calendar_day, today, self._controller
+            )
             end_time = start_time + timedelta(minutes=duration)
 
             station_qualifies = False
@@ -484,8 +488,7 @@ class OpenSprinklerCalendar(CalendarEntity):
             # determine the start time of the next station or program.
             if station["group"] != 255:
                 group_start_times[station["group"]]["start_time"] = (
-                    end_time
-                    + timedelta(seconds=self._controller.station_delay)
+                    end_time + timedelta(seconds=self._controller.station_delay)
                 )
 
         return runs
