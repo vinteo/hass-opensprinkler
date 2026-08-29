@@ -302,7 +302,6 @@ The Calendar entity currently considers the following OpenSprinkler settings:
 - Additional Start Times, Repeating and Fixed
 - Date Range
 - Rain Delay
-- Weather Restrictions
 - Station Groups
 - Station Delay
 - Station Ignore Rain Delay
