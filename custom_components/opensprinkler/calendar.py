@@ -13,6 +13,7 @@ from suntime import Sun
 
 from .const import (
     DOMAIN,
+    SCHEDULE_TYPE_INTERVAL,
     START_TIME_DISABLED,
     START_TIME_SUNRISE,
     START_TIME_SUNSET,
@@ -116,6 +117,9 @@ class OpenSprinklerCalendar(CalendarEntity):
         if not self._controller.enabled:
             _LOGGER.info("Controller is disabled, no runs will be returned.")
             return runs
+
+        # Adjust search dates to beginning of each local day.
+        today = dt_util.start_of_local_day(dt_util.now())
         current_day = dt_util.start_of_local_day(start_date)
         last_day = dt_util.start_of_local_day(end_date)
 
@@ -171,6 +175,8 @@ class OpenSprinklerCalendar(CalendarEntity):
                                     "has_rain_delay_ignored_stations": has_rain_delay_ignored_stations,
                                     "stations": stations,
                                     "use_weather": _program.use_weather_adjustments,
+                                    "schedule_type": _program.program_schedule_type,
+                                    "interval_days": _program.interval_days,
                                     "groups": list({d["group"] for d in stations}),
                                 }
                             )
@@ -238,13 +244,9 @@ class OpenSprinklerCalendar(CalendarEntity):
 
                     for station in program["stations"]:
                         start_time = group_start_times[station["group"]]["start_time"]
-
-                        # Adjust for weather factor only on current day.
-                        duration = station["duration"]
-                        if program[
-                            "use_weather"
-                        ] and current_day == dt_util.start_of_local_day(dt_util.now()):
-                            duration *= self._controller.water_level / 100
+                        duration = self.calculate_duration(
+                            program, station, current_day, today, self._controller
+                        )
                         end_time = start_time + timedelta(minutes=duration)
 
                         station_qualifies = False
@@ -437,3 +439,29 @@ class OpenSprinklerCalendar(CalendarEntity):
         return datetime.fromtimestamp(epoch_time).astimezone(
             ZoneInfo(self.hass.config.time_zone)
         )
+
+    def calculate_duration(
+        self,
+        program: dict,
+        station: dict,
+        calendar_day: datetime,
+        today: datetime,
+        controller,
+    ):
+        duration = station["duration"]
+
+        # Adjust for weather factor only on current day.
+        # Interval programs can use multi-day watering levels if set.
+        if program["use_weather"] and calendar_day == today:
+            if (
+                controller.use_multi_day_watering_levels
+                and program["schedule_type"] == SCHEDULE_TYPE_INTERVAL
+            ):
+                idx = program["interval_days"] - 1
+                levels = controller.multi_day_watering_levels
+                level = levels[min(idx, len(levels) - 1)] / 100
+            else:
+                level = controller.water_level / 100
+
+            duration *= level
+        return duration

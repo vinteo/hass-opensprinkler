@@ -292,7 +292,21 @@ Each calendar entry contains:
 - Predicted start and end times
 - Duration
 
-Today's view will use the Weather Adjustment, if enabled.
+The Calendar entity is meant to show an approximation of future events, just like the Program Preview.
+The run events shown in the past are calculated using rules now in effect, and are not a history of exact run behavior.
+
+The Calendar entity currently considers the following OpenSprinkler settings:
+
+- Schedule types Weekly, Interval, Single run, and Monthly
+- Even/Odd Restrictions
+- Additional Start Times, Repeating and Fixed
+- Date Range
+- Rain Delay
+- Weather Restrictions
+- Station Groups
+- Station Delay
+- Station Ignore Rain Delay
+- Weather Adjustment, current day only, using multi-day averages if selected
 
 An alternate view of the data similar to OpenSprinkler's Program Preview is available via the
 [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card). It shows
