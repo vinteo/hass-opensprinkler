@@ -302,10 +302,19 @@ The Calendar entity currently considers the following OpenSprinkler settings:
 - Additional Start Times, Repeating and Fixed
 - Date Range
 - Rain Delay
+- Weather Restrictions
 - Station Groups
 - Station Delay
 - Station Ignore Rain Delay
 - Weather Adjustment, current day only, using multi-day averages if selected
+
+The following settings/features are not supported at this time:
+
+- Paused or Stopped runs
+- Master Stations
+- Sensor Adjustment
+- Manual and Run-once programs
+- Program Name Annotations
 
 An alternate view of the data similar to OpenSprinkler's Program Preview is available via the
 [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card). It shows

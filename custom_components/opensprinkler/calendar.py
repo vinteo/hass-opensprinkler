@@ -1,3 +1,4 @@
+import calendar
 import logging
 from datetime import date, datetime, time, timedelta
 from math import trunc
@@ -51,7 +52,7 @@ class OpenSprinklerCalendar(CalendarEntity):
         """Initialize the calendar."""
         self._controller = controller
         self.coordinator = coordinator
-        self._attr_name = "Opensprinkler Schedule"
+        self._attr_name = f"{name} Schedule"
         self._attr_unique_id = f"{entry.unique_id}_calendar"
         self._event = None
 
@@ -240,7 +241,12 @@ class OpenSprinklerCalendar(CalendarEntity):
 
     def _can_monthly_run_on_day(self, program: dict, check_date: datetime) -> bool:
         """Determine if a monthly program can run on a given date."""
-        return program.monthly_day == check_date.day
+        run_day = program.monthly_day
+        if run_day == 0:  # Last day of month
+            year = check_date.year
+            month = check_date.month
+            _, run_day = calendar.monthrange(year, month)
+        return run_day == check_date.day
 
     def _can_interval_run_on_day(self, program: dict, check_date: datetime) -> bool:
         """Determine if an interval program can run on a given date."""
@@ -256,6 +262,8 @@ class OpenSprinklerCalendar(CalendarEntity):
             program.odd_even_restriction_name is None
             or program.odd_even_restriction_name == "odd_days"  # odd days only
             and check_date.day % 2 == 1
+            and check_date.day != 31
+            and not (check_date.month == 2 and check_date.day == 29)
             or program.odd_even_restriction_name == "even_days"  # even days only
             and check_date.day % 2 == 0
         ):
@@ -376,7 +384,10 @@ class OpenSprinklerCalendar(CalendarEntity):
 
             program_qualifies, restrict_to_ignored = (
                 self._get_program_final_run_decision(
-                    today, original_program_start_time, has_rain_delay_ignored_stations
+                    today,
+                    calendar_day,
+                    original_program_start_time,
+                    has_rain_delay_ignored_stations,
                 )
             )
 
@@ -402,10 +413,12 @@ class OpenSprinklerCalendar(CalendarEntity):
 
         return runs
 
-    # def _get_program_final_run_decision(
-    # self, today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations):
     def _get_program_final_run_decision(
-        self, today, original_program_start_time, has_rain_delay_ignored_stations
+        self,
+        today,
+        calendar_day,
+        original_program_start_time,
+        has_rain_delay_ignored_stations,
     ):
         """Check for Weather Restriction, Rain Delay."""
         # Rain delay program selection:
@@ -419,15 +432,13 @@ class OpenSprinklerCalendar(CalendarEntity):
         # If there is no rain delay, or if there is a rain delay but the program has stations
         # that ignore it, program qualifies.
 
-        # A Weather Restriction blocks all programs for the current day only. (*** Included in future PR ***)
+        # A Weather Restriction blocks all programs for the current day only.
 
         restrict_to_ignored = False
 
-        # Next lines reserved for future PR
-        # if today == calendar_day and self._controller.weather_restriction_active:
-        #     program_qualifies = False
-        # elif self._controller.rain_delay_active:
-        if self._controller.rain_delay_active:
+        if today == calendar_day and self._controller.weather_restriction_active:
+            program_qualifies = False
+        elif self._controller.rain_delay_active:
             rain_delay_end_time = self._epoch_to_local(
                 self._controller.rain_delay_stop_time
             )
