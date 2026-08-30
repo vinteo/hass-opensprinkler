@@ -50,7 +50,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     )
 
     entities.append(
-        ControllerSensorActive(entry, name, "weather_restriction", controller, coordinator)
+        ControllerSensorActive(
+            entry, name, "weather_restriction", controller, coordinator
+        )
     )
 
     entities.append(PauseActiveBinarySensor(entry, name, controller, coordinator))
