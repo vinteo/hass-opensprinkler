@@ -102,7 +102,10 @@ class ControllerOperationSwitch(
             "firmware_minor_version",
             "last_reboot_cause",
             "last_reboot_cause_name",
+            "logging_enabled",
             "station_delay",
+            "use_multi_day_watering_levels",
+            "multi_day_watering_levels",
         ]:
             try:
                 attributes[attr] = getattr(controller, attr)

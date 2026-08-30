@@ -49,6 +49,12 @@ def _create_entities(hass: HomeAssistant, entry: dict):
         ControllerSensorActive(entry, name, "rain_delay", controller, coordinator)
     )
 
+    entities.append(
+        ControllerSensorActive(
+            entry, name, "weather_restriction", controller, coordinator
+        )
+    )
+
     entities.append(PauseActiveBinarySensor(entry, name, controller, coordinator))
 
     for _, program in controller.programs.items():

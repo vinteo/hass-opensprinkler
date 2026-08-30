@@ -549,6 +549,10 @@ class OpenSprinklerStationEntity:
             except:  # noqa: E722
                 pass
 
+        if "group" in attributes:
+            group_labels = {0: "A", 1: "B", 2: "C", 3: "D", 255: "P"}
+            attributes["group_label"] = group_labels.get(attributes["group"], "")
+
         for attr in ["start_time", "end_time"]:
             timestamp = getattr(self._station, attr, 0)
             if not timestamp:
