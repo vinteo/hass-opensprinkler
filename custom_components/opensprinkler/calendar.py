@@ -384,7 +384,10 @@ class OpenSprinklerCalendar(CalendarEntity):
 
             program_qualifies, restrict_to_ignored = (
                 self._get_program_final_run_decision(
-                    today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations
+                    today,
+                    calendar_day,
+                    original_program_start_time,
+                    has_rain_delay_ignored_stations,
                 )
             )
 
@@ -411,7 +414,11 @@ class OpenSprinklerCalendar(CalendarEntity):
         return runs
 
     def _get_program_final_run_decision(
-        self, today, calendar_day, original_program_start_time, has_rain_delay_ignored_stations
+        self,
+        today,
+        calendar_day,
+        original_program_start_time,
+        has_rain_delay_ignored_stations,
     ):
         """Check for Weather Restriction, Rain Delay."""
         # Rain delay program selection:
