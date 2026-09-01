@@ -1,6 +1,6 @@
 import calendar
 import logging
-from datetime import date, datetime, time, timedelta
+from datetime import date, datetime, time, timedelta, timezone
 from math import trunc
 from zoneinfo import ZoneInfo
 
@@ -8,6 +8,7 @@ from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.const import CONF_NAME
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 from pyopensprinkler.exceptions import FirmwareNotSupportedError
 from suntime import Sun
@@ -20,6 +21,7 @@ from .const import (
     START_TIME_SUNSET,
     START_TIME_TYPE_FIXED,
     START_TIME_TYPE_REPEATING,
+    STORAGE_VERSION,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,8 +41,11 @@ def _create_entities(hass: HomeAssistant, entry: dict):
     controller = hass.data[DOMAIN][entry.entry_id]["controller"]
     coordinator = hass.data[DOMAIN][entry.entry_id]["coordinator"]
     name = entry.data[CONF_NAME]
+    store = Store[dict[date, list[list[any]]]](
+        hass, STORAGE_VERSION, f"{DOMAIN}_{name}"
+    )
 
-    entities.append(OpenSprinklerCalendar(entry, name, controller, coordinator))
+    entities.append(OpenSprinklerCalendar(entry, name, controller, coordinator, store))
 
     return entities
 
@@ -48,10 +53,11 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class OpenSprinklerCalendar(CalendarEntity):
     """Representation of an OpenSprinkler schedule as a calendar."""
 
-    def __init__(self, entry, name, controller, coordinator):
+    def __init__(self, entry, name, controller, coordinator, store):
         """Initialize the calendar."""
         self._controller = controller
         self.coordinator = coordinator
+        self._store = store
         self._attr_name = f"{name} Schedule"
         self._attr_unique_id = f"{entry.unique_id}_calendar"
         self._event = None
@@ -125,7 +131,16 @@ class OpenSprinklerCalendar(CalendarEntity):
         calendar_day = dt_util.start_of_local_day(start_date)
         last_day = dt_util.start_of_local_day(end_date)
 
-        # Loop through each day in the range and check if any programs can run
+        # If history is being logged, build list of actual historical runs.
+        if self._controller.logging_enabled:
+            if calendar_day < today:
+                end_date = min(today, last_day)
+                runs = await self._get_historical_runs_for_date_range(
+                    calendar_day, end_date
+                )
+                calendar_day = end_date
+
+        # Loop through days in the range (after historical runs, if using) and find any programs that can run.
         while calendar_day < last_day:
             programs = self._build_eligible_programs_list(calendar_day)
 
@@ -361,9 +376,18 @@ class OpenSprinklerCalendar(CalendarEntity):
         return sun.get_sunset_time(date).astimezone(ZoneInfo(local_tz))
 
     def _epoch_to_local(self, epoch_time: int) -> datetime:
+        """Convert local epoch time to local datetime."""
         return datetime.fromtimestamp(epoch_time).astimezone(
             ZoneInfo(self.hass.config.time_zone)
         )
+
+    def _epoch_utc_as_local(self, epoch_seconds: int) -> datetime:
+        """Convertr UTC epoch time to local datetime."""
+        dt_naive = datetime.fromtimestamp(epoch_seconds, tz=timezone.utc).replace(
+            tzinfo=None
+        )
+        local_tz = ZoneInfo(self.hass.config.time_zone)
+        return dt_naive.replace(tzinfo=local_tz)
 
     def _build_station_runs_list(self, programs, today, calendar_day) -> list[dict]:
         """Build ordered list of stations that can run on this day."""
@@ -531,3 +555,114 @@ class OpenSprinklerCalendar(CalendarEntity):
 
             duration *= level
         return duration
+
+    async def _get_historical_runs_for_date_range(
+        self, start_date: datetime, end_date: datetime
+    ) -> list[dict]:
+        """Locate historical runs for all programs in a date range."""
+        # Load cache.
+        cached_logs = await self._store.async_load() or {}
+
+        # Attempt to locate logs from cache.
+        logs = []
+        calendar_day = start_date
+        while calendar_day < end_date:
+            try:
+                day_logs = cached_logs[str(calendar_day.year)][calendar_day.isoformat()]
+            except KeyError:
+                # Query the controller for missing logs, from missed day to end_date.
+                await self._update_cache_from_controller(
+                    calendar_day, end_date, cached_logs
+                )
+                day_logs = cached_logs[str(calendar_day.year)][calendar_day.isoformat()]
+
+            # Copy a day's logs, if any, into the date range list.
+            for log in day_logs:
+                logs.append(log)
+            calendar_day += timedelta(days=1)
+
+        # Save the updated cache.
+        await self._store.async_save(cached_logs)
+
+        # Process the logs and return.
+        return self._process_logs(logs)
+
+    def _process_logs(self, logs) -> list[dict]:
+        """Convert log event to run dict entry."""
+        runs = []
+        for logged_run in logs:
+            program_idx = logged_run[0]
+            if program_idx != 0:  # Ignore special events
+                station_idx = logged_run[1]
+                duration_seconds = logged_run[2]
+                end_seconds = logged_run[3]
+                program_name = self._get_program_name_from_logs(program_idx)
+                station_name = self._controller.stations[station_idx].name
+                start_seconds = end_seconds - duration_seconds
+
+                runs.append(
+                    {
+                        "program_name": program_name,
+                        "station_name": station_name,
+                        "start_time": self._epoch_utc_as_local(start_seconds),
+                        "end_time": self._epoch_utc_as_local(end_seconds),
+                        "duration": f"{duration_seconds / 60:.0f}m",
+                    }
+                )
+        return runs
+
+    def _get_program_name_from_logs(self, index) -> str:
+        """Lookup program name from 1-based index."""
+        match index:
+            case 0:
+                return "Special Event"
+            case 99:
+                return "Manual Run"
+            case 254:
+                return "Run Once"
+            case _:
+                return self._controller.programs[index - 1].name
+
+    async def _update_cache_from_controller(
+        self, start_date: datetime, end_date: datetime, cached_logs: dict[list]
+    ):
+        """Query controller for historical runs for all programs in a date range."""
+        # Convert times to epoch seconds.
+        epoch = dt_util.start_of_local_day(datetime(1970, 1, 1))
+        search_start = int((start_date - epoch).total_seconds())
+        search_end = int((end_date - epoch).total_seconds())
+
+        # Query controller.
+        logs = await self._controller.get_sprinkler_logs(
+            start=search_start, end=search_end
+        )
+
+        calendar_day = start_date
+        log_idx = 0
+
+        # Find all logs in date range.
+        while calendar_day < end_date:
+            # Find this day's logs.
+            day_logs = []
+            while log_idx < len(logs):
+                log_date = dt_util.start_of_local_day(
+                    self._epoch_utc_as_local(logs[log_idx][3])
+                )
+                if log_date == calendar_day:
+                    day_logs.append(logs[log_idx])
+                    log_idx += 1
+                else:
+                    # Logs have moved beyond calendar_day: save to cache and increment day.
+                    break
+
+            # Add entry to cache, even if no logs.
+            cached_logs.setdefault(str(calendar_day.year), {})[
+                calendar_day.isoformat()
+            ] = day_logs
+            calendar_day += timedelta(days=1)
+
+        # Sort only the years affected (usually just this year).
+        for year_int in range(start_date.year, end_date.year + 1):
+            cached_logs[str(year_int)] = dict(
+                sorted(cached_logs[str(year_int)].items())
+            )
