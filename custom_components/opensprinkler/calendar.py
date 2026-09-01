@@ -598,7 +598,11 @@ class OpenSprinklerCalendar(CalendarEntity):
                 end_seconds = logged_run[3]
                 program_name = self._get_program_name_from_logs(program_idx)
                 stations = self._controller.stations
-                station_name = stations[station_idx].name if station_idx < len(stations) else "<Station Deleted>"
+                station_name = (
+                    stations[station_idx].name
+                    if station_idx < len(stations)
+                    else "<Station Deleted>"
+                )
                 start_seconds = end_seconds - duration_seconds
 
                 runs.append(
@@ -623,7 +627,11 @@ class OpenSprinklerCalendar(CalendarEntity):
                 return "Run Once"
             case _:
                 programs = self._controller.programs
-                return programs[index - 1].name if index <= len(programs) else "<Program Deleted>"
+                return (
+                    programs[index - 1].name
+                    if index <= len(programs)
+                    else "<Program Deleted>"
+                )
 
     async def _update_cache_from_controller(
         self, start_date: datetime, end_date: datetime, cached_logs: dict[list]
