@@ -292,8 +292,12 @@ Each calendar entry contains:
 - Predicted start and end times
 - Duration
 
-The Calendar entity is meant to show an approximation of future events, just like the Program Preview.
-The run events shown in the past are calculated using rules now in effect, and are not a history of exact run behavior.
+The Calendar entity is meant to show an approximation of future events, just like the Program Preview in OpenSprinkler.
+The current day is the only day where a Weather Adjustment, if in affect, will be applied to predicted run times.
+
+If Logging in OpenSprinkler _is enabled_, actual historical run times including any weather adjustments will be shown.
+If Logging in OpenSprinkler _is not enabled_, the run events shown in the past are calculated using rules now in effect,
+without weather adjustments, and are not a history of exact run behavior.
 
 The Calendar entity currently considers the following OpenSprinkler settings:
 
