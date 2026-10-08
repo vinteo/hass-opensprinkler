@@ -320,6 +320,15 @@ The following settings/features are not supported at this time:
 - Manual and Run-once programs
 - Program Name Annotations
 
+### Historical Sprinkler Logs and Firmware Updates
+
+Occassionally an update to the OpenSprinkler firmware will delete sprinkler logs from the controller.
+Firmware version 2.2.1(6) is an example of this. If you have been using OpenSprinkler integration v2.2.0
+or later with logging enabled in the controller, your historical log information will be preserved by the
+integration in a similar format. Backing up the actual logs is always advised if they are important to you.
+
+### The OpenSprinkler Preview Card
+
 An alternate view of the data similar to OpenSprinkler's Program Preview is available via the
 [OpenSprinkler Preview Card](https://github.com/EdLeckert/opensprinkler-preview-card). It shows
 upcoming runs in a bar-chart format.
