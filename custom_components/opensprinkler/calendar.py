@@ -122,10 +122,6 @@ class OpenSprinklerCalendar(CalendarEntity):
         """Locate predicted runs for all programs in a date range."""
         runs = []
 
-        if not self._controller.enabled:
-            _LOGGER.info("Controller is disabled, no runs will be returned.")
-            return runs
-
         # Adjust search dates to beginning of each local day.
         today = dt_util.start_of_local_day(dt_util.now())
         calendar_day = dt_util.start_of_local_day(start_date)
@@ -139,6 +135,10 @@ class OpenSprinklerCalendar(CalendarEntity):
                     calendar_day, end_date
                 )
                 calendar_day = end_date
+
+        if not self._controller.enabled:
+            _LOGGER.info("Controller is disabled, no predicted runs will be returned.")
+            return runs
 
         # Loop through days in the range (after historical runs, if using) and find any programs that can run.
         while calendar_day < last_day:
