@@ -463,7 +463,11 @@ class OpenSprinklerCalendar(CalendarEntity):
 
         restrict_to_ignored = False
 
-        if today == calendar_day and self._controller.weather_restriction_active and use_weather:
+        if (
+            today == calendar_day
+            and self._controller.weather_restriction_active
+            and use_weather
+        ):
             program_qualifies = False
         else:
             if self._controller.rain_delay_active:
