@@ -289,11 +289,11 @@ Each calendar entry contains:
 
 - Program name
 - Station name
-- Predicted start and end times
+- Predicted or historical start and end times
 - Duration
 
 The Calendar entity is meant to show an approximation of future events, just like the Program Preview in OpenSprinkler.
-The current day is the only day where a Weather Adjustment, if in affect, will be applied to predicted run times.
+Weather Adjustments, Restrictions, and Multi-day Averages apply only to today's schedule.
 
 If Logging in OpenSprinkler _is enabled_, actual historical run times including any weather adjustments will be shown.
 If Logging in OpenSprinkler _is not enabled_, the run events shown in the past are calculated using rules now in effect,
@@ -306,7 +306,7 @@ The Calendar entity currently considers the following OpenSprinkler settings:
 - Additional Start Times, Repeating and Fixed
 - Date Range
 - Rain Delay
-- Weather Restrictions
+- Weather Restrictions, current day only
 - Station Groups
 - Station Delay
 - Station Ignore Rain Delay
