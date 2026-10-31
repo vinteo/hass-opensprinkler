@@ -82,7 +82,6 @@ class OpenSprinklerCalendar(CalendarEntity):
             for entry in er.async_entries_for_config_entry(
                 ent_reg, self.coordinator.config_entry.entry_id
             )
-
             # Prevent tracking itself to avoid loops
             if entry.entity_id != self.entity_id
         ]
