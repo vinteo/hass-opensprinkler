@@ -6,8 +6,10 @@ from zoneinfo import ZoneInfo
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.const import CONF_NAME
-from homeassistant.core import HomeAssistant
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
+from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import TrackStates, async_track_state_change_filtered
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 from pyopensprinkler.exceptions import FirmwareNotSupportedError
@@ -53,6 +55,9 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 class OpenSprinklerCalendar(CalendarEntity):
     """Representation of an OpenSprinkler schedule as a calendar."""
 
+    # Keep the 1-minute default loop to catch new programs not yet represented by entites until next restart.
+    _attr_should_poll = True
+
     def __init__(self, entry, name, controller, coordinator, store):
         """Initialize the calendar."""
         self._controller = controller
@@ -61,6 +66,58 @@ class OpenSprinklerCalendar(CalendarEntity):
         self._attr_name = f"{name} Schedule"
         self._attr_unique_id = f"{entry.unique_id}_calendar"
         self._event = None
+
+    async def async_added_to_hass(self) -> None:
+        """Register listeners when added to hass."""
+        await super().async_added_to_hass()
+
+        # Handle startup: find the next event and update the state of the calendar entity.
+        await self.async_update()
+        self.async_write_ha_state()
+
+        # 1. Fetch all entity entries belonging to this specific configuration entry
+        ent_reg = er.async_get(self.hass)
+        opensprinkler_entities = [
+            entry.entity_id
+            for entry in er.async_entries_for_config_entry(
+                ent_reg, self.coordinator.config_entry.entry_id
+            )
+            # Prevent tracking itself to avoid loops
+            if entry.entity_id != self.entity_id
+        ]
+
+        @callback
+        def _handle_domain_state_change(
+            event: Event[EventStateChangedData],
+        ) -> None:
+            """Fired when any tracked OpenSprinkler entity changes state."""
+            new_state = event.data.get("new_state")
+            old_state = event.data.get("old_state")
+
+            if new_state is None or old_state is None:
+                return
+
+            if new_state.state != old_state.state:
+                # Synchronously schedule the async update work on the loop
+                self.hass.async_create_task(self._async_trigger_refresh())
+
+        # 2. Build the TrackStates filter container passing the entity list
+        # and register it to the filtered state tracker loop
+        self.async_on_remove(
+            async_track_state_change_filtered(
+                self.hass,
+                TrackStates(
+                    all_states=False, entities=opensprinkler_entities, domains=[]
+                ),
+                _handle_domain_state_change,
+            ).async_remove
+        )
+
+    async def _async_trigger_refresh(self) -> None:
+        """Helper to run the full refresh and update both state and UI."""
+        # Find the next event and update the state of the calendar entity
+        await self.async_update()
+        self.async_write_ha_state()
 
     @property
     def event(self) -> CalendarEvent | None:
