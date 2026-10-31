@@ -6,10 +6,10 @@ from zoneinfo import ZoneInfo
 
 from homeassistant.components.calendar import CalendarEntity, CalendarEvent
 from homeassistant.const import CONF_NAME
-from homeassistant.core import callback, Event, EventStateChangedData, HomeAssistant
+from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
-from homeassistant.helpers.event import async_track_state_change_filtered, TrackStates
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
+from homeassistant.helpers.event import async_track_state_change_filtered, TrackStates
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 from pyopensprinkler.exceptions import FirmwareNotSupportedError
@@ -54,6 +54,7 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
 class OpenSprinklerCalendar(CalendarEntity):
     """Representation of an OpenSprinkler schedule as a calendar."""
+
     # Keep the 1-minute default loop to catch new programs not yet represented by entites until next restart.
     _attr_should_poll = True
 
@@ -78,8 +79,12 @@ class OpenSprinklerCalendar(CalendarEntity):
         ent_reg = er.async_get(self.hass)
         opensprinkler_entities = [
             entry.entity_id
-            for entry in er.async_entries_for_config_entry(ent_reg, self.coordinator.config_entry.entry_id)
-            if entry.entity_id != self.entity_id  # Prevent tracking itself to avoid loops
+            for entry in er.async_entries_for_config_entry(
+                ent_reg, self.coordinator.config_entry.entry_id
+            )
+
+            # Prevent tracking itself to avoid loops
+            if entry.entity_id != self.entity_id
         ]
 
         @callback
@@ -102,7 +107,9 @@ class OpenSprinklerCalendar(CalendarEntity):
         self.async_on_remove(
             async_track_state_change_filtered(
                 self.hass,
-                TrackStates(all_states=False, entities=opensprinkler_entities, domains=[]),
+                TrackStates(
+                    all_states=False, entities=opensprinkler_entities, domains=[]
+                ),
                 _handle_domain_state_change,
             ).async_remove
         )
