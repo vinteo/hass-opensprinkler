@@ -9,7 +9,7 @@ from homeassistant.const import CONF_NAME
 from homeassistant.core import Event, EventStateChangedData, HomeAssistant, callback
 from homeassistant.helpers import entity_registry as er
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
-from homeassistant.helpers.event import async_track_state_change_filtered, TrackStates
+from homeassistant.helpers.event import TrackStates, async_track_state_change_filtered
 from homeassistant.helpers.storage import Store
 from homeassistant.util import dt as dt_util
 from pyopensprinkler.exceptions import FirmwareNotSupportedError
