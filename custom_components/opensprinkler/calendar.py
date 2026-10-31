@@ -54,7 +54,8 @@ def _create_entities(hass: HomeAssistant, entry: dict):
 
 class OpenSprinklerCalendar(CalendarEntity):
     """Representation of an OpenSprinkler schedule as a calendar."""
-    _attr_should_poll = False  # Completely eliminates the 1-minute default loop
+    # Keep the 1-minute default loop to catch new programs not yet represented by entites until next restart.
+    _attr_should_poll = True
 
     def __init__(self, entry, name, controller, coordinator, store):
         """Initialize the calendar."""
@@ -93,9 +94,8 @@ class OpenSprinklerCalendar(CalendarEntity):
                 return
 
             if new_state.state != old_state.state:
-                # Find the next event and update the state of the calendar entity.
-                self.hass.async_create_task(self.async_update())
-                self.async_write_ha_state()
+                # Synchronously schedule the async update work on the loop
+                self.hass.async_create_task(self._async_trigger_refresh())
 
         # 2. Build the TrackStates filter container passing the entity list
         # and register it to the filtered state tracker loop
@@ -106,6 +106,12 @@ class OpenSprinklerCalendar(CalendarEntity):
                 _handle_domain_state_change,
             ).async_remove
         )
+
+    async def _async_trigger_refresh(self) -> None:
+        """Helper to run the full refresh and update both state and UI."""
+        # Find the next event and update the state of the calendar entity
+        await self.async_update()
+        self.async_write_ha_state()
 
     @property
     def event(self) -> CalendarEvent | None:
